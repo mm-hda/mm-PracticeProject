@@ -1,0 +1,271 @@
+2026-07-16 09:41:38 [INF] [TraceId:] Database connection established successfully.
+2026-07-16 09:41:38 [INF] [TraceId:] HRMS Application Started
+2026-07-16 09:41:38 [INF] [TraceId:] Application Started
+2026-07-16 09:42:00 [INF] [TraceId:37fe64f38c5571c8419b4c741ae8a617] Request Started: GET /api/User/GetUserBySearch ?searchTerm=ha from 127.0.0.1
+2026-07-16 09:42:01 [INF] [TraceId:37fe64f38c5571c8419b4c741ae8a617] Retrieved users for search term: ha
+2026-07-16 09:42:01 [INF] [TraceId:37fe64f38c5571c8419b4c741ae8a617] Request Finished: 200 in 686ms
+2026-07-16 09:46:16 [INF] [TraceId:] Database connection established successfully.
+2026-07-16 09:46:16 [INF] [TraceId:] HRMS Application Started
+2026-07-16 09:46:16 [INF] [TraceId:] Application Started
+2026-07-16 09:46:17 [INF] [TraceId:3af1015bd7e4501b0a92cfc808d1b555] Request Started: GET /api/User/GetUserBySearch ?searchTerm=ha from 127.0.0.1
+2026-07-16 09:46:17 [INF] [TraceId:3af1015bd7e4501b0a92cfc808d1b555] Retrieved users for search term: ha and logs: { UserId = a97cd67d-4331-4933-bde9-4d94fe4648c5, Name = Harsh Donda, Email = harsh@example.com }, { UserId = de1cbb75-e4ec-4f12-a7ab-98635ef5842c, Name = Samarth Kachadiya, Email = samarth@example.com }
+2026-07-16 09:46:17 [INF] [TraceId:3af1015bd7e4501b0a92cfc808d1b555] Request Finished: 200 in 595ms
+2026-07-16 09:47:23 [INF] [TraceId:] Database connection established successfully.
+2026-07-16 09:47:23 [INF] [TraceId:] HRMS Application Started
+2026-07-16 09:47:23 [INF] [TraceId:] Application Started
+2026-07-16 09:47:30 [INF] [TraceId:827b4278aad21f1528f8a3698a490596] Request Started: GET /api/User/GetUserBySearch ?searchTerm=ha from 127.0.0.1
+2026-07-16 09:47:30 [INF] [TraceId:09133eba91cdaef1491e21e423cf6334] Request Started: GET /api/User/GetUserBySearch ?searchTerm=ha from 127.0.0.1
+2026-07-16 09:47:31 [INF] [TraceId:827b4278aad21f1528f8a3698a490596] Retrieved users for search term: ha and logs: ["{ UserId = a97cd67d-4331-4933-bde9-4d94fe4648c5, Name = Harsh Donda, Email = harsh@example.com }","{ UserId = de1cbb75-e4ec-4f12-a7ab-98635ef5842c, Name = Samarth Kachadiya, Email = samarth@example.com }"]
+2026-07-16 09:47:31 [INF] [TraceId:09133eba91cdaef1491e21e423cf6334] Retrieved users for search term: ha and logs: ["{ UserId = a97cd67d-4331-4933-bde9-4d94fe4648c5, Name = Harsh Donda, Email = harsh@example.com }","{ UserId = de1cbb75-e4ec-4f12-a7ab-98635ef5842c, Name = Samarth Kachadiya, Email = samarth@example.com }"]
+2026-07-16 09:47:31 [INF] [TraceId:827b4278aad21f1528f8a3698a490596] Request Finished: 200 in 717ms
+2026-07-16 09:47:31 [INF] [TraceId:09133eba91cdaef1491e21e423cf6334] Request Finished: 200 in 717ms
+2026-07-16 10:02:45 [INF] [TraceId:eb58e1add8cc73e9ba99d77397be2614] Request Started: GET /api/Position/GetPositionUsers/b02b94ec-5950-46b5-8fbc-e4d41b5cc46d  from 127.0.0.1
+2026-07-16 10:02:45 [WRN] [TraceId:eb58e1add8cc73e9ba99d77397be2614] Position users not found for id: "b02b94ec-5950-46b5-8fbc-e4d41b5cc46d"
+2026-07-16 10:02:45 [INF] [TraceId:eb58e1add8cc73e9ba99d77397be2614] Request Finished: 404 in 94ms
+2026-07-16 10:04:08 [INF] [TraceId:1ca0cce22423ec9e367a31009176126a] Request Started: GET /api/Position/GetPositionUsers/b02b94ec-5950-46b5-8fbc-e4d41b5cc46d  from 127.0.0.1
+2026-07-16 10:04:08 [WRN] [TraceId:1ca0cce22423ec9e367a31009176126a] Position not found
+2026-07-16 10:04:08 [INF] [TraceId:1ca0cce22423ec9e367a31009176126a] Request Finished: 404 in 9ms
+2026-07-16 10:04:30 [INF] [TraceId:848126a7a36bd21228b94cb09aaaf03f] Request Started: GET /api/Position/GetPositionUsers/b02b94ec-5950-46b5-8fbc-e4d41b5cc46d  from 127.0.0.1
+2026-07-16 10:04:30 [WRN] [TraceId:848126a7a36bd21228b94cb09aaaf03f] Position not found id: "b02b94ec-5950-46b5-8fbc-e4d41b5cc46d"
+2026-07-16 10:04:30 [INF] [TraceId:848126a7a36bd21228b94cb09aaaf03f] Request Finished: 404 in 9ms
+2026-07-16 10:04:48 [INF] [TraceId:7398271175a3ebc120c1280f621de226] Request Started: GET /api/Position/GetAllPositions  from 127.0.0.1
+2026-07-16 10:04:48 [INF] [TraceId:7398271175a3ebc120c1280f621de226] Retrieved all positions count: 4
+2026-07-16 10:04:48 [INF] [TraceId:7398271175a3ebc120c1280f621de226] Request Finished: 200 in 33ms
+2026-07-16 10:05:03 [INF] [TraceId:5b87c7795d9014c052e26a273dcd77f0] Request Started: GET /api/Position/GetPositionUsers/8125627b-5ac4-4ee6-b800-5efba5395927  from 127.0.0.1
+2026-07-16 10:05:03 [INF] [TraceId:5b87c7795d9014c052e26a273dcd77f0] Retrieved users for position id: "8125627b-5ac4-4ee6-b800-5efba5395927" results: ["{ UserId = a97cd67d-4331-4933-bde9-4d94fe4648c5, Name = Harsh Donda }","{ UserId = de1cbb75-e4ec-4f12-a7ab-98635ef5842c, Name = Samarth Kachadiya }","{ UserId = 40debf80-f7db-4d09-9f97-e34bc9f24ac9, Name = Priyanshu Valiya }"]
+2026-07-16 10:05:03 [INF] [TraceId:5b87c7795d9014c052e26a273dcd77f0] Request Finished: 200 in 25ms
+2026-07-16 10:14:17 [INF] [TraceId:] Database connection established successfully.
+2026-07-16 10:14:17 [INF] [TraceId:] HRMS Application Started
+2026-07-16 10:14:17 [INF] [TraceId:] Application Started
+2026-07-16 10:21:19 [INF] [TraceId:edb4d54849a099bdc9e24166839ee677] Request Started: GET /api/User/GetAllUsers ?pageNumber=1&pageSize=2 from 127.0.0.1
+2026-07-16 10:21:20 [INF] [TraceId:edb4d54849a099bdc9e24166839ee677] Retrieved all users successfully. 2
+2026-07-16 10:21:21 [INF] [TraceId:edb4d54849a099bdc9e24166839ee677] Request Finished: 200 in 1233ms
+2026-07-16 10:21:26 [INF] [TraceId:6bf4be33f2f052d0217d1980a5703287] Request Started: GET /api/User/GetAllUsers ?pageNumber=1&pageSize=3 from 127.0.0.1
+2026-07-16 10:21:26 [INF] [TraceId:6bf4be33f2f052d0217d1980a5703287] Retrieved all users successfully. 3
+2026-07-16 10:21:26 [INF] [TraceId:6bf4be33f2f052d0217d1980a5703287] Request Finished: 200 in 119ms
+2026-07-16 10:21:55 [INF] [TraceId:450eec7e23a524870f01554b8f05aa39] Request Started: GET /api/User/GetAllUsers ?pageNumber=2&pageSize=3 from 127.0.0.1
+2026-07-16 10:21:55 [INF] [TraceId:450eec7e23a524870f01554b8f05aa39] Retrieved all users successfully. 2
+2026-07-16 10:21:55 [INF] [TraceId:450eec7e23a524870f01554b8f05aa39] Request Finished: 200 in 34ms
+2026-07-16 10:22:10 [INF] [TraceId:9124b74ace2172d59d6ba739b9a3ae46] Request Started: GET /api/User/GetAllUsers ?pageNumber=10&pageSize=3 from 127.0.0.1
+2026-07-16 10:22:10 [WRN] [TraceId:9124b74ace2172d59d6ba739b9a3ae46] Page number exceeds total pages
+2026-07-16 10:22:10 [INF] [TraceId:9124b74ace2172d59d6ba739b9a3ae46] Request Finished: 404 in 4ms
+2026-07-16 10:23:18 [INF] [TraceId:856ca882ab8132761781e1da195ea36f] Request Started: GET /api/User/GetAllUsers ?pageNumber=1&pageSize=3 from 127.0.0.1
+2026-07-16 10:23:18 [INF] [TraceId:856ca882ab8132761781e1da195ea36f] Retrieved all users successfully. 3
+2026-07-16 10:23:18 [INF] [TraceId:856ca882ab8132761781e1da195ea36f] Request Finished: 200 in 5ms
+2026-07-16 10:30:27 [INF] [TraceId:] Database connection established successfully.
+2026-07-16 10:30:27 [INF] [TraceId:] HRMS Application Started
+2026-07-16 10:30:27 [INF] [TraceId:] Application Started
+2026-07-16 10:36:16 [INF] [TraceId:] Database connection established successfully.
+2026-07-16 10:36:16 [INF] [TraceId:] HRMS Application Started
+2026-07-16 10:36:16 [INF] [TraceId:] Application Started
+2026-07-16 10:36:29 [INF] [TraceId:75fb6add2628420eb426c877d4db396a] Request Started: GET /api/User/GetAllUsers ?pageNumber=1&pageSize=3 from 127.0.0.1
+2026-07-16 10:36:32 [ERR] [TraceId:75fb6add2628420eb426c877d4db396a] An unhandled exception has occurred while executing the request.
+System.InvalidOperationException: Unable to resolve service for type 'backend.IService.IUserService' while attempting to activate 'backend.Controllers.UserController'.
+   at Microsoft.Extensions.DependencyInjection.ActivatorUtilities.ThrowHelperUnableToResolveService(Type type, Type requiredBy)
+   at lambda_method23(Closure, IServiceProvider, Object[])
+   at Microsoft.AspNetCore.Mvc.Controllers.ControllerFactoryProvider.<>c__DisplayClass6_0.<CreateControllerFactory>g__CreateController|0(ControllerContext controllerContext)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.InvokeInnerFilterAsync()
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at backend.Middleware.RequestTracingMiddleware.Invoke(HttpContext context) in C:\Learning\.NET\Basics\project\backend\Middleware\RequestTracingMiddleware.cs:line 42
+   at Swashbuckle.AspNetCore.SwaggerUI.SwaggerUIMiddleware.Invoke(HttpContext httpContext)
+   at Swashbuckle.AspNetCore.Swagger.SwaggerMiddleware.Invoke(HttpContext httpContext, ISwaggerProvider swaggerProvider)
+   at Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddlewareImpl.Invoke(HttpContext context)
+2026-07-16 10:45:34 [INF] [TraceId:be518326ea261064e4f41e7909e31735] Request Started: GET /api/User/GetAllUsers ?pageNumber=1&pageSize=-2 from 127.0.0.1
+2026-07-16 10:45:34 [ERR] [TraceId:be518326ea261064e4f41e7909e31735] An unhandled exception has occurred while executing the request.
+System.InvalidOperationException: Unable to resolve service for type 'backend.IService.IUserService' while attempting to activate 'backend.Controllers.UserController'.
+   at Microsoft.Extensions.DependencyInjection.ActivatorUtilities.ThrowHelperUnableToResolveService(Type type, Type requiredBy)
+   at lambda_method31(Closure, IServiceProvider, Object[])
+   at Microsoft.AspNetCore.Mvc.Controllers.ControllerFactoryProvider.<>c__DisplayClass6_0.<CreateControllerFactory>g__CreateController|0(ControllerContext controllerContext)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.InvokeInnerFilterAsync()
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at backend.Middleware.RequestTracingMiddleware.Invoke(HttpContext context)
+   at Swashbuckle.AspNetCore.SwaggerUI.SwaggerUIMiddleware.Invoke(HttpContext httpContext)
+   at Swashbuckle.AspNetCore.Swagger.SwaggerMiddleware.Invoke(HttpContext httpContext, ISwaggerProvider swaggerProvider)
+   at Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddlewareImpl.Invoke(HttpContext context)
+2026-07-16 10:45:49 [INF] [TraceId:] Database connection established successfully.
+2026-07-16 10:45:49 [INF] [TraceId:] HRMS Application Started
+2026-07-16 10:45:49 [INF] [TraceId:] Application Started
+2026-07-16 10:45:50 [INF] [TraceId:b76b575b8aef6e965bcfdbc9ef12181e] Request Started: GET /api/User/GetAllUsers ?pageNumber=1&pageSize=-2 from 127.0.0.1
+2026-07-16 10:45:51 [INF] [TraceId:b76b575b8aef6e965bcfdbc9ef12181e] Retrieved all users successfully. 5
+2026-07-16 10:45:51 [INF] [TraceId:b76b575b8aef6e965bcfdbc9ef12181e] Request Finished: 200 in 773ms
+2026-07-16 10:46:05 [INF] [TraceId:2ac0a24111e95069801fee738c2a201f] Request Started: GET /api/User/GetAllUsers ?pageNumber=1&pageSize=abc from 127.0.0.1
+2026-07-16 10:46:05 [INF] [TraceId:2ac0a24111e95069801fee738c2a201f] Request Finished: 400 in 38ms
+2026-07-16 10:46:15 [INF] [TraceId:b87dbb4877fec0b88c4e1c38287b62be] Request Started: GET /api/User/GetAllUsers ?pageNumber=1&pageSize=-1 from 127.0.0.1
+2026-07-16 10:46:15 [INF] [TraceId:b87dbb4877fec0b88c4e1c38287b62be] Retrieved all users successfully. 5
+2026-07-16 10:46:15 [INF] [TraceId:b87dbb4877fec0b88c4e1c38287b62be] Request Finished: 200 in 156ms
+2026-07-16 10:46:16 [INF] [TraceId:fff6ae0cc4781ac0183deeb857a8c889] Request Started: GET /api/User/GetAllUsers ?pageNumber=1&pageSize=-1 from 127.0.0.1
+2026-07-16 10:46:16 [INF] [TraceId:fff6ae0cc4781ac0183deeb857a8c889] Retrieved all users successfully. 5
+2026-07-16 10:46:16 [INF] [TraceId:fff6ae0cc4781ac0183deeb857a8c889] Request Finished: 200 in 8ms
+2026-07-16 10:46:55 [INF] [TraceId:c1022098154661ca997f4edd3e2fbd25] Request Started: GET /api/User/GetAllUsers ?pageNumber=1&pageSize=ab from 127.0.0.1
+2026-07-16 10:46:55 [INF] [TraceId:c1022098154661ca997f4edd3e2fbd25] Request Finished: 400 in 2ms
+2026-07-16 10:47:04 [INF] [TraceId:4e97e3ab9aa93f5fc1b86478675db4f4] Request Started: GET /api/User/GetAllUsers ?pageNumber=1&pageSize=-3 from 127.0.0.1
+2026-07-16 10:47:04 [INF] [TraceId:4e97e3ab9aa93f5fc1b86478675db4f4] Retrieved all users successfully. 5
+2026-07-16 10:47:04 [INF] [TraceId:4e97e3ab9aa93f5fc1b86478675db4f4] Request Finished: 200 in 11ms
+2026-07-16 10:47:16 [INF] [TraceId:d8adf5c497a0a566f9e0a0b2f78532d3] Request Started: GET /api/User/GetAllUsers ?pageNumber=-1&pageSize=-3 from 127.0.0.1
+2026-07-16 10:47:16 [INF] [TraceId:d8adf5c497a0a566f9e0a0b2f78532d3] Retrieved all users successfully. 5
+2026-07-16 10:47:16 [INF] [TraceId:d8adf5c497a0a566f9e0a0b2f78532d3] Request Finished: 200 in 13ms
+2026-07-16 10:48:25 [INF] [TraceId:a60d750b43fa5d7d834de90c9aea7046] Request Started: GET /api/User/GetAllUsers ?pageNumber=-1&pageSize=%24 from 127.0.0.1
+2026-07-16 10:48:25 [INF] [TraceId:a60d750b43fa5d7d834de90c9aea7046] Request Finished: 400 in 3ms
+2026-07-16 11:10:08 [INF] [TraceId:1b9e5ace26fd995ac5cd6f74fb00ea53] Request Started: GET /api/User/GetAllUsers ?pageNumber=2&pageSize=2 from 127.0.0.1
+2026-07-16 11:10:08 [INF] [TraceId:1b9e5ace26fd995ac5cd6f74fb00ea53] Retrieved all users successfully. 2
+2026-07-16 11:10:08 [INF] [TraceId:1b9e5ace26fd995ac5cd6f74fb00ea53] Request Finished: 200 in 23ms
+2026-07-16 11:10:08 [INF] [TraceId:85e81a4619e44c7742fd71f1a6fa2811] Request Started: GET /api/User/GetAllUsers ?pageNumber=2&pageSize=2 from 127.0.0.1
+2026-07-16 11:10:08 [INF] [TraceId:85e81a4619e44c7742fd71f1a6fa2811] Retrieved all users successfully. 2
+2026-07-16 11:10:08 [INF] [TraceId:85e81a4619e44c7742fd71f1a6fa2811] Request Finished: 200 in 5ms
+2026-07-16 11:28:53 [INF] [TraceId:14604e431fb629aad29fc047f673b27d] Request Started: GET /api/User/GetAllUsers ?pageNumber=2&pageSize=2 from 127.0.0.1
+2026-07-16 11:28:53 [INF] [TraceId:14604e431fb629aad29fc047f673b27d] Retrieved all users successfully. 2
+2026-07-16 11:28:53 [INF] [TraceId:14604e431fb629aad29fc047f673b27d] Request Finished: 200 in 24ms
+2026-07-16 11:29:16 [INF] [TraceId:] Database connection established successfully.
+2026-07-16 11:29:16 [INF] [TraceId:] HRMS Application Started
+2026-07-16 11:29:16 [INF] [TraceId:] Application Started
+2026-07-16 11:29:36 [INF] [TraceId:9d49e8391196ef22533ccc3c1c62be9a] Request Started: GET /api/User/GetAllUsers ?pageNumber=2&pageSize=2 from 127.0.0.1
+2026-07-16 11:29:37 [INF] [TraceId:9d49e8391196ef22533ccc3c1c62be9a] Retrieved all users successfully. 2
+2026-07-16 11:29:37 [INF] [TraceId:9d49e8391196ef22533ccc3c1c62be9a] Request Finished: 200 in 907ms
+2026-07-16 11:40:15 [INF] [TraceId:] Database connection established successfully.
+2026-07-16 11:40:15 [INF] [TraceId:] HRMS Application Started
+2026-07-16 11:40:15 [INF] [TraceId:] Application Started
+2026-07-16 11:40:23 [INF] [TraceId:4b920d32d0ad027ed7f01014c04bab80] Request Started: GET /api/User/GetAllUsers ?pageNumber=2&pageSize=2 from 127.0.0.1
+2026-07-16 11:40:24 [INF] [TraceId:4b920d32d0ad027ed7f01014c04bab80] Retrieved all users successfully. 2
+2026-07-16 11:40:24 [INF] [TraceId:4b920d32d0ad027ed7f01014c04bab80] Request Finished: 200 in 1349ms
+2026-07-16 11:55:05 [INF] [TraceId:] Database connection established successfully.
+2026-07-16 11:55:05 [INF] [TraceId:] HRMS Application Started
+2026-07-16 11:55:05 [INF] [TraceId:] Application Started
+2026-07-16 11:56:22 [INF] [TraceId:6af1b78c5f903d29bdbe56ff86a07b58] Request Started: GET /api/User/GetAllUsers ?pageNumber=2&pageSize=2 from 127.0.0.1
+2026-07-16 11:56:22 [INF] [TraceId:6af1b78c5f903d29bdbe56ff86a07b58] Retrieved all users successfully. 2
+2026-07-16 11:56:22 [INF] [TraceId:6af1b78c5f903d29bdbe56ff86a07b58] Request Finished: 200 in 857ms
+2026-07-16 11:58:12 [INF] [TraceId:] Database connection established successfully.
+2026-07-16 11:58:12 [INF] [TraceId:] HRMS Application Started
+2026-07-16 11:58:12 [INF] [TraceId:] Application Started
+2026-07-16 11:58:33 [INF] [TraceId:8ae3202513eda85b1c954ac5e6d7cfb1] Request Started: GET /api/User/GetAllUsers ?pageNumber=1&pageSize=2 from 127.0.0.1
+2026-07-16 11:58:33 [INF] [TraceId:8ae3202513eda85b1c954ac5e6d7cfb1] Retrieved all users successfully. 2
+2026-07-16 11:58:33 [INF] [TraceId:8ae3202513eda85b1c954ac5e6d7cfb1] Request Finished: 200 in 781ms
+2026-07-16 12:17:06 [INF] [TraceId:] Database connection established successfully.
+2026-07-16 12:17:06 [INF] [TraceId:] HRMS Application Started
+2026-07-16 12:17:06 [INF] [TraceId:] Application Started
+2026-07-16 12:17:15 [INF] [TraceId:4f0a4084fc6820d4b5218455517cf2f2] Request Started: GET /api/User/GetAllUsers ?pageNumber=1&pageSize=2 from 127.0.0.1
+2026-07-16 12:17:15 [INF] [TraceId:4f0a4084fc6820d4b5218455517cf2f2] Retrieved all users successfully. 2
+2026-07-16 12:17:16 [INF] [TraceId:4f0a4084fc6820d4b5218455517cf2f2] Request Finished: 200 in 870ms
+2026-07-16 12:17:50 [INF] [TraceId:] Database connection established successfully.
+2026-07-16 12:17:50 [INF] [TraceId:] HRMS Application Started
+2026-07-16 12:17:50 [INF] [TraceId:] Application Started
+2026-07-16 12:18:03 [INF] [TraceId:b17e1870bbe29881b99cdf02ba215a15] Request Started: GET /api/User/GetAllUsers ?pageNumber=1&pageSize=2 from 127.0.0.1
+2026-07-16 12:18:03 [FTL] [TraceId:b17e1870bbe29881b99cdf02ba215a15] Unhandled exception occurred
+System.InvalidOperationException: Unable to resolve service for type 'backend.IService.IUserService' while attempting to activate 'backend.Controllers.UserController'.
+   at Microsoft.Extensions.DependencyInjection.ActivatorUtilities.ThrowHelperUnableToResolveService(Type type, Type requiredBy)
+   at lambda_method23(Closure, IServiceProvider, Object[])
+   at Microsoft.AspNetCore.Mvc.Controllers.ControllerFactoryProvider.<>c__DisplayClass6_0.<CreateControllerFactory>g__CreateController|0(ControllerContext controllerContext)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.InvokeInnerFilterAsync()
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at backend.Middleware.RequestTracingMiddleware.Invoke(HttpContext context) in C:\Learning\.NET\Basics\project\backend\Middleware\RequestTracingMiddleware.cs:line 42
+   at backend.Middleware.GlobalExceptionMiddleware.Invoke(HttpContext context) in C:\Learning\.NET\Basics\project\backend\Middleware\GlobalExceptionMiddleware.cs:line 21
+2026-07-16 12:23:45 [INF] [TraceId:] Database connection established successfully.
+2026-07-16 12:23:45 [INF] [TraceId:] HRMS Application Started
+2026-07-16 12:23:45 [INF] [TraceId:] Application Started
+2026-07-16 12:23:50 [INF] [TraceId:764884ac5162b432ab161fc69a52c0bc] Request Started: GET /api/User/GetAllUsers ?pageNumber=1&pageSize=2 from 127.0.0.1
+2026-07-16 12:23:50 [FTL] [TraceId:764884ac5162b432ab161fc69a52c0bc] Unhandled exception occurred
+2026-07-16 12:24:49 [INF] [TraceId:adc96902f0995f490036f510861c4d52] Request Started: GET /api/Role/GetAllRoles  from 127.0.0.1
+2026-07-16 12:24:50 [INF] [TraceId:adc96902f0995f490036f510861c4d52] Retrieved all roles count: 4
+2026-07-16 12:24:50 [INF] [TraceId:adc96902f0995f490036f510861c4d52] Request Finished: 200 in 414ms
+2026-07-16 12:24:55 [INF] [TraceId:d0834ebbdb83b04c1311389e957fb2db] Request Started: GET /api/Role/GetAllRoles  from 127.0.0.1
+2026-07-16 12:24:55 [INF] [TraceId:d0834ebbdb83b04c1311389e957fb2db] Retrieved all roles count: 4
+2026-07-16 12:24:55 [INF] [TraceId:d0834ebbdb83b04c1311389e957fb2db] Request Finished: 200 in 115ms
+2026-07-16 12:24:55 [INF] [TraceId:fa454bab1c6aee2e8866d20d5e91126a] Request Started: GET /api/Role/GetAllRoles  from 127.0.0.1
+2026-07-16 12:24:55 [INF] [TraceId:7eeb0b7eb1a299edf8a98676a78776e4] Request Started: GET /api/Role/GetAllRoles  from 127.0.0.1
+2026-07-16 12:24:55 [INF] [TraceId:7eeb0b7eb1a299edf8a98676a78776e4] Retrieved all roles count: 4
+2026-07-16 12:24:55 [INF] [TraceId:7eeb0b7eb1a299edf8a98676a78776e4] Request Finished: 200 in 13ms
+2026-07-16 12:24:55 [INF] [TraceId:fa454bab1c6aee2e8866d20d5e91126a] Retrieved all roles count: 4
+2026-07-16 12:24:55 [INF] [TraceId:fa454bab1c6aee2e8866d20d5e91126a] Request Finished: 200 in 15ms
+2026-07-16 12:24:55 [INF] [TraceId:b838b6a756eb5ff84c1ea2cea12196c9] Request Started: GET /api/Role/GetAllRoles  from 127.0.0.1
+2026-07-16 12:24:55 [INF] [TraceId:58c0f01c6e8b9347b6a63d27d84af0a6] Request Started: GET /api/Role/GetAllRoles  from 127.0.0.1
+2026-07-16 12:24:55 [INF] [TraceId:b838b6a756eb5ff84c1ea2cea12196c9] Retrieved all roles count: 4
+2026-07-16 12:24:55 [INF] [TraceId:b838b6a756eb5ff84c1ea2cea12196c9] Request Finished: 200 in 2ms
+2026-07-16 12:24:55 [INF] [TraceId:58c0f01c6e8b9347b6a63d27d84af0a6] Retrieved all roles count: 4
+2026-07-16 12:24:55 [INF] [TraceId:58c0f01c6e8b9347b6a63d27d84af0a6] Request Finished: 200 in 2ms
+2026-07-16 12:24:56 [INF] [TraceId:5e151871b12d55b0ffbcca28d366f3d0] Request Started: GET /api/Role/GetAllRoles  from 127.0.0.1
+2026-07-16 12:24:56 [INF] [TraceId:5e151871b12d55b0ffbcca28d366f3d0] Retrieved all roles count: 4
+2026-07-16 12:24:56 [INF] [TraceId:5e151871b12d55b0ffbcca28d366f3d0] Request Finished: 200 in 3ms
+2026-07-16 12:24:58 [INF] [TraceId:a6135528cacaedd8482b51664b676465] Request Started: GET /api/Role/GetAllRoles  from 127.0.0.1
+2026-07-16 12:24:58 [INF] [TraceId:a6135528cacaedd8482b51664b676465] Retrieved all roles count: 4
+2026-07-16 12:24:58 [INF] [TraceId:a6135528cacaedd8482b51664b676465] Request Finished: 200 in 3ms
+2026-07-16 12:24:58 [INF] [TraceId:f84baaedd227ea05e809ad5710b57566] Request Started: GET /api/Role/GetAllRoles  from 127.0.0.1
+2026-07-16 12:24:58 [INF] [TraceId:f84baaedd227ea05e809ad5710b57566] Retrieved all roles count: 4
+2026-07-16 12:24:58 [INF] [TraceId:f84baaedd227ea05e809ad5710b57566] Request Finished: 200 in 2ms
+2026-07-16 12:25:06 [INF] [TraceId:50bc30d6d36b83fd0072dfe9dcd0c924] Request Started: GET /api/EmployeeProject/GetAllEmployeeProjects  from 127.0.0.1
+2026-07-16 12:25:06 [INF] [TraceId:6982d1665c338e2d4bab0c440fa3e25b] Request Started: GET /api/EmployeeProject/GetAllEmployeeProjects  from 127.0.0.1
+2026-07-16 12:25:06 [INF] [TraceId:50bc30d6d36b83fd0072dfe9dcd0c924] Retrieved all employee projects.
+2026-07-16 12:25:06 [INF] [TraceId:50bc30d6d36b83fd0072dfe9dcd0c924] Request Finished: 200 in 133ms
+2026-07-16 12:25:06 [INF] [TraceId:6982d1665c338e2d4bab0c440fa3e25b] Retrieved all employee projects.
+2026-07-16 12:25:06 [INF] [TraceId:6982d1665c338e2d4bab0c440fa3e25b] Request Finished: 200 in 127ms
+2026-07-16 12:26:45 [INF] [TraceId:] Database connection established successfully.
+2026-07-16 12:27:23 [INF] [TraceId:] Database connection established successfully.
+2026-07-16 12:28:07 [INF] [TraceId:] Database connection established successfully.
+2026-07-16 12:28:27 [INF] [TraceId:] Database connection established successfully.
+2026-07-16 12:28:27 [INF] [TraceId:] HRMS Application Started
+2026-07-16 12:28:27 [INF] [TraceId:] Application Started
+2026-07-16 12:28:58 [INF] [TraceId:05d72da0c4e95435f758cd0afc050e1d] Request Started: GET /api/EmployeeProject/GetAllEmployeeProjects  from 127.0.0.1
+2026-07-16 12:28:59 [INF] [TraceId:05d72da0c4e95435f758cd0afc050e1d] Retrieved all employee projects.
+2026-07-16 12:28:59 [INF] [TraceId:05d72da0c4e95435f758cd0afc050e1d] Request Finished: 200 in 729ms
+2026-07-16 12:29:16 [INF] [TraceId:] Database connection established successfully.
+2026-07-16 12:29:16 [INF] [TraceId:] HRMS Application Started
+2026-07-16 12:29:16 [INF] [TraceId:] Application Started
+2026-07-16 12:29:19 [INF] [TraceId:53a82255a4e844d1660572d982fddda6] Request Started: GET /api/EmployeeProject/GetAllEmployeeProjects  from 127.0.0.1
+2026-07-16 12:29:20 [FTL] [TraceId:53a82255a4e844d1660572d982fddda6] Unhandled exception occurred
+2026-07-16 12:31:15 [INF] [TraceId:c434fcf23ee7d965acdb81bdaac16111] Request Started: GET /api/EmployeeProject/GetAllEmployeeProjects  from 127.0.0.1
+2026-07-16 12:31:15 [FTL] [TraceId:c434fcf23ee7d965acdb81bdaac16111] Unhandled exception occurred0HNN30V151BBU:00000002 /api/EmployeeProject/GetAllEmployeeProjects
+2026-07-16 12:58:02 [INF] [TraceId:] Database connection established successfully.
+2026-07-16 12:58:02 [INF] [TraceId:] HRMS Application Started
+2026-07-16 12:58:02 [INF] [TraceId:] Application Started
+2026-07-16 12:58:30 [INF] [TraceId:98af5fc2122e486cd646aefab2659723] Request Started: GET /api/User/GetAllUsers ?pageNumber=1&pageSize=2 from 127.0.0.1
+2026-07-16 12:58:30 [FTL] [TraceId:98af5fc2122e486cd646aefab2659723] Database error occurred: 0HNN31FATL97I:00000001
+2026-07-16 12:58:34 [INF] [TraceId:e3a4856d0d9402e33bd8ed8ec21351a7] Request Started: GET /api/User/GetAllUsers ?pageNumber=1&pageSize=2 from 127.0.0.1
+2026-07-16 12:58:34 [FTL] [TraceId:e3a4856d0d9402e33bd8ed8ec21351a7] Database error occurred: 0HNN31FATL97I:00000002
+2026-07-16 13:00:36 [INF] [TraceId:426331a8388c005008e81b6f1cd863ae] Request Started: GET /api/User/GetAllUsers ?pageNumber=1&pageSize=2 from 127.0.0.1
+2026-07-16 13:00:36 [FTL] [TraceId:426331a8388c005008e81b6f1cd863ae] Database error occurred: 0HNN31FATL97J:00000001
+2026-07-16 13:01:28 [INF] [TraceId:] Database connection established successfully.
+2026-07-16 13:01:29 [INF] [TraceId:] HRMS Application Started
+2026-07-16 13:01:29 [INF] [TraceId:] Application Started
+2026-07-16 13:01:33 [INF] [TraceId:d0db6dba123c071138462f4c8defc768] Request Started: GET /api/User/GetAllUsers ?pageNumber=1&pageSize=2 from 127.0.0.1
+2026-07-16 13:01:34 [FTL] [TraceId:d0db6dba123c071138462f4c8defc768] Database error occurred: 0HNN31H1I95KQ:00000001
+2026-07-16 13:04:07 [INF] [TraceId:] Database connection established successfully.
+2026-07-16 13:04:07 [INF] [TraceId:] HRMS Application Started
+2026-07-16 13:04:07 [INF] [TraceId:] Application Started
+2026-07-16 13:04:09 [INF] [TraceId:7e264b31f3efcaab5802c6932cbdae28] Request Started: GET /api/User/GetAllUsers ?pageNumber=1&pageSize=2 from 127.0.0.1
+2026-07-16 13:04:09 [FTL] [TraceId:7e264b31f3efcaab5802c6932cbdae28] Database dependency is not available: 
+2026-07-16 13:05:20 [INF] [TraceId:] Database connection established successfully.
+2026-07-16 13:05:20 [INF] [TraceId:] HRMS Application Started
+2026-07-16 13:05:20 [INF] [TraceId:] Application Started
+2026-07-16 13:05:23 [INF] [TraceId:efe46a5ba2859af073b10082e1024f06] Request Started: GET /api/User/GetAllUsers ?pageNumber=1&pageSize=2 from 127.0.0.1
+2026-07-16 13:05:23 [INF] [TraceId:f0839eab4cf8d357b497b0c161f4447e] Request Started: GET /api/User/GetAllUsers ?pageNumber=1&pageSize=2 from 127.0.0.1
+2026-07-16 13:05:23 [ERR] [TraceId:f0839eab4cf8d357b497b0c161f4447e] Database dependency is not available: Unable to resolve service for type 'backend.IService.IUserService' while attempting to activate 'backend.Controllers.UserController'.
+2026-07-16 13:05:23 [FTL] [TraceId:f0839eab4cf8d357b497b0c161f4447e] Database dependency is not available: 
+2026-07-16 13:05:23 [ERR] [TraceId:efe46a5ba2859af073b10082e1024f06] Database dependency is not available: Unable to resolve service for type 'backend.IService.IUserService' while attempting to activate 'backend.Controllers.UserController'.
+2026-07-16 13:05:23 [FTL] [TraceId:efe46a5ba2859af073b10082e1024f06] Database dependency is not available: 
+2026-07-16 13:05:46 [INF] [TraceId:3ff61f15dfa5e93e5af4d0399183c470] Request Started: GET /api/User/GetAllUsers ?pageNumber=1&pageSize=2 from 127.0.0.1
+2026-07-16 13:05:46 [ERR] [TraceId:3ff61f15dfa5e93e5af4d0399183c470] Database dependency is not available: Unable to resolve service for type 'backend.IService.IUserService' while attempting to activate 'backend.Controllers.UserController'.
+2026-07-16 13:05:46 [FTL] [TraceId:3ff61f15dfa5e93e5af4d0399183c470] Database dependency is not available: 
+2026-07-16 13:09:27 [INF] [TraceId:] Database connection established successfully.
+2026-07-16 13:09:27 [INF] [TraceId:] HRMS Application Started
+2026-07-16 13:09:27 [INF] [TraceId:] Application Started
+2026-07-16 13:10:21 [INF] [TraceId:ee671a7b95c627d81399127c147576ec] Request Started: GET /api/User/GetAllUsers ?pageNumber=1&pageSize=2 from 127.0.0.1
+2026-07-16 13:10:21 [ERR] [TraceId:ee671a7b95c627d81399127c147576ec] Database dependency is not available: Unable to resolve service for type 'backend.IService.IUserService' while attempting to activate 'backend.Controllers.UserController'.
+2026-07-16 13:11:02 [INF] [TraceId:] Database connection established successfully.
+2026-07-16 13:11:02 [INF] [TraceId:] HRMS Application Started
+2026-07-16 13:11:02 [INF] [TraceId:] Application Started

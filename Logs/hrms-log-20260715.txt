@@ -1,0 +1,534 @@
+2026-07-15 11:06:20 [INF] [TraceId:] HRMS Application Started
+2026-07-15 11:06:20 [INF] [TraceId:] Application Started
+2026-07-15 11:06:53 [INF] [TraceId:d1a7b0cf974df4a93fecfb559f926fba] Request Started: GET /api/Department/GetAllDepartments  from 127.0.0.1
+2026-07-15 11:06:54 [INF] [TraceId:d1a7b0cf974df4a93fecfb559f926fba] Retrieved all departments successfully. Count: 2
+2026-07-15 11:06:54 [INF] [TraceId:d1a7b0cf974df4a93fecfb559f926fba] Request Finished: 200 in 800ms
+2026-07-15 11:07:01 [INF] [TraceId:861d2e3a2fa1a7c82b75b7e9911a9473] Request Started: GET /api/Department/GetAllDepartments  from 127.0.0.1
+2026-07-15 11:07:01 [INF] [TraceId:861d2e3a2fa1a7c82b75b7e9911a9473] Retrieved all departments successfully. Count: 2
+2026-07-15 11:07:01 [INF] [TraceId:861d2e3a2fa1a7c82b75b7e9911a9473] Request Finished: 200 in 27ms
+2026-07-15 11:07:22 [INF] [TraceId:e818e979ba72fcc27ec4dd539586ff96] Request Started: POST /api/Auth/Login  from 127.0.0.1
+2026-07-15 11:07:23 [INF] [TraceId:e818e979ba72fcc27ec4dd539586ff96] User logged in successfully: admin@example.com
+2026-07-15 11:07:23 [INF] [TraceId:e818e979ba72fcc27ec4dd539586ff96] Request Finished: 200 in 293ms
+2026-07-15 11:08:40 [INF] [TraceId:] HRMS Application Started
+2026-07-15 11:08:40 [INF] [TraceId:] Application Started
+2026-07-15 11:08:40 [INF] [TraceId:] User profile is available. Using 'C:\Users\HDonda\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest.
+2026-07-15 11:08:40 [INF] [TraceId:] Now listening on: http://localhost:5090
+2026-07-15 11:08:40 [INF] [TraceId:] Application started. Press Ctrl+C to shut down.
+2026-07-15 11:08:40 [INF] [TraceId:] Hosting environment: Development
+2026-07-15 11:08:40 [INF] [TraceId:] Content root path: C:\Learning\.NET\Basics\project\backend
+2026-07-15 11:09:15 [INF] [TraceId:d6a66e15ea35f3b010b7ece1f62dbb26] Request starting HTTP/1.1 POST http://localhost:5090/api/Auth/Login - application/json 57
+2026-07-15 11:09:15 [INF] [TraceId:d6a66e15ea35f3b010b7ece1f62dbb26] Request Started: POST /api/Auth/Login  from 127.0.0.1
+2026-07-15 11:09:15 [INF] [TraceId:d6a66e15ea35f3b010b7ece1f62dbb26] Request:
+Method: POST
+PathBase: 
+Path: /api/Auth/Login
+2026-07-15 11:09:15 [INF] [TraceId:d6a66e15ea35f3b010b7ece1f62dbb26] Executing endpoint 'backend.Controllers.AuthController.Login (backend)'
+2026-07-15 11:09:15 [INF] [TraceId:d6a66e15ea35f3b010b7ece1f62dbb26] Route matched with {action = "Login", controller = "Auth"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] Login(backend.Dto.LoginDto) on controller backend.Controllers.AuthController (backend).
+2026-07-15 11:09:16 [INF] [TraceId:d6a66e15ea35f3b010b7ece1f62dbb26] Executed DbCommand (10ms) [Parameters=[@dto_Email='?' (Size = 17)], CommandType='"Text"', CommandTimeout='30']
+SELECT "u"."Id", "u"."BranchId", "u"."DOB", "u"."DepartmentId", "u"."Email", "u"."Name", "u"."Password", "u"."PositionId", "u"."RoleId", "r"."Id", "r"."Name", "b"."Id", "b"."Location", "b"."Name", "d"."Id", "d"."Name", "p"."Id", "p"."DepartmentId", "p"."Name"
+FROM "Users" AS "u"
+INNER JOIN "Roles" AS "r" ON "u"."RoleId" = "r"."Id"
+INNER JOIN "Branches" AS "b" ON "u"."BranchId" = "b"."Id"
+INNER JOIN "Departments" AS "d" ON "u"."DepartmentId" = "d"."Id"
+INNER JOIN "Positions" AS "p" ON "u"."PositionId" = "p"."Id"
+WHERE "u"."Email" = @dto_Email
+LIMIT 1
+2026-07-15 11:09:16 [INF] [TraceId:d6a66e15ea35f3b010b7ece1f62dbb26] User logged in successfully: admin@example.com
+2026-07-15 11:09:16 [INF] [TraceId:d6a66e15ea35f3b010b7ece1f62dbb26] Executing OkObjectResult, writing value of type 'backend.GenericResponse.ResponseResults`1[[backend.Dto.TokenDto, backend, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2026-07-15 11:09:16 [INF] [TraceId:d6a66e15ea35f3b010b7ece1f62dbb26] Executed action backend.Controllers.AuthController.Login (backend) in 942.7728ms
+2026-07-15 11:09:16 [INF] [TraceId:d6a66e15ea35f3b010b7ece1f62dbb26] Executed endpoint 'backend.Controllers.AuthController.Login (backend)'
+2026-07-15 11:09:16 [INF] [TraceId:d6a66e15ea35f3b010b7ece1f62dbb26] Response:
+StatusCode: 200
+2026-07-15 11:09:16 [INF] [TraceId:d6a66e15ea35f3b010b7ece1f62dbb26] Request Finished: 200 in 1038ms
+2026-07-15 11:09:16 [INF] [TraceId:d6a66e15ea35f3b010b7ece1f62dbb26] Request finished HTTP/1.1 POST http://localhost:5090/api/Auth/Login - 200 null application/json; charset=utf-8 1080.3763ms
+2026-07-15 11:09:45 [INF] [TraceId:] Application is shutting down...
+2026-07-15 11:09:49 [INF] [TraceId:] HRMS Application Started
+2026-07-15 11:09:49 [INF] [TraceId:] Application Started
+2026-07-15 11:09:49 [INF] [TraceId:] User profile is available. Using 'C:\Users\HDonda\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest.
+2026-07-15 11:09:49 [INF] [TraceId:] Now listening on: http://localhost:5090
+2026-07-15 11:09:49 [INF] [TraceId:] Application started. Press Ctrl+C to shut down.
+2026-07-15 11:09:49 [INF] [TraceId:] Hosting environment: Development
+2026-07-15 11:09:49 [INF] [TraceId:] Content root path: C:\Learning\.NET\Basics\project\backend
+2026-07-15 11:09:55 [INF] [TraceId:1d66142e942089c642fcf518d875a4fd] Request starting HTTP/1.1 POST http://localhost:5090/api/Auth/Login - application/json 57
+2026-07-15 11:09:55 [INF] [TraceId:1d66142e942089c642fcf518d875a4fd] Request Started: POST /api/Auth/Login  from 127.0.0.1
+2026-07-15 11:09:55 [INF] [TraceId:1d66142e942089c642fcf518d875a4fd] Request:
+Method: POST
+PathBase: 
+Path: /api/Auth/Login
+2026-07-15 11:09:55 [INF] [TraceId:1d66142e942089c642fcf518d875a4fd] Executing endpoint 'backend.Controllers.AuthController.Login (backend)'
+2026-07-15 11:09:55 [INF] [TraceId:1d66142e942089c642fcf518d875a4fd] Route matched with {action = "Login", controller = "Auth"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] Login(backend.Dto.LoginDto) on controller backend.Controllers.AuthController (backend).
+2026-07-15 11:09:56 [INF] [TraceId:1d66142e942089c642fcf518d875a4fd] Executed DbCommand (8ms) [Parameters=[@dto_Email='?' (Size = 17)], CommandType='"Text"', CommandTimeout='30']
+SELECT "u"."Id", "u"."BranchId", "u"."DOB", "u"."DepartmentId", "u"."Email", "u"."Name", "u"."Password", "u"."PositionId", "u"."RoleId", "r"."Id", "r"."Name", "b"."Id", "b"."Location", "b"."Name", "d"."Id", "d"."Name", "p"."Id", "p"."DepartmentId", "p"."Name"
+FROM "Users" AS "u"
+INNER JOIN "Roles" AS "r" ON "u"."RoleId" = "r"."Id"
+INNER JOIN "Branches" AS "b" ON "u"."BranchId" = "b"."Id"
+INNER JOIN "Departments" AS "d" ON "u"."DepartmentId" = "d"."Id"
+INNER JOIN "Positions" AS "p" ON "u"."PositionId" = "p"."Id"
+WHERE "u"."Email" = @dto_Email
+LIMIT 1
+2026-07-15 11:09:56 [INF] [TraceId:1d66142e942089c642fcf518d875a4fd] User logged in successfully: admin@example.com
+2026-07-15 11:09:56 [INF] [TraceId:1d66142e942089c642fcf518d875a4fd] Executing OkObjectResult, writing value of type 'backend.GenericResponse.ResponseResults`1[[backend.Dto.TokenDto, backend, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2026-07-15 11:09:56 [INF] [TraceId:1d66142e942089c642fcf518d875a4fd] Executed action backend.Controllers.AuthController.Login (backend) in 942.1249ms
+2026-07-15 11:09:56 [INF] [TraceId:1d66142e942089c642fcf518d875a4fd] Executed endpoint 'backend.Controllers.AuthController.Login (backend)'
+2026-07-15 11:09:56 [INF] [TraceId:1d66142e942089c642fcf518d875a4fd] Response:
+StatusCode: 200
+2026-07-15 11:09:56 [INF] [TraceId:1d66142e942089c642fcf518d875a4fd] Request Finished: 200 in 1062ms
+2026-07-15 11:09:56 [INF] [TraceId:1d66142e942089c642fcf518d875a4fd] Request finished HTTP/1.1 POST http://localhost:5090/api/Auth/Login - 200 null application/json; charset=utf-8 1122.3472ms
+2026-07-15 11:12:53 [INF] [TraceId:] Application is shutting down...
+2026-07-15 11:13:00 [INF] [TraceId:] HRMS Application Started
+2026-07-15 11:13:00 [INF] [TraceId:] Application Started
+2026-07-15 11:13:00 [INF] [TraceId:] User profile is available. Using 'C:\Users\HDonda\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest.
+2026-07-15 11:13:00 [INF] [TraceId:] Now listening on: http://localhost:5090
+2026-07-15 11:13:00 [INF] [TraceId:] Application started. Press Ctrl+C to shut down.
+2026-07-15 11:13:00 [INF] [TraceId:] Hosting environment: Development
+2026-07-15 11:13:00 [INF] [TraceId:] Content root path: C:\Learning\.NET\Basics\project\backend
+2026-07-15 11:13:06 [INF] [TraceId:7711e6d1b91fab07fe7f5ac18c6451b4] Request starting HTTP/1.1 POST http://localhost:5090/api/Auth/Login - application/json 57
+2026-07-15 11:13:06 [INF] [TraceId:7711e6d1b91fab07fe7f5ac18c6451b4] Request Started: POST /api/Auth/Login  from 127.0.0.1
+2026-07-15 11:13:06 [INF] [TraceId:7711e6d1b91fab07fe7f5ac18c6451b4] Request:
+Method: POST
+PathBase: 
+Path: /api/Auth/Login
+2026-07-15 11:13:06 [INF] [TraceId:7711e6d1b91fab07fe7f5ac18c6451b4] Executing endpoint 'backend.Controllers.AuthController.Login (backend)'
+2026-07-15 11:13:06 [INF] [TraceId:7711e6d1b91fab07fe7f5ac18c6451b4] Route matched with {action = "Login", controller = "Auth"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] Login(backend.Dto.LoginDto) on controller backend.Controllers.AuthController (backend).
+2026-07-15 11:13:07 [INF] [TraceId:7711e6d1b91fab07fe7f5ac18c6451b4] Executed DbCommand (8ms) [Parameters=[@dto_Email='?' (Size = 17)], CommandType='"Text"', CommandTimeout='30']
+SELECT "u"."Id", "u"."BranchId", "u"."DOB", "u"."DepartmentId", "u"."Email", "u"."Name", "u"."Password", "u"."PositionId", "u"."RoleId", "r"."Id", "r"."Name", "b"."Id", "b"."Location", "b"."Name", "d"."Id", "d"."Name", "p"."Id", "p"."DepartmentId", "p"."Name"
+FROM "Users" AS "u"
+INNER JOIN "Roles" AS "r" ON "u"."RoleId" = "r"."Id"
+INNER JOIN "Branches" AS "b" ON "u"."BranchId" = "b"."Id"
+INNER JOIN "Departments" AS "d" ON "u"."DepartmentId" = "d"."Id"
+INNER JOIN "Positions" AS "p" ON "u"."PositionId" = "p"."Id"
+WHERE "u"."Email" = @dto_Email
+LIMIT 1
+2026-07-15 11:13:07 [INF] [TraceId:7711e6d1b91fab07fe7f5ac18c6451b4] User logged in successfully: admin@example.com
+2026-07-15 11:13:07 [INF] [TraceId:7711e6d1b91fab07fe7f5ac18c6451b4] Executing OkObjectResult, writing value of type 'backend.GenericResponse.ResponseResults`1[[backend.Dto.TokenDto, backend, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2026-07-15 11:13:07 [INF] [TraceId:7711e6d1b91fab07fe7f5ac18c6451b4] Executed action backend.Controllers.AuthController.Login (backend) in 932.1953ms
+2026-07-15 11:13:07 [INF] [TraceId:7711e6d1b91fab07fe7f5ac18c6451b4] Executed endpoint 'backend.Controllers.AuthController.Login (backend)'
+2026-07-15 11:13:07 [INF] [TraceId:7711e6d1b91fab07fe7f5ac18c6451b4] Response:
+StatusCode: 200
+2026-07-15 11:13:07 [INF] [TraceId:7711e6d1b91fab07fe7f5ac18c6451b4] Request Finished: 200 in 1022ms
+2026-07-15 11:13:07 [INF] [TraceId:7711e6d1b91fab07fe7f5ac18c6451b4] Request finished HTTP/1.1 POST http://localhost:5090/api/Auth/Login - 200 null application/json; charset=utf-8 1060.9301ms
+2026-07-15 11:13:10 [INF] [TraceId:8e3d73e2eecf881e9b19bb20ffa971e6] Request starting HTTP/1.1 POST http://localhost:5090/api/Auth/Login - application/json 57
+2026-07-15 11:13:10 [INF] [TraceId:8e3d73e2eecf881e9b19bb20ffa971e6] Request Started: POST /api/Auth/Login  from 127.0.0.1
+2026-07-15 11:13:10 [INF] [TraceId:8e3d73e2eecf881e9b19bb20ffa971e6] Request:
+Method: POST
+PathBase: 
+Path: /api/Auth/Login
+2026-07-15 11:13:10 [INF] [TraceId:8e3d73e2eecf881e9b19bb20ffa971e6] Executing endpoint 'backend.Controllers.AuthController.Login (backend)'
+2026-07-15 11:13:10 [INF] [TraceId:8e3d73e2eecf881e9b19bb20ffa971e6] Route matched with {action = "Login", controller = "Auth"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] Login(backend.Dto.LoginDto) on controller backend.Controllers.AuthController (backend).
+2026-07-15 11:13:10 [INF] [TraceId:8e3d73e2eecf881e9b19bb20ffa971e6] Executed DbCommand (0ms) [Parameters=[@dto_Email='?' (Size = 17)], CommandType='"Text"', CommandTimeout='30']
+SELECT "u"."Id", "u"."BranchId", "u"."DOB", "u"."DepartmentId", "u"."Email", "u"."Name", "u"."Password", "u"."PositionId", "u"."RoleId", "r"."Id", "r"."Name", "b"."Id", "b"."Location", "b"."Name", "d"."Id", "d"."Name", "p"."Id", "p"."DepartmentId", "p"."Name"
+FROM "Users" AS "u"
+INNER JOIN "Roles" AS "r" ON "u"."RoleId" = "r"."Id"
+INNER JOIN "Branches" AS "b" ON "u"."BranchId" = "b"."Id"
+INNER JOIN "Departments" AS "d" ON "u"."DepartmentId" = "d"."Id"
+INNER JOIN "Positions" AS "p" ON "u"."PositionId" = "p"."Id"
+WHERE "u"."Email" = @dto_Email
+LIMIT 1
+2026-07-15 11:13:10 [INF] [TraceId:8e3d73e2eecf881e9b19bb20ffa971e6] User logged in successfully: admin@example.com
+2026-07-15 11:13:10 [INF] [TraceId:8e3d73e2eecf881e9b19bb20ffa971e6] Executing OkObjectResult, writing value of type 'backend.GenericResponse.ResponseResults`1[[backend.Dto.TokenDto, backend, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2026-07-15 11:13:10 [INF] [TraceId:8e3d73e2eecf881e9b19bb20ffa971e6] Executed action backend.Controllers.AuthController.Login (backend) in 75.8828ms
+2026-07-15 11:13:10 [INF] [TraceId:8e3d73e2eecf881e9b19bb20ffa971e6] Executed endpoint 'backend.Controllers.AuthController.Login (backend)'
+2026-07-15 11:13:10 [INF] [TraceId:8e3d73e2eecf881e9b19bb20ffa971e6] Response:
+StatusCode: 200
+2026-07-15 11:13:10 [INF] [TraceId:8e3d73e2eecf881e9b19bb20ffa971e6] Request Finished: 200 in 79ms
+2026-07-15 11:13:10 [INF] [TraceId:8e3d73e2eecf881e9b19bb20ffa971e6] Request finished HTTP/1.1 POST http://localhost:5090/api/Auth/Login - 200 null application/json; charset=utf-8 83.3834ms
+2026-07-15 11:17:51 [INF] [TraceId:] Application is shutting down...
+2026-07-15 11:17:57 [INF] [TraceId:] HRMS Application Started
+2026-07-15 11:17:57 [INF] [TraceId:] Application Started
+2026-07-15 11:17:57 [INF] [TraceId:] User profile is available. Using 'C:\Users\HDonda\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest.
+2026-07-15 11:17:57 [INF] [TraceId:] Now listening on: http://localhost:5090
+2026-07-15 11:17:57 [INF] [TraceId:] Application started. Press Ctrl+C to shut down.
+2026-07-15 11:17:57 [INF] [TraceId:] Hosting environment: Development
+2026-07-15 11:17:57 [INF] [TraceId:] Content root path: C:\Learning\.NET\Basics\project\backend
+2026-07-15 11:18:10 [INF] [TraceId:b4e7b0b33ab105b0006ab5fcc7318622] Request starting HTTP/1.1 POST http://localhost:5090/api/Auth/Login - application/json 57
+2026-07-15 11:18:10 [WRN] [TraceId:b4e7b0b33ab105b0006ab5fcc7318622] Failed to determine the https port for redirect.
+2026-07-15 11:18:10 [INF] [TraceId:b4e7b0b33ab105b0006ab5fcc7318622] Request Started: POST /api/Auth/Login  from 127.0.0.1
+2026-07-15 11:18:10 [INF] [TraceId:b4e7b0b33ab105b0006ab5fcc7318622] Request:
+Method: POST
+PathBase: 
+Path: /api/Auth/Login
+2026-07-15 11:18:10 [INF] [TraceId:b4e7b0b33ab105b0006ab5fcc7318622] Executing endpoint 'backend.Controllers.AuthController.Login (backend)'
+2026-07-15 11:18:10 [INF] [TraceId:b4e7b0b33ab105b0006ab5fcc7318622] Route matched with {action = "Login", controller = "Auth"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] Login(backend.Dto.LoginDto) on controller backend.Controllers.AuthController (backend).
+2026-07-15 11:18:11 [INF] [TraceId:b4e7b0b33ab105b0006ab5fcc7318622] Executed DbCommand (9ms) [Parameters=[@dto_Email='?' (Size = 17)], CommandType='"Text"', CommandTimeout='30']
+SELECT "u"."Id", "u"."BranchId", "u"."DOB", "u"."DepartmentId", "u"."Email", "u"."Name", "u"."Password", "u"."PositionId", "u"."RoleId", "r"."Id", "r"."Name", "b"."Id", "b"."Location", "b"."Name", "d"."Id", "d"."Name", "p"."Id", "p"."DepartmentId", "p"."Name"
+FROM "Users" AS "u"
+INNER JOIN "Roles" AS "r" ON "u"."RoleId" = "r"."Id"
+INNER JOIN "Branches" AS "b" ON "u"."BranchId" = "b"."Id"
+INNER JOIN "Departments" AS "d" ON "u"."DepartmentId" = "d"."Id"
+INNER JOIN "Positions" AS "p" ON "u"."PositionId" = "p"."Id"
+WHERE "u"."Email" = @dto_Email
+LIMIT 1
+2026-07-15 11:18:11 [INF] [TraceId:b4e7b0b33ab105b0006ab5fcc7318622] User logged in successfully: admin@example.com
+2026-07-15 11:18:11 [INF] [TraceId:b4e7b0b33ab105b0006ab5fcc7318622] Executing OkObjectResult, writing value of type 'backend.GenericResponse.ResponseResults`1[[backend.Dto.TokenDto, backend, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2026-07-15 11:18:11 [INF] [TraceId:b4e7b0b33ab105b0006ab5fcc7318622] Executed action backend.Controllers.AuthController.Login (backend) in 981.8365ms
+2026-07-15 11:18:11 [INF] [TraceId:b4e7b0b33ab105b0006ab5fcc7318622] Executed endpoint 'backend.Controllers.AuthController.Login (backend)'
+2026-07-15 11:18:11 [INF] [TraceId:b4e7b0b33ab105b0006ab5fcc7318622] Response:
+StatusCode: 200
+2026-07-15 11:18:11 [INF] [TraceId:b4e7b0b33ab105b0006ab5fcc7318622] Request Finished: 200 in 1074ms
+2026-07-15 11:18:11 [INF] [TraceId:b4e7b0b33ab105b0006ab5fcc7318622] Request finished HTTP/1.1 POST http://localhost:5090/api/Auth/Login - 200 null application/json; charset=utf-8 1110.7074ms
+2026-07-15 11:21:48 [INF] [TraceId:] Application is shutting down...
+2026-07-15 11:21:54 [INF] [TraceId:] HRMS Application Started
+2026-07-15 11:21:54 [INF] [TraceId:] User profile is available. Using 'C:\Users\HDonda\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest.
+2026-07-15 11:21:54 [INF] [TraceId:] Now listening on: http://localhost:5090
+2026-07-15 11:21:54 [INF] [TraceId:] Application started. Press Ctrl+C to shut down.
+2026-07-15 11:21:54 [INF] [TraceId:] Hosting environment: Development
+2026-07-15 11:21:54 [INF] [TraceId:] Content root path: C:\Learning\.NET\Basics\project\backend
+2026-07-15 11:22:05 [INF] [TraceId:8d2ac19ae4351813c54d1b6a88aed575] Request starting HTTP/1.1 POST http://localhost:5090/api/Auth/Login - application/json 57
+2026-07-15 11:22:05 [WRN] [TraceId:8d2ac19ae4351813c54d1b6a88aed575] Failed to determine the https port for redirect.
+2026-07-15 11:22:05 [INF] [TraceId:8d2ac19ae4351813c54d1b6a88aed575] Request Started: POST /api/Auth/Login  from 127.0.0.1
+2026-07-15 11:22:05 [INF] [TraceId:8d2ac19ae4351813c54d1b6a88aed575] Request:
+Method: POST
+PathBase: 
+Path: /api/Auth/Login
+2026-07-15 11:22:05 [INF] [TraceId:8d2ac19ae4351813c54d1b6a88aed575] Executing endpoint 'backend.Controllers.AuthController.Login (backend)'
+2026-07-15 11:22:05 [INF] [TraceId:8d2ac19ae4351813c54d1b6a88aed575] Route matched with {action = "Login", controller = "Auth"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] Login(backend.Dto.LoginDto) on controller backend.Controllers.AuthController (backend).
+2026-07-15 11:22:06 [INF] [TraceId:8d2ac19ae4351813c54d1b6a88aed575] Executed DbCommand (8ms) [Parameters=[@dto_Email='?' (Size = 17)], CommandType='"Text"', CommandTimeout='30']
+SELECT "u"."Id", "u"."BranchId", "u"."DOB", "u"."DepartmentId", "u"."Email", "u"."Name", "u"."Password", "u"."PositionId", "u"."RoleId", "r"."Id", "r"."Name", "b"."Id", "b"."Location", "b"."Name", "d"."Id", "d"."Name", "p"."Id", "p"."DepartmentId", "p"."Name"
+FROM "Users" AS "u"
+INNER JOIN "Roles" AS "r" ON "u"."RoleId" = "r"."Id"
+INNER JOIN "Branches" AS "b" ON "u"."BranchId" = "b"."Id"
+INNER JOIN "Departments" AS "d" ON "u"."DepartmentId" = "d"."Id"
+INNER JOIN "Positions" AS "p" ON "u"."PositionId" = "p"."Id"
+WHERE "u"."Email" = @dto_Email
+LIMIT 1
+2026-07-15 11:22:06 [INF] [TraceId:8d2ac19ae4351813c54d1b6a88aed575] User logged in successfully: admin@example.com
+2026-07-15 11:22:06 [INF] [TraceId:8d2ac19ae4351813c54d1b6a88aed575] Executing OkObjectResult, writing value of type 'backend.GenericResponse.ResponseResults`1[[backend.Dto.TokenDto, backend, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2026-07-15 11:22:06 [INF] [TraceId:8d2ac19ae4351813c54d1b6a88aed575] Executed action backend.Controllers.AuthController.Login (backend) in 993.3054ms
+2026-07-15 11:22:06 [INF] [TraceId:8d2ac19ae4351813c54d1b6a88aed575] Executed endpoint 'backend.Controllers.AuthController.Login (backend)'
+2026-07-15 11:22:06 [INF] [TraceId:8d2ac19ae4351813c54d1b6a88aed575] Response:
+StatusCode: 200
+2026-07-15 11:22:06 [INF] [TraceId:8d2ac19ae4351813c54d1b6a88aed575] Request Finished: 200 in 1081ms
+2026-07-15 11:22:06 [INF] [TraceId:8d2ac19ae4351813c54d1b6a88aed575] Request finished HTTP/1.1 POST http://localhost:5090/api/Auth/Login - 200 null application/json; charset=utf-8 1118.4844ms
+2026-07-15 11:22:12 [INF] [TraceId:] Application is shutting down...
+2026-07-15 11:22:19 [INF] [TraceId:] HRMS Application Started
+2026-07-15 11:22:19 [INF] [TraceId:] User profile is available. Using 'C:\Users\HDonda\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest.
+2026-07-15 11:22:19 [INF] [TraceId:] Now listening on: http://localhost:5090
+2026-07-15 11:22:19 [INF] [TraceId:] Application started. Press Ctrl+C to shut down.
+2026-07-15 11:22:19 [INF] [TraceId:] Hosting environment: Development
+2026-07-15 11:22:19 [INF] [TraceId:] Content root path: C:\Learning\.NET\Basics\project\backend
+2026-07-15 11:22:27 [INF] [TraceId:1e9d717f04bdaf631b61b94331651feb] Request starting HTTP/1.1 POST http://localhost:5090/api/Auth/Login - application/json 57
+2026-07-15 11:22:27 [WRN] [TraceId:1e9d717f04bdaf631b61b94331651feb] Failed to determine the https port for redirect.
+2026-07-15 11:22:27 [INF] [TraceId:1e9d717f04bdaf631b61b94331651feb] Request Started: POST /api/Auth/Login  from 127.0.0.1
+2026-07-15 11:22:27 [INF] [TraceId:1e9d717f04bdaf631b61b94331651feb] Request:
+Method: POST
+PathBase: 
+Path: /api/Auth/Login
+2026-07-15 11:22:27 [INF] [TraceId:1e9d717f04bdaf631b61b94331651feb] Executing endpoint 'backend.Controllers.AuthController.Login (backend)'
+2026-07-15 11:22:27 [INF] [TraceId:1e9d717f04bdaf631b61b94331651feb] Route matched with {action = "Login", controller = "Auth"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] Login(backend.Dto.LoginDto) on controller backend.Controllers.AuthController (backend).
+2026-07-15 11:22:27 [INF] [TraceId:1e9d717f04bdaf631b61b94331651feb] Executed DbCommand (9ms) [Parameters=[@dto_Email='?' (Size = 17)], CommandType='"Text"', CommandTimeout='30']
+SELECT "u"."Id", "u"."BranchId", "u"."DOB", "u"."DepartmentId", "u"."Email", "u"."Name", "u"."Password", "u"."PositionId", "u"."RoleId", "r"."Id", "r"."Name", "b"."Id", "b"."Location", "b"."Name", "d"."Id", "d"."Name", "p"."Id", "p"."DepartmentId", "p"."Name"
+FROM "Users" AS "u"
+INNER JOIN "Roles" AS "r" ON "u"."RoleId" = "r"."Id"
+INNER JOIN "Branches" AS "b" ON "u"."BranchId" = "b"."Id"
+INNER JOIN "Departments" AS "d" ON "u"."DepartmentId" = "d"."Id"
+INNER JOIN "Positions" AS "p" ON "u"."PositionId" = "p"."Id"
+WHERE "u"."Email" = @dto_Email
+LIMIT 1
+2026-07-15 11:22:28 [INF] [TraceId:1e9d717f04bdaf631b61b94331651feb] User logged in successfully: admin@example.com
+2026-07-15 11:22:28 [INF] [TraceId:1e9d717f04bdaf631b61b94331651feb] Executing OkObjectResult, writing value of type 'backend.GenericResponse.ResponseResults`1[[backend.Dto.TokenDto, backend, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2026-07-15 11:22:28 [INF] [TraceId:1e9d717f04bdaf631b61b94331651feb] Executed action backend.Controllers.AuthController.Login (backend) in 986.5537ms
+2026-07-15 11:22:28 [INF] [TraceId:1e9d717f04bdaf631b61b94331651feb] Executed endpoint 'backend.Controllers.AuthController.Login (backend)'
+2026-07-15 11:22:28 [INF] [TraceId:1e9d717f04bdaf631b61b94331651feb] Response:
+StatusCode: 200
+2026-07-15 11:22:28 [INF] [TraceId:1e9d717f04bdaf631b61b94331651feb] Request Finished: 200 in 1075ms
+2026-07-15 11:22:28 [INF] [TraceId:1e9d717f04bdaf631b61b94331651feb] Request finished HTTP/1.1 POST http://localhost:5090/api/Auth/Login - 200 null application/json; charset=utf-8 1113.4403ms
+2026-07-15 11:24:11 [INF] [TraceId:] Application is shutting down...
+2026-07-15 11:25:08 [INF] [TraceId:] HRMS Application Started
+2026-07-15 11:25:08 [INF] [TraceId:] Application Started
+2026-07-15 11:25:15 [WRN] [TraceId:b87a9c244b8a59db1ebcdd6c4af3ab41] Failed to determine the https port for redirect.
+2026-07-15 11:25:15 [INF] [TraceId:b87a9c244b8a59db1ebcdd6c4af3ab41] Request Started: POST /api/Auth/Login  from 127.0.0.1
+2026-07-15 11:25:16 [INF] [TraceId:b87a9c244b8a59db1ebcdd6c4af3ab41] User logged in successfully: admin@example.com
+2026-07-15 11:25:16 [INF] [TraceId:b87a9c244b8a59db1ebcdd6c4af3ab41] Request Finished: 200 in 1005ms
+2026-07-15 11:38:00 [INF] [TraceId:] HRMS Application Started
+2026-07-15 11:38:00 [INF] [TraceId:] Application Started
+2026-07-15 11:38:10 [WRN] [TraceId:a051f23858f82a5d8f6c4b2c14c36f4e] Failed to determine the https port for redirect.
+2026-07-15 11:38:10 [INF] [TraceId:a051f23858f82a5d8f6c4b2c14c36f4e] Request Started: POST /api/Auth/Login  from 127.0.0.1
+2026-07-15 11:38:11 [INF] [TraceId:a051f23858f82a5d8f6c4b2c14c36f4e] User logged in successfully: admin@example.com
+2026-07-15 11:38:11 [INF] [TraceId:a051f23858f82a5d8f6c4b2c14c36f4e] Request Finished: 200 in 1106ms
+2026-07-15 11:38:23 [INF] [TraceId:20470d86eb7a83c262284f8974f3cbf7] Request Started: POST /api/Auth/Login  from 127.0.0.1
+2026-07-15 11:38:23 [INF] [TraceId:20470d86eb7a83c262284f8974f3cbf7] User logged in successfully: admin@example.com
+2026-07-15 11:38:23 [INF] [TraceId:20470d86eb7a83c262284f8974f3cbf7] Request Finished: 200 in 65ms
+2026-07-15 11:38:57 [INF] [TraceId:] HRMS Application Started
+2026-07-15 11:38:57 [INF] [TraceId:] Application Started
+2026-07-15 11:38:57 [INF] [TraceId:] User profile is available. Using 'C:\Users\HDonda\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest.
+2026-07-15 11:38:57 [INF] [TraceId:] Now listening on: http://localhost:5090
+2026-07-15 11:38:57 [INF] [TraceId:] Application started. Press Ctrl+C to shut down.
+2026-07-15 11:38:57 [INF] [TraceId:] Hosting environment: Development
+2026-07-15 11:38:57 [INF] [TraceId:] Content root path: C:\Learning\.NET\Basics\project\backend
+2026-07-15 11:39:04 [INF] [TraceId:72813cc0330f14d3ead1885ab2c2509c] Request starting HTTP/1.1 POST http://localhost:5090/api/Auth/Login - application/json 57
+2026-07-15 11:39:04 [WRN] [TraceId:72813cc0330f14d3ead1885ab2c2509c] Failed to determine the https port for redirect.
+2026-07-15 11:39:04 [INF] [TraceId:72813cc0330f14d3ead1885ab2c2509c] Request Started: POST /api/Auth/Login  from 127.0.0.1
+2026-07-15 11:39:04 [INF] [TraceId:72813cc0330f14d3ead1885ab2c2509c] Request:
+Method: POST
+PathBase: 
+Path: /api/Auth/Login
+2026-07-15 11:39:04 [INF] [TraceId:72813cc0330f14d3ead1885ab2c2509c] Executing endpoint 'backend.Controllers.AuthController.Login (backend)'
+2026-07-15 11:39:04 [INF] [TraceId:72813cc0330f14d3ead1885ab2c2509c] Route matched with {action = "Login", controller = "Auth"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] Login(backend.Dto.LoginDto) on controller backend.Controllers.AuthController (backend).
+2026-07-15 11:39:04 [INF] [TraceId:72813cc0330f14d3ead1885ab2c2509c] RequestBody: {
+	"email" : "admin@example.com",
+	"password": "123456"
+}
+2026-07-15 11:39:04 [INF] [TraceId:1b1d075169cc910cc7d80b0a3b19576b] Request starting HTTP/1.1 POST http://localhost:5090/api/Auth/Login - application/json 57
+2026-07-15 11:39:04 [INF] [TraceId:1b1d075169cc910cc7d80b0a3b19576b] Request Started: POST /api/Auth/Login  from 127.0.0.1
+2026-07-15 11:39:04 [INF] [TraceId:1b1d075169cc910cc7d80b0a3b19576b] Request:
+Method: POST
+PathBase: 
+Path: /api/Auth/Login
+2026-07-15 11:39:04 [INF] [TraceId:1b1d075169cc910cc7d80b0a3b19576b] Executing endpoint 'backend.Controllers.AuthController.Login (backend)'
+2026-07-15 11:39:04 [INF] [TraceId:1b1d075169cc910cc7d80b0a3b19576b] Route matched with {action = "Login", controller = "Auth"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] Login(backend.Dto.LoginDto) on controller backend.Controllers.AuthController (backend).
+2026-07-15 11:39:04 [INF] [TraceId:1b1d075169cc910cc7d80b0a3b19576b] RequestBody: {
+	"email" : "admin@example.com",
+	"password": "123456"
+}
+2026-07-15 11:39:05 [INF] [TraceId:1b1d075169cc910cc7d80b0a3b19576b] Executed DbCommand (18ms) [Parameters=[@dto_Email='?' (Size = 17)], CommandType='"Text"', CommandTimeout='30']
+SELECT "u"."Id", "u"."BranchId", "u"."DOB", "u"."DepartmentId", "u"."Email", "u"."Name", "u"."Password", "u"."PositionId", "u"."RoleId", "r"."Id", "r"."Name", "b"."Id", "b"."Location", "b"."Name", "d"."Id", "d"."Name", "p"."Id", "p"."DepartmentId", "p"."Name"
+FROM "Users" AS "u"
+INNER JOIN "Roles" AS "r" ON "u"."RoleId" = "r"."Id"
+INNER JOIN "Branches" AS "b" ON "u"."BranchId" = "b"."Id"
+INNER JOIN "Departments" AS "d" ON "u"."DepartmentId" = "d"."Id"
+INNER JOIN "Positions" AS "p" ON "u"."PositionId" = "p"."Id"
+WHERE "u"."Email" = @dto_Email
+LIMIT 1
+2026-07-15 11:39:05 [INF] [TraceId:72813cc0330f14d3ead1885ab2c2509c] Executed DbCommand (18ms) [Parameters=[@dto_Email='?' (Size = 17)], CommandType='"Text"', CommandTimeout='30']
+SELECT "u"."Id", "u"."BranchId", "u"."DOB", "u"."DepartmentId", "u"."Email", "u"."Name", "u"."Password", "u"."PositionId", "u"."RoleId", "r"."Id", "r"."Name", "b"."Id", "b"."Location", "b"."Name", "d"."Id", "d"."Name", "p"."Id", "p"."DepartmentId", "p"."Name"
+FROM "Users" AS "u"
+INNER JOIN "Roles" AS "r" ON "u"."RoleId" = "r"."Id"
+INNER JOIN "Branches" AS "b" ON "u"."BranchId" = "b"."Id"
+INNER JOIN "Departments" AS "d" ON "u"."DepartmentId" = "d"."Id"
+INNER JOIN "Positions" AS "p" ON "u"."PositionId" = "p"."Id"
+WHERE "u"."Email" = @dto_Email
+LIMIT 1
+2026-07-15 11:39:05 [INF] [TraceId:1b1d075169cc910cc7d80b0a3b19576b] User logged in successfully: admin@example.com
+2026-07-15 11:39:05 [INF] [TraceId:72813cc0330f14d3ead1885ab2c2509c] User logged in successfully: admin@example.com
+2026-07-15 11:39:05 [INF] [TraceId:1b1d075169cc910cc7d80b0a3b19576b] Executing OkObjectResult, writing value of type 'backend.GenericResponse.ResponseResults`1[[backend.Dto.TokenDto, backend, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2026-07-15 11:39:05 [INF] [TraceId:72813cc0330f14d3ead1885ab2c2509c] Executing OkObjectResult, writing value of type 'backend.GenericResponse.ResponseResults`1[[backend.Dto.TokenDto, backend, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2026-07-15 11:39:05 [INF] [TraceId:72813cc0330f14d3ead1885ab2c2509c] Response:
+StatusCode: 200
+2026-07-15 11:39:05 [INF] [TraceId:1b1d075169cc910cc7d80b0a3b19576b] Response:
+StatusCode: 200
+2026-07-15 11:39:05 [INF] [TraceId:1b1d075169cc910cc7d80b0a3b19576b] Executed action backend.Controllers.AuthController.Login (backend) in 668.5522ms
+2026-07-15 11:39:05 [INF] [TraceId:72813cc0330f14d3ead1885ab2c2509c] Executed action backend.Controllers.AuthController.Login (backend) in 1098.7481ms
+2026-07-15 11:39:05 [INF] [TraceId:1b1d075169cc910cc7d80b0a3b19576b] Executed endpoint 'backend.Controllers.AuthController.Login (backend)'
+2026-07-15 11:39:05 [INF] [TraceId:72813cc0330f14d3ead1885ab2c2509c] Executed endpoint 'backend.Controllers.AuthController.Login (backend)'
+2026-07-15 11:39:05 [INF] [TraceId:1b1d075169cc910cc7d80b0a3b19576b] ResponseBody: {"data":{"token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjAzNmE4NzU3LWU3MTEtNGQwNi1iMjJkLTU5MTk5OWMwYmFhNCIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL25hbWUiOiJBZG1pbiIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL2VtYWlsYWRkcmVzcyI6ImFkbWluQGV4YW1wbGUuY29tIiwiaHR0cDovL3NjaGVtYXMubWljcm9zb2Z0LmNvbS93cy8yMDA4LzA2L2lkZW50aXR5L2NsYWltcy9yb2xlIjpbIkFkbWluIiwiQWRtaW4iXSwiZXhwIjoxNzg0OTU5NzQ1LCJpc3MiOiJiYWNrZW5kLWFwaSIsImF1ZCI6ImJhY2tlbmQtY2xpZW50In0.z4hO0hDJmoMdb8mkSDwz1cKnqfbw9_rbmkVZeTiCDlU","message":"Login successful","userId":"036a8757-e711-4d06-b22d-591999c0baa4","name":"Admin","email":"admin@example.com","role":"Admin"},"status":true,"message":"Login successful"}
+2026-07-15 11:39:05 [INF] [TraceId:72813cc0330f14d3ead1885ab2c2509c] ResponseBody: {"data":{"token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjAzNmE4NzU3LWU3MTEtNGQwNi1iMjJkLTU5MTk5OWMwYmFhNCIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL25hbWUiOiJBZG1pbiIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL2VtYWlsYWRkcmVzcyI6ImFkbWluQGV4YW1wbGUuY29tIiwiaHR0cDovL3NjaGVtYXMubWljcm9zb2Z0LmNvbS93cy8yMDA4LzA2L2lkZW50aXR5L2NsYWltcy9yb2xlIjpbIkFkbWluIiwiQWRtaW4iXSwiZXhwIjoxNzg0OTU5NzQ1LCJpc3MiOiJiYWNrZW5kLWFwaSIsImF1ZCI6ImJhY2tlbmQtY2xpZW50In0.z4hO0hDJmoMdb8mkSDwz1cKnqfbw9_rbmkVZeTiCDlU","message":"Login successful","userId":"036a8757-e711-4d06-b22d-591999c0baa4","name":"Admin","email":"admin@example.com","role":"Admin"},"status":true,"message":"Login successful"}
+2026-07-15 11:39:05 [INF] [TraceId:72813cc0330f14d3ead1885ab2c2509c] Request Finished: 200 in 1195ms
+2026-07-15 11:39:05 [INF] [TraceId:1b1d075169cc910cc7d80b0a3b19576b] Request Finished: 200 in 673ms
+2026-07-15 11:39:05 [INF] [TraceId:72813cc0330f14d3ead1885ab2c2509c] Request finished HTTP/1.1 POST http://localhost:5090/api/Auth/Login - 200 null application/json; charset=utf-8 1241.6722ms
+2026-07-15 11:39:05 [INF] [TraceId:1b1d075169cc910cc7d80b0a3b19576b] Request finished HTTP/1.1 POST http://localhost:5090/api/Auth/Login - 200 null application/json; charset=utf-8 681.7338ms
+2026-07-15 11:39:38 [INF] [TraceId:] Application is shutting down...
+2026-07-15 11:39:56 [INF] [TraceId:] HRMS Application Started
+2026-07-15 11:39:56 [INF] [TraceId:] Application Started
+2026-07-15 11:39:56 [INF] [TraceId:] User profile is available. Using 'C:\Users\HDonda\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest.
+2026-07-15 11:39:56 [INF] [TraceId:] Now listening on: http://localhost:5090
+2026-07-15 11:39:56 [INF] [TraceId:] Application started. Press Ctrl+C to shut down.
+2026-07-15 11:39:56 [INF] [TraceId:] Hosting environment: Development
+2026-07-15 11:39:56 [INF] [TraceId:] Content root path: C:\Learning\.NET\Basics\project\backend
+2026-07-15 11:40:03 [INF] [TraceId:b4015b1a01c5c700b5747b3935379a9a] Request starting HTTP/1.1 POST http://localhost:5090/api/Auth/Login - application/json 57
+2026-07-15 11:40:03 [WRN] [TraceId:b4015b1a01c5c700b5747b3935379a9a] Failed to determine the https port for redirect.
+2026-07-15 11:40:03 [INF] [TraceId:b4015b1a01c5c700b5747b3935379a9a] Request Started: POST /api/Auth/Login  from 127.0.0.1
+2026-07-15 11:40:03 [INF] [TraceId:b4015b1a01c5c700b5747b3935379a9a] Request:
+Method: POST
+PathBase: 
+Path: /api/Auth/Login
+2026-07-15 11:40:03 [INF] [TraceId:b4015b1a01c5c700b5747b3935379a9a] Executing endpoint 'backend.Controllers.AuthController.Login (backend)'
+2026-07-15 11:40:03 [INF] [TraceId:b4015b1a01c5c700b5747b3935379a9a] Route matched with {action = "Login", controller = "Auth"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] Login(backend.Dto.LoginDto) on controller backend.Controllers.AuthController (backend).
+2026-07-15 11:40:03 [INF] [TraceId:b4015b1a01c5c700b5747b3935379a9a] RequestBody: {
+	"email" : "admin@example.com",
+	"password": "123456"
+}
+2026-07-15 11:40:04 [INF] [TraceId:b4015b1a01c5c700b5747b3935379a9a] User logged in successfully: admin@example.com
+2026-07-15 11:40:04 [INF] [TraceId:b4015b1a01c5c700b5747b3935379a9a] Executing OkObjectResult, writing value of type 'backend.GenericResponse.ResponseResults`1[[backend.Dto.TokenDto, backend, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2026-07-15 11:40:04 [INF] [TraceId:b4015b1a01c5c700b5747b3935379a9a] Response:
+StatusCode: 200
+2026-07-15 11:40:04 [INF] [TraceId:b4015b1a01c5c700b5747b3935379a9a] Executed action backend.Controllers.AuthController.Login (backend) in 1015.7731ms
+2026-07-15 11:40:04 [INF] [TraceId:b4015b1a01c5c700b5747b3935379a9a] Executed endpoint 'backend.Controllers.AuthController.Login (backend)'
+2026-07-15 11:40:04 [INF] [TraceId:b4015b1a01c5c700b5747b3935379a9a] ResponseBody: {"data":{"token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjAzNmE4NzU3LWU3MTEtNGQwNi1iMjJkLTU5MTk5OWMwYmFhNCIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL25hbWUiOiJBZG1pbiIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL2VtYWlsYWRkcmVzcyI6ImFkbWluQGV4YW1wbGUuY29tIiwiaHR0cDovL3NjaGVtYXMubWljcm9zb2Z0LmNvbS93cy8yMDA4LzA2L2lkZW50aXR5L2NsYWltcy9yb2xlIjpbIkFkbWluIiwiQWRtaW4iXSwiZXhwIjoxNzg0OTU5ODA0LCJpc3MiOiJiYWNrZW5kLWFwaSIsImF1ZCI6ImJhY2tlbmQtY2xpZW50In0.UQW5FkpSqXhGuPCbD1PnzihJAJq609hOYzs-g0NvPss","message":"Login successful","userId":"036a8757-e711-4d06-b22d-591999c0baa4","name":"Admin","email":"admin@example.com","role":"Admin"},"status":true,"message":"Login successful"}
+2026-07-15 11:40:04 [INF] [TraceId:b4015b1a01c5c700b5747b3935379a9a] Request Finished: 200 in 1113ms
+2026-07-15 11:40:04 [INF] [TraceId:b4015b1a01c5c700b5747b3935379a9a] Request finished HTTP/1.1 POST http://localhost:5090/api/Auth/Login - 200 null application/json; charset=utf-8 1156.3443ms
+2026-07-15 11:46:40 [INF] [TraceId:] Application is shutting down...
+2026-07-15 11:46:48 [INF] [TraceId:] HRMS Application Started
+2026-07-15 11:46:48 [INF] [TraceId:] Application Started
+2026-07-15 11:46:48 [INF] [TraceId:] User profile is available. Using 'C:\Users\HDonda\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest.
+2026-07-15 11:46:48 [INF] [TraceId:] Now listening on: http://localhost:5090
+2026-07-15 11:46:48 [INF] [TraceId:] Application started. Press Ctrl+C to shut down.
+2026-07-15 11:46:48 [INF] [TraceId:] Hosting environment: Development
+2026-07-15 11:46:48 [INF] [TraceId:] Content root path: C:\Learning\.NET\Basics\project\backend
+2026-07-15 11:53:15 [INF] [TraceId:] Application is shutting down...
+2026-07-15 11:53:19 [INF] [TraceId:] HRMS Application Started
+2026-07-15 11:53:19 [INF] [TraceId:] Application Started
+2026-07-15 11:53:19 [INF] [TraceId:] User profile is available. Using 'C:\Users\HDonda\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest.
+2026-07-15 11:53:19 [INF] [TraceId:] Now listening on: http://localhost:5090
+2026-07-15 11:53:19 [INF] [TraceId:] Application started. Press Ctrl+C to shut down.
+2026-07-15 11:53:19 [INF] [TraceId:] Hosting environment: Development
+2026-07-15 11:53:19 [INF] [TraceId:] Content root path: C:\Learning\.NET\Basics\project\backend
+2026-07-15 11:53:30 [INF] [TraceId:76af48426cc2e9939045d99b78911098] Request starting HTTP/1.1 POST http://localhost:5090/api/Auth/Login - application/json 57
+2026-07-15 11:53:30 [WRN] [TraceId:76af48426cc2e9939045d99b78911098] Failed to determine the https port for redirect.
+2026-07-15 11:53:30 [INF] [TraceId:76af48426cc2e9939045d99b78911098] Request Started: POST /api/Auth/Login  from 127.0.0.1
+2026-07-15 11:53:30 [INF] [TraceId:76af48426cc2e9939045d99b78911098] Request:
+Method: POST
+PathBase: 
+Path: /api/Auth/Login
+2026-07-15 11:53:30 [INF] [TraceId:76af48426cc2e9939045d99b78911098] Executing endpoint 'backend.Controllers.AuthController.Login (backend)'
+2026-07-15 11:53:30 [INF] [TraceId:76af48426cc2e9939045d99b78911098] Route matched with {action = "Login", controller = "Auth"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] Login(backend.Dto.LoginDto) on controller backend.Controllers.AuthController (backend).
+2026-07-15 11:53:30 [INF] [TraceId:76af48426cc2e9939045d99b78911098] RequestBody: {
+	"email" : "admin@example.com",
+	"password": "123456"
+}
+2026-07-15 11:53:31 [INF] [TraceId:76af48426cc2e9939045d99b78911098] User logged in successfully: admin@example.com
+2026-07-15 11:53:31 [INF] [TraceId:76af48426cc2e9939045d99b78911098] Executing OkObjectResult, writing value of type 'backend.GenericResponse.ResponseResults`1[[backend.Dto.TokenDto, backend, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2026-07-15 11:53:31 [INF] [TraceId:76af48426cc2e9939045d99b78911098] Response:
+StatusCode: 200
+2026-07-15 11:53:31 [INF] [TraceId:76af48426cc2e9939045d99b78911098] Executed action backend.Controllers.AuthController.Login (backend) in 1126.695ms
+2026-07-15 11:53:31 [INF] [TraceId:76af48426cc2e9939045d99b78911098] Executed endpoint 'backend.Controllers.AuthController.Login (backend)'
+2026-07-15 11:53:31 [INF] [TraceId:76af48426cc2e9939045d99b78911098] ResponseBody: {"data":{"token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjAzNmE4NzU3LWU3MTEtNGQwNi1iMjJkLTU5MTk5OWMwYmFhNCIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL25hbWUiOiJBZG1pbiIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL2VtYWlsYWRkcmVzcyI6ImFkbWluQGV4YW1wbGUuY29tIiwiaHR0cDovL3NjaGVtYXMubWljcm9zb2Z0LmNvbS93cy8yMDA4LzA2L2lkZW50aXR5L2NsYWltcy9yb2xlIjpbIkFkbWluIiwiQWRtaW4iXSwiZXhwIjoxNzg0OTYwNjExLCJpc3MiOiJiYWNrZW5kLWFwaSIsImF1ZCI6ImJhY2tlbmQtY2xpZW50In0.YiHBTMqDecChm1Fw2Bt52Z42RR-7HIhZgiy6wCI9wJw","message":"Login successful","userId":"036a8757-e711-4d06-b22d-591999c0baa4","name":"Admin","email":"admin@example.com","role":"Admin"},"status":true,"message":"Login successful"}
+2026-07-15 11:53:31 [INF] [TraceId:76af48426cc2e9939045d99b78911098] Request Finished: 200 in 1232ms
+2026-07-15 11:53:31 [INF] [TraceId:76af48426cc2e9939045d99b78911098] Request finished HTTP/1.1 POST http://localhost:5090/api/Auth/Login - 200 null application/json; charset=utf-8 1278.0492ms
+2026-07-15 11:54:18 [INF] [TraceId:] Application is shutting down...
+2026-07-15 11:54:26 [INF] [TraceId:] HRMS Application Started
+2026-07-15 11:54:26 [INF] [TraceId:] Application Started
+2026-07-15 11:54:26 [INF] [TraceId:] User profile is available. Using 'C:\Users\HDonda\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest.
+2026-07-15 11:54:26 [INF] [TraceId:] Now listening on: http://localhost:5090
+2026-07-15 11:54:26 [INF] [TraceId:] Application started. Press Ctrl+C to shut down.
+2026-07-15 11:54:26 [INF] [TraceId:] Hosting environment: Development
+2026-07-15 11:54:26 [INF] [TraceId:] Content root path: C:\Learning\.NET\Basics\project\backend
+2026-07-15 11:54:31 [INF] [TraceId:d0bf3b81577191700e4c83f1418bd0cc] Request starting HTTP/1.1 POST http://localhost:5090/api/Auth/Login - application/json 57
+2026-07-15 11:54:31 [INF] [TraceId:d0bf3b81577191700e4c83f1418bd0cc] Request Started: POST /api/Auth/Login  from 127.0.0.1
+2026-07-15 11:54:31 [INF] [TraceId:d0bf3b81577191700e4c83f1418bd0cc] Request:
+Method: POST
+PathBase: 
+Path: /api/Auth/Login
+2026-07-15 11:54:31 [INF] [TraceId:d0bf3b81577191700e4c83f1418bd0cc] Executing endpoint 'backend.Controllers.AuthController.Login (backend)'
+2026-07-15 11:54:31 [INF] [TraceId:d0bf3b81577191700e4c83f1418bd0cc] Route matched with {action = "Login", controller = "Auth"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] Login(backend.Dto.LoginDto) on controller backend.Controllers.AuthController (backend).
+2026-07-15 11:54:31 [INF] [TraceId:d0bf3b81577191700e4c83f1418bd0cc] RequestBody: {
+	"email" : "admin@example.com",
+	"password": "123456"
+}
+2026-07-15 11:54:32 [INF] [TraceId:d0bf3b81577191700e4c83f1418bd0cc] User logged in successfully: admin@example.com
+2026-07-15 11:54:32 [INF] [TraceId:d0bf3b81577191700e4c83f1418bd0cc] Executing OkObjectResult, writing value of type 'backend.GenericResponse.ResponseResults`1[[backend.Dto.TokenDto, backend, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2026-07-15 11:54:32 [INF] [TraceId:d0bf3b81577191700e4c83f1418bd0cc] Response:
+StatusCode: 200
+2026-07-15 11:54:32 [INF] [TraceId:d0bf3b81577191700e4c83f1418bd0cc] Executed action backend.Controllers.AuthController.Login (backend) in 1022.4609ms
+2026-07-15 11:54:32 [INF] [TraceId:d0bf3b81577191700e4c83f1418bd0cc] Executed endpoint 'backend.Controllers.AuthController.Login (backend)'
+2026-07-15 11:54:32 [INF] [TraceId:d0bf3b81577191700e4c83f1418bd0cc] ResponseBody: {"data":{"token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjAzNmE4NzU3LWU3MTEtNGQwNi1iMjJkLTU5MTk5OWMwYmFhNCIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL25hbWUiOiJBZG1pbiIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL2VtYWlsYWRkcmVzcyI6ImFkbWluQGV4YW1wbGUuY29tIiwiaHR0cDovL3NjaGVtYXMubWljcm9zb2Z0LmNvbS93cy8yMDA4LzA2L2lkZW50aXR5L2NsYWltcy9yb2xlIjpbIkFkbWluIiwiQWRtaW4iXSwiZXhwIjoxNzg0OTYwNjcyLCJpc3MiOiJiYWNrZW5kLWFwaSIsImF1ZCI6ImJhY2tlbmQtY2xpZW50In0.NKudZqcpp9u6KTCRBG9lWkqxk1zecsbaGmQ6vrYtvaI","message":"Login successful","userId":"036a8757-e711-4d06-b22d-591999c0baa4","name":"Admin","email":"admin@example.com","role":"Admin"},"status":true,"message":"Login successful"}
+2026-07-15 11:54:32 [INF] [TraceId:d0bf3b81577191700e4c83f1418bd0cc] Request Finished: 200 in 1138ms
+2026-07-15 11:54:32 [INF] [TraceId:d0bf3b81577191700e4c83f1418bd0cc] Request finished HTTP/1.1 POST http://localhost:5090/api/Auth/Login - 200 null application/json; charset=utf-8 1188.4391ms
+2026-07-15 11:59:18 [INF] [TraceId:] HRMS Application Started
+2026-07-15 11:59:18 [INF] [TraceId:] Application Started
+2026-07-15 11:59:23 [INF] [TraceId:e63746efefabec245bb6f6ae851d1c1d] Request Started: POST /api/Auth/Login  from 127.0.0.1
+2026-07-15 11:59:24 [INF] [TraceId:e63746efefabec245bb6f6ae851d1c1d] User logged in successfully: admin@example.com
+2026-07-15 11:59:24 [INF] [TraceId:e63746efefabec245bb6f6ae851d1c1d] Request Finished: 200 in 1071ms
+2026-07-15 11:59:51 [INF] [TraceId:bdb926d5d013b162aa8e1dadc2578d9e] Request Started: GET /api/Department/GetAllDepartments  from 127.0.0.1
+2026-07-15 11:59:51 [INF] [TraceId:bdb926d5d013b162aa8e1dadc2578d9e] Request Finished: 401 in 7ms
+2026-07-15 12:01:24 [INF] [TraceId:651e9265ef48ddf5ee47528e604bd290] Request Started: GET /api/Department/GetDepartmentById/a008cf6e-4fe4-4db6-974e-2c8761a02f86  from 127.0.0.1
+2026-07-15 12:01:24 [WRN] [TraceId:651e9265ef48ddf5ee47528e604bd290] Department not found with id: "a008cf6e-4fe4-4db6-974e-2c8761a02f86"
+2026-07-15 12:01:24 [INF] [TraceId:651e9265ef48ddf5ee47528e604bd290] Request Finished: 404 in 66ms
+2026-07-15 12:01:24 [INF] [TraceId:1ce0028ac02e6a5cf9a580b2e953b47b] Request Started: GET /api/Department/GetDepartmentById/a008cf6e-4fe4-4db6-974e-2c8761a02f86  from 127.0.0.1
+2026-07-15 12:01:24 [WRN] [TraceId:1ce0028ac02e6a5cf9a580b2e953b47b] Department not found with id: "a008cf6e-4fe4-4db6-974e-2c8761a02f86"
+2026-07-15 12:01:24 [INF] [TraceId:1ce0028ac02e6a5cf9a580b2e953b47b] Request Finished: 404 in 59ms
+2026-07-15 12:12:37 [INF] [TraceId:] HRMS Application Started
+2026-07-15 12:12:37 [INF] [TraceId:] Application Started
+2026-07-15 12:13:16 [INF] [TraceId:a3c5534e59e368303bc0b4aeb903b3ee] Request Started: GET /api/Department/GetDepartmentById/a008cf6e-4fe4-4db6-974e-2c8761a02f86  from 127.0.0.1
+2026-07-15 12:13:17 [WRN] [TraceId:a3c5534e59e368303bc0b4aeb903b3ee] Department not found with id: "a008cf6e-4fe4-4db6-974e-2c8761a02f86"
+2026-07-15 12:13:17 [INF] [TraceId:a3c5534e59e368303bc0b4aeb903b3ee] Request Finished: 404 in 856ms
+2026-07-15 12:13:31 [INF] [TraceId:342bd91351e3ece057dbc20b2c262ab6] Request Started: GET /api/Department/GetAllDepartments  from 127.0.0.1
+2026-07-15 12:13:31 [WRN] [TraceId:342bd91351e3ece057dbc20b2c262ab6] Unauthorized access attempt to /api/Department/GetAllDepartments from 127.0.0.1
+2026-07-15 12:13:31 [INF] [TraceId:342bd91351e3ece057dbc20b2c262ab6] Request Finished: 401 in 6ms
+2026-07-15 12:26:06 [INF] [TraceId:] Database connection established successfully.
+2026-07-15 12:26:06 [INF] [TraceId:] HRMS Application Started
+2026-07-15 12:26:06 [INF] [TraceId:] Application Started
+2026-07-15 17:05:03 [INF] [TraceId:577a30ba0b2292a724fdaa923d95c220] Request Started: GET /api/User/GetAllUsers  from 127.0.0.1
+2026-07-15 17:05:04 [INF] [TraceId:577a30ba0b2292a724fdaa923d95c220] Retrieved all users.
+2026-07-15 17:05:04 [INF] [TraceId:577a30ba0b2292a724fdaa923d95c220] Request Finished: 200 in 773ms
+2026-07-15 17:05:11 [INF] [TraceId:a1ecec663184cacd24f8b84c8a6c1e9f] Request Started: GET /api/User/GetAllUsers  from 127.0.0.1
+2026-07-15 17:05:11 [INF] [TraceId:a1ecec663184cacd24f8b84c8a6c1e9f] Retrieved all users.
+2026-07-15 17:05:11 [INF] [TraceId:a1ecec663184cacd24f8b84c8a6c1e9f] Request Finished: 200 in 102ms
+2026-07-15 17:05:56 [INF] [TraceId:] Database connection established successfully.
+2026-07-15 17:05:57 [INF] [TraceId:] HRMS Application Started
+2026-07-15 17:05:57 [INF] [TraceId:] Application Started
+2026-07-15 17:06:11 [INF] [TraceId:934fbb5e4678a62607ff21699e62a663] Request Started: GET /api/User/GetAllUsers  from 127.0.0.1
+2026-07-15 17:06:12 [INF] [TraceId:934fbb5e4678a62607ff21699e62a663] Request Finished: 200 in 817ms
+2026-07-15 17:06:57 [INF] [TraceId:48acdbd1681a02b1c627e48b0ddaee93] Request Started: GET /api/User/GetAllUsers ?pageNumber=1&pageSize=1 from 127.0.0.1
+2026-07-15 17:06:57 [INF] [TraceId:48acdbd1681a02b1c627e48b0ddaee93] Request Finished: 200 in 127ms
+2026-07-15 17:07:04 [INF] [TraceId:2c44a88a61cc6b820d9eae5bfcdef04d] Request Started: GET /api/User/GetAllUsers ?pageNumber=2&pageSize=1 from 127.0.0.1
+2026-07-15 17:07:04 [INF] [TraceId:2c44a88a61cc6b820d9eae5bfcdef04d] Request Finished: 200 in 38ms
+2026-07-15 17:07:10 [INF] [TraceId:6bbe75dad161d01d6a31f4a836134bf9] Request Started: GET /api/User/GetAllUsers ?pageNumber=3&pageSize=1 from 127.0.0.1
+2026-07-15 17:07:10 [INF] [TraceId:6bbe75dad161d01d6a31f4a836134bf9] Request Finished: 200 in 6ms
+2026-07-15 17:07:16 [INF] [TraceId:664b4f384217ada9a4f8f86c7f3f902c] Request Started: GET /api/User/GetAllUsers ?pageNumber=4&pageSize=1 from 127.0.0.1
+2026-07-15 17:07:16 [INF] [TraceId:2c30eff0ef07486cf605cfa2102dc08b] Request Started: GET /api/User/GetAllUsers ?pageNumber=4&pageSize=1 from 127.0.0.1
+2026-07-15 17:07:16 [INF] [TraceId:2c30eff0ef07486cf605cfa2102dc08b] Request Finished: 200 in 4ms
+2026-07-15 17:07:16 [INF] [TraceId:664b4f384217ada9a4f8f86c7f3f902c] Request Finished: 200 in 9ms
+2026-07-15 17:07:17 [INF] [TraceId:8ce73a46e041c7970841b3b5dc686cbb] Request Started: GET /api/User/GetAllUsers ?pageNumber=4&pageSize=1 from 127.0.0.1
+2026-07-15 17:07:17 [INF] [TraceId:ff1b1b6f68f7d00f493fb50a05187b90] Request Started: GET /api/User/GetAllUsers ?pageNumber=4&pageSize=1 from 127.0.0.1
+2026-07-15 17:07:17 [INF] [TraceId:8ce73a46e041c7970841b3b5dc686cbb] Request Finished: 200 in 3ms
+2026-07-15 17:07:17 [INF] [TraceId:ff1b1b6f68f7d00f493fb50a05187b90] Request Finished: 200 in 4ms
+2026-07-15 17:07:22 [INF] [TraceId:296a873fa55f7f1e207691dd3b8bee1e] Request Started: GET /api/User/GetAllUsers ?pageNumber=5&pageSize=1 from 127.0.0.1
+2026-07-15 17:07:22 [INF] [TraceId:296a873fa55f7f1e207691dd3b8bee1e] Request Finished: 200 in 5ms
+2026-07-15 17:07:24 [INF] [TraceId:99e69f8e4a7abf8e8f887e6a7ef74a52] Request Started: GET /api/User/GetAllUsers ?pageNumber=5&pageSize=1 from 127.0.0.1
+2026-07-15 17:07:24 [INF] [TraceId:99e69f8e4a7abf8e8f887e6a7ef74a52] Request Finished: 200 in 3ms
+2026-07-15 17:07:24 [INF] [TraceId:472dbb915a4253acdec8cfdf2916e85b] Request Started: GET /api/User/GetAllUsers ?pageNumber=5&pageSize=1 from 127.0.0.1
+2026-07-15 17:07:24 [INF] [TraceId:472dbb915a4253acdec8cfdf2916e85b] Request Finished: 200 in 5ms
+2026-07-15 17:07:28 [INF] [TraceId:8a5a2a2c167d637d2a266464d0bf0d48] Request Started: GET /api/User/GetAllUsers ?pageNumber=5&pageSize=2 from 127.0.0.1
+2026-07-15 17:07:28 [INF] [TraceId:8a5a2a2c167d637d2a266464d0bf0d48] Request Finished: 200 in 6ms
+2026-07-15 17:07:39 [INF] [TraceId:3043eef0af91d5cc264f9361bf97da21] Request Started: GET /api/User/GetAllUsers ?pageNumber=2&pageSize=2 from 127.0.0.1
+2026-07-15 17:07:39 [INF] [TraceId:3043eef0af91d5cc264f9361bf97da21] Request Finished: 200 in 4ms
+2026-07-15 17:32:55 [INF] [TraceId:] Database connection established successfully.
+2026-07-15 17:32:55 [INF] [TraceId:] HRMS Application Started
+2026-07-15 17:32:55 [INF] [TraceId:] Application Started
+2026-07-15 17:34:09 [INF] [TraceId:27e1cdc8147a1aa5f19f7d5f6004e013] Request Started: GET /api/EmployeeProject/GetEmployeeProjectsByEmployeeId/e402e297-626e-4d51-938b-8da4a08f613a ?pageNumber=1&pageSize=2 from 127.0.0.1
+2026-07-15 17:34:09 [INF] [TraceId:27e1cdc8147a1aa5f19f7d5f6004e013] Request Finished: 404 in 159ms
+2026-07-15 17:34:41 [INF] [TraceId:54e2950083d18b929b18693cb212f893] Request Started: GET /api/User/GetAllUsers ?pageNumber=1&pageSize=2 from 127.0.0.1
+2026-07-15 17:34:42 [INF] [TraceId:54e2950083d18b929b18693cb212f893] Request Finished: 200 in 586ms
+2026-07-15 17:35:38 [INF] [TraceId:c3a76b9216c49b5a9df5165b8bd561d2] Request Started: GET /api/EmployeeProject/GetEmployeeProjectsByEmployeeId/a97cd67d-4331-4933-bde9-4d94fe4648c5 ?pageNumber=1&pageSize=2 from 127.0.0.1
+2026-07-15 17:35:38 [INF] [TraceId:c3a76b9216c49b5a9df5165b8bd561d2] Request Finished: 404 in 4ms
+2026-07-15 17:35:40 [INF] [TraceId:adf09934d9ad6877574cbe7221f8db6e] Request Started: GET /api/EmployeeProject/GetEmployeeProjectsByEmployeeId/a97cd67d-4331-4933-bde9-4d94fe4648c5 ?pageNumber=1&pageSize=2 from 127.0.0.1
+2026-07-15 17:35:40 [INF] [TraceId:adf09934d9ad6877574cbe7221f8db6e] Request Finished: 404 in 0ms
+2026-07-15 17:35:41 [INF] [TraceId:6f8915d41c1acc775c5f47fac1600250] Request Started: GET /api/EmployeeProject/GetEmployeeProjectsByEmployeeId/a97cd67d-4331-4933-bde9-4d94fe4648c5 ?pageNumber=1&pageSize=2 from 127.0.0.1
+2026-07-15 17:35:41 [INF] [TraceId:6f8915d41c1acc775c5f47fac1600250] Request Finished: 404 in 1ms
+2026-07-15 17:35:41 [INF] [TraceId:00ed7c8d8801cd4921820be07e3ad04b] Request Started: GET /api/EmployeeProject/GetEmployeeProjectsByEmployeeId/a97cd67d-4331-4933-bde9-4d94fe4648c5 ?pageNumber=1&pageSize=2 from 127.0.0.1
+2026-07-15 17:35:41 [INF] [TraceId:00ed7c8d8801cd4921820be07e3ad04b] Request Finished: 404 in 1ms
+2026-07-15 17:35:41 [INF] [TraceId:df8135a4db831a7631dd0005b78c31f9] Request Started: GET /api/EmployeeProject/GetEmployeeProjectsByEmployeeId/a97cd67d-4331-4933-bde9-4d94fe4648c5 ?pageNumber=1&pageSize=2 from 127.0.0.1
+2026-07-15 17:35:41 [INF] [TraceId:df8135a4db831a7631dd0005b78c31f9] Request Finished: 404 in 0ms
+2026-07-15 17:35:49 [INF] [TraceId:6a7564daca55c6598cd05a77bbb49d8d] Request Started: GET /api/EmployeeProject/GetEmployeeProjectsByUserId/a97cd67d-4331-4933-bde9-4d94fe4648c5 ?pageNumber=1&pageSize=2 from 127.0.0.1
+2026-07-15 17:35:49 [INF] [TraceId:6a7564daca55c6598cd05a77bbb49d8d] Request Finished: 404 in 1ms
+2026-07-15 17:35:59 [INF] [TraceId:b09cd7969156d2e84adae0feb4bfdb65] Request Started: GET /api/EmployeeProject/GetUserProjectsByUserId/a97cd67d-4331-4933-bde9-4d94fe4648c5 ?pageNumber=1&pageSize=2 from 127.0.0.1
+2026-07-15 17:36:00 [INF] [TraceId:b09cd7969156d2e84adae0feb4bfdb65] Retrieved projects for user with id: "a97cd67d-4331-4933-bde9-4d94fe4648c5"
+2026-07-15 17:36:00 [INF] [TraceId:b09cd7969156d2e84adae0feb4bfdb65] Request Finished: 200 in 218ms
+2026-07-15 17:58:36 [INF] [TraceId:c43049a91ccc700616d62a372d59409b] Request Started: GET /api/User/GetUserBySearch ?serchTerm=%22ha%22 from 127.0.0.1
+2026-07-15 17:58:36 [INF] [TraceId:c43049a91ccc700616d62a372d59409b] Request Finished: 404 in 0ms
+2026-07-15 17:59:12 [INF] [TraceId:654ba34fad42324930756f0eb3589442] Request Started: GET /api/User/GetUserBySearch ?serchTerm=%22ha%22 from 127.0.0.1
+2026-07-15 17:59:12 [INF] [TraceId:654ba34fad42324930756f0eb3589442] Request Finished: 404 in 0ms
+2026-07-15 17:59:43 [INF] [TraceId:4ef63bf28b899d3f5f534a37e7a9eb77] Request Started: GET /api/User/GetUserBySearch  from 127.0.0.1
+2026-07-15 17:59:43 [INF] [TraceId:4ef63bf28b899d3f5f534a37e7a9eb77] Request Finished: 404 in 1ms
+2026-07-15 17:59:45 [INF] [TraceId:c8acc8439fba97d6fa1a0ce80b751cbb] Request Started: GET /api/User/GetUserBySearch  from 127.0.0.1
+2026-07-15 17:59:45 [INF] [TraceId:c8acc8439fba97d6fa1a0ce80b751cbb] Request Finished: 404 in 0ms
+2026-07-15 18:00:13 [INF] [TraceId:] Database connection established successfully.
+2026-07-15 18:00:13 [INF] [TraceId:] HRMS Application Started
+2026-07-15 18:00:13 [INF] [TraceId:] Application Started
+2026-07-15 18:00:26 [INF] [TraceId:60a61cca607a0d22b409619d19e064a0] Request Started: GET /api/User/GetUserBySearch ?searchTerm=%22ha%22 from 127.0.0.1
+2026-07-15 18:00:26 [WRN] [TraceId:60a61cca607a0d22b409619d19e064a0] No users found for search term: "ha"
+2026-07-15 18:00:26 [INF] [TraceId:60a61cca607a0d22b409619d19e064a0] Request Finished: 404 in 640ms
+2026-07-15 18:01:36 [INF] [TraceId:] Database connection established successfully.
+2026-07-15 18:01:37 [INF] [TraceId:] HRMS Application Started
+2026-07-15 18:01:37 [INF] [TraceId:] Application Started
+2026-07-15 18:01:37 [INF] [TraceId:94fdc533496e1bc392d198aa18faf729] Request Started: GET /api/User/GetUserBySearch ?searchTerm=%22ha%22 from 127.0.0.1
+2026-07-15 18:01:37 [WRN] [TraceId:94fdc533496e1bc392d198aa18faf729] No users found for search term: "ha"
+2026-07-15 18:01:37 [INF] [TraceId:94fdc533496e1bc392d198aa18faf729] Request Finished: 404 in 564ms
+2026-07-15 18:01:40 [INF] [TraceId:24faf8dd0ad09c6f6e10b82fe49c7920] Request Started: GET /api/User/GetUserBySearch ?searchTerm=%22ha%22 from 127.0.0.1
+2026-07-15 18:01:40 [WRN] [TraceId:24faf8dd0ad09c6f6e10b82fe49c7920] No users found for search term: "ha"
+2026-07-15 18:01:40 [INF] [TraceId:24faf8dd0ad09c6f6e10b82fe49c7920] Request Finished: 404 in 114ms
+2026-07-15 18:01:50 [INF] [TraceId:82b3384ba9b66ea73ad5fa61ab1141c3] Request Started: GET /api/User/GetUserBySearch ?searchTerm=%22harsh%22 from 127.0.0.1
+2026-07-15 18:01:50 [WRN] [TraceId:82b3384ba9b66ea73ad5fa61ab1141c3] No users found for search term: "harsh"
+2026-07-15 18:01:50 [INF] [TraceId:82b3384ba9b66ea73ad5fa61ab1141c3] Request Finished: 404 in 9ms
+2026-07-15 18:02:37 [INF] [TraceId:27ac57126eccb5d577c154f0ded18214] Request Started: GET /api/User/GetUserBySearch ?searchTerm=harsh from 127.0.0.1
+2026-07-15 18:02:37 [INF] [TraceId:27ac57126eccb5d577c154f0ded18214] Retrieved users for search term: harsh
+2026-07-15 18:02:37 [INF] [TraceId:27ac57126eccb5d577c154f0ded18214] Request Finished: 200 in 45ms
+2026-07-15 18:02:46 [INF] [TraceId:a2a5b838f3fb4c58f16036e7d3890c9b] Request Started: GET /api/User/GetUserBySearch ?searchTerm=h from 127.0.0.1
+2026-07-15 18:02:46 [INF] [TraceId:a2a5b838f3fb4c58f16036e7d3890c9b] Retrieved users for search term: h
+2026-07-15 18:02:46 [INF] [TraceId:a2a5b838f3fb4c58f16036e7d3890c9b] Request Finished: 200 in 4ms
+2026-07-15 18:02:54 [INF] [TraceId:d5e2419eecfb772c9db84fe734f01492] Request Started: GET /api/User/GetUserBySearch ?searchTerm=ha from 127.0.0.1
+2026-07-15 18:02:54 [INF] [TraceId:e9ae1a72f2672be1304f5b18b10adc3e] Request Started: GET /api/User/GetUserBySearch ?searchTerm=ha from 127.0.0.1
+2026-07-15 18:02:54 [INF] [TraceId:d5e2419eecfb772c9db84fe734f01492] Retrieved users for search term: ha
+2026-07-15 18:02:54 [INF] [TraceId:d5e2419eecfb772c9db84fe734f01492] Request Finished: 200 in 6ms
+2026-07-15 18:02:54 [INF] [TraceId:e9ae1a72f2672be1304f5b18b10adc3e] Retrieved users for search term: ha
+2026-07-15 18:02:54 [INF] [TraceId:e9ae1a72f2672be1304f5b18b10adc3e] Request Finished: 200 in 5ms
