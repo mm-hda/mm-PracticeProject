@@ -10,7 +10,7 @@ namespace backend.Services;
 
 internal sealed class UserService(AppDbContext context) : IUserService
 {
-    public async Task<Tuple<int, List<UserResponseDto>, PaginationMetaDto?>> GetAllUsers(PaginationDto dto)
+    public async Task<Tuple<int, IReadOnlyCollection<UserResponseDto>, PaginationMetaDto?>> GetAllUsers(PaginationDto dto)
     {
         try
         {
@@ -72,7 +72,7 @@ internal sealed class UserService(AppDbContext context) : IUserService
         }
     }
 
-    public async Task<Tuple<int, List<UserResponseDto>>> GetUserBySearch(string searchTerm)
+    public async Task<Tuple<int, IReadOnlyCollection<UserResponseDto>>> GetUserBySearch(string searchTerm)
     {
         try
         {
@@ -149,7 +149,7 @@ internal sealed class UserService(AppDbContext context) : IUserService
         }
     }
 
-    public async Task<Tuple<int, List<UserResponseDto>>> GetUsersByFilter(UserFilterDto dto)
+    public async Task<Tuple<int, IReadOnlyCollection<UserResponseDto>>> GetUsersByFilter(UserFilterDto dto)
     {
         try
         {

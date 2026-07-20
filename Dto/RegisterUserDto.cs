@@ -21,10 +21,13 @@ public class RegisterUserDto
     [Required]
     public DateTime? DOB { get; set; }
 
+    [Required]
     public Guid BranchId { get; set; }
 
+    [Required]
     public Guid DepartmentId { get; set; }
 
+    [Required]
     public Guid PositionId { get; set; }
 
     [Required]

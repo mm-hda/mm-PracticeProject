@@ -62,7 +62,7 @@ public class RoleController(IRoleService roleService, ILogger<RoleController> lo
             }
 
             logger.LogInformation("Retrieved all roles count: {Count}", result.Item2?.Count ?? 0);
-            return Ok(ResponseResults<List<RoleResponseDto>>.Success(result.Item1, result.Item2));
+            return Ok(ResponseResults<IReadOnlyCollection<RoleResponseDto>>.Success(result.Item1, result.Item2));
         }
         catch (Exception ex)
         {
@@ -111,7 +111,7 @@ public class RoleController(IRoleService roleService, ILogger<RoleController> lo
             }
 
             logger.LogInformation("Retrieved users for role with id: {RoleId} count: {Count}", roleId, result.Item2?.Count ?? 0);
-            return Ok(ResponseResults<List<RoleUserResponseDto>>.Success(result.Item1, result.Item2));
+            return Ok(ResponseResults<IReadOnlyCollection<RoleUserResponseDto>>.Success(result.Item1, result.Item2));
         }
         catch (Exception ex)
         {

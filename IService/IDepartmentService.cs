@@ -8,9 +8,9 @@ public interface IDepartmentService
 
     Task<Tuple<int>> UpdateDepartment(DepartmentDto dto);
 
-    Task<Tuple<int, List<DepartmentResponseDto>>> GetAllDepartments();
+    Task<Tuple<int, IReadOnlyCollection<DepartmentResponseDto>>> GetAllDepartments();
 
     Task<Tuple<int, DepartmentResponseDto?>> GetDepartmentById(Guid id);
 
-    Task<Tuple<int, List<DepartmentUserResponseDto>>> GetDepartmentEmployees(Guid departmentId);
+    Task<Tuple<int, IReadOnlyCollection<DepartmentUserResponseDto>>> GetDepartmentEmployees(Guid departmentId);
 }

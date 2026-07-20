@@ -90,7 +90,7 @@ public class BranchController(IBranchService branchService, ILogger<BranchContro
             var result = await branchService.GetAllBranches().ConfigureAwait(false);
 
             logger.LogInformation("Retrieved all branches.");
-            return Ok(ResponseResults<List<BranchResponseDto>>.Success(result.Item1, result.Item2));
+            return Ok(ResponseResults<IReadOnlyCollection<BranchResponseDto>>.Success(result.Item1, result.Item2));
         }
         catch (Exception ex)
         {
@@ -152,7 +152,7 @@ public class BranchController(IBranchService branchService, ILogger<BranchContro
             }
 
             logger.LogInformation("Retrieved users for branch with id: {BranchId}", branchId);
-            return Ok(ResponseResults<List<BranchUserResponseDto>>.Success(result.Item1, result.Item2));
+            return Ok(ResponseResults<IReadOnlyCollection<BranchUserResponseDto>>.Success(result.Item1, result.Item2));
         }
         catch (Exception ex)
         {

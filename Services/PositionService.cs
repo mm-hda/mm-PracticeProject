@@ -116,7 +116,7 @@ internal sealed class PositionService(AppDbContext context) : IPositionService
         }
     }
 
-    public async Task<Tuple<int, List<PositionResponseDto>>> GetAllPositions()
+    public async Task<Tuple<int, IReadOnlyCollection<PositionResponseDto>>> GetAllPositions()
     {
         try
         {
@@ -131,11 +131,11 @@ internal sealed class PositionService(AppDbContext context) : IPositionService
                     TotalUsers = context.Users.Count(u => u.PositionId == x.Id)
                 }).ToListAsync().ConfigureAwait(false);
 
-            return new Tuple<int, List<PositionResponseDto>>(CustomCodes.DataRetrieved, positions);
+            return new Tuple<int, IReadOnlyCollection<PositionResponseDto>>(CustomCodes.DataRetrieved, positions);
         }
         catch (Exception)
         {
-            return new Tuple<int, List<PositionResponseDto>>(CustomCodes.InternalServerError, []);
+            return new Tuple<int, IReadOnlyCollection<PositionResponseDto>>(CustomCodes.InternalServerError, []);
             throw;
         }
     }
@@ -175,20 +175,20 @@ internal sealed class PositionService(AppDbContext context) : IPositionService
         }
     }
 
-    public async Task<Tuple<int, List<PositionResponseDto>>> GetPositionsByDepartment(Guid departmentId)
+    public async Task<Tuple<int, IReadOnlyCollection<PositionResponseDto>>> GetPositionsByDepartment(Guid departmentId)
     {
         try
         {
             if (departmentId == Guid.Empty)
             {
-                return new Tuple<int, List<PositionResponseDto>>(CustomCodes.InputsNotFound, []);
+                return new Tuple<int, IReadOnlyCollection<PositionResponseDto>>(CustomCodes.InputsNotFound, []);
             }
 
             var departmentExists = await context.Departments.AnyAsync(x => x.Id == departmentId).ConfigureAwait(false);
 
             if (!departmentExists)
             {
-                return new Tuple<int, List<PositionResponseDto>>(CustomCodes.DepartmentNotFound, []);
+                return new Tuple<int, IReadOnlyCollection<PositionResponseDto>>(CustomCodes.DepartmentNotFound, []);
             }
 
             var positions = await context.Positions.AsNoTracking()
@@ -203,29 +203,29 @@ internal sealed class PositionService(AppDbContext context) : IPositionService
                     TotalUsers = context.Users.Count(u => u.PositionId == x.Id)
                 }).ToListAsync().ConfigureAwait(false);
 
-            return new Tuple<int, List<PositionResponseDto>>(CustomCodes.DataRetrieved, positions);
+            return new Tuple<int, IReadOnlyCollection<PositionResponseDto>>(CustomCodes.DataRetrieved, positions);
         }
         catch (Exception)
         {
-            return new Tuple<int, List<PositionResponseDto>>(CustomCodes.InternalServerError, []);
+            return new Tuple<int, IReadOnlyCollection<PositionResponseDto>>(CustomCodes.InternalServerError, []);
             throw;
         }
     }
 
-    public async Task<Tuple<int, List<PositionUserResponseDto>>> GetPositionUsers(Guid positionId)
+    public async Task<Tuple<int, IReadOnlyCollection<PositionUserResponseDto>>> GetPositionUsers(Guid positionId)
     {
         try
         {
             if (positionId == Guid.Empty)
             {
-                return new Tuple<int, List<PositionUserResponseDto>>(CustomCodes.InputsNotFound, []);
+                return new Tuple<int, IReadOnlyCollection<PositionUserResponseDto>>(CustomCodes.InputsNotFound, []);
             }
 
             var positionExists = await context.Positions.AnyAsync(x => x.Id == positionId).ConfigureAwait(false);
 
             if (!positionExists)
             {
-                return new Tuple<int, List<PositionUserResponseDto>>(CustomCodes.PositionNotFound, []);
+                return new Tuple<int, IReadOnlyCollection<PositionUserResponseDto>>(CustomCodes.PositionNotFound, []);
             }
 
             var users = await context.Users.AsNoTracking()
@@ -246,11 +246,11 @@ internal sealed class PositionService(AppDbContext context) : IPositionService
                     RoleName = x.Role != null ? x.Role.Name : ""
                 }).ToListAsync().ConfigureAwait(false);
 
-            return new Tuple<int, List<PositionUserResponseDto>>(CustomCodes.DataRetrieved, users);
+            return new Tuple<int, IReadOnlyCollection<PositionUserResponseDto>>(CustomCodes.DataRetrieved, users);
         }
         catch (Exception)
         {
-            return new Tuple<int, List<PositionUserResponseDto>>(CustomCodes.InternalServerError, []);
+            return new Tuple<int, IReadOnlyCollection<PositionUserResponseDto>>(CustomCodes.InternalServerError, []);
             throw;
         }
     }

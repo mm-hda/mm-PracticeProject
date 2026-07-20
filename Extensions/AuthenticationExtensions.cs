@@ -4,7 +4,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 namespace backend.Extensions;
 
-public static class AuthenticationExtensions
+internal static class AuthenticationExtensions
 {
     public static IServiceCollection AddJwtAuthentication(
         this IServiceCollection services,

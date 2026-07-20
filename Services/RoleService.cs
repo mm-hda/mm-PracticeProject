@@ -42,7 +42,7 @@ internal sealed class RoleService(AppDbContext context) : IRoleService
         }
     }
 
-    public async Task<Tuple<int, List<RoleResponseDto>>> GetAllRoles()
+    public async Task<Tuple<int, IReadOnlyCollection<RoleResponseDto>>> GetAllRoles()
     {
         try
         {
@@ -54,14 +54,14 @@ internal sealed class RoleService(AppDbContext context) : IRoleService
                 }).ToListAsync().ConfigureAwait(false);
             if (roles.Count == 0)
             {
-                return new Tuple<int, List<RoleResponseDto>>(CustomCodes.RoleNotFound, []);
+                return new Tuple<int, IReadOnlyCollection<RoleResponseDto>>(CustomCodes.RoleNotFound, []);
             }
 
-            return new Tuple<int, List<RoleResponseDto>>(CustomCodes.DataRetrieved, roles);
+            return new Tuple<int, IReadOnlyCollection<RoleResponseDto>>(CustomCodes.DataRetrieved, roles);
         }
         catch (Exception)
         {
-            return new Tuple<int, List<RoleResponseDto>>(CustomCodes.InternalServerError, []);
+            return new Tuple<int, IReadOnlyCollection<RoleResponseDto>>(CustomCodes.InternalServerError, []);
             throw;
         }
     }
@@ -87,7 +87,7 @@ internal sealed class RoleService(AppDbContext context) : IRoleService
         }
     }
 
-    public async Task<Tuple<int, List<RoleUserResponseDto>>> GetUsersByRole(Guid roleId)
+    public async Task<Tuple<int, IReadOnlyCollection<RoleUserResponseDto>>> GetUsersByRole(Guid roleId)
     {
         try
         {
@@ -108,11 +108,11 @@ internal sealed class RoleService(AppDbContext context) : IRoleService
                     BranchName = x.Branch != null ? x.Branch.Name : ""
                 }).ToListAsync().ConfigureAwait(false);
 
-            return new Tuple<int, List<RoleUserResponseDto>>(CustomCodes.DataRetrieved, users);
+            return new Tuple<int, IReadOnlyCollection<RoleUserResponseDto>>(CustomCodes.DataRetrieved, users);
         }
         catch (Exception)
         {
-            return new Tuple<int, List<RoleUserResponseDto>>(CustomCodes.InternalServerError, []);
+            return new Tuple<int, IReadOnlyCollection<RoleUserResponseDto>>(CustomCodes.InternalServerError, []);
             throw;
         }
     }

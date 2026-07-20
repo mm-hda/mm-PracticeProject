@@ -91,7 +91,7 @@ public class PositionController(IPositionService positionService, ILogger<Positi
             var result = await positionService.GetAllPositions().ConfigureAwait(false);
 
             logger.LogInformation("Retrieved all positions count: {Count}", result.Item2?.Count ?? 0);
-            return Ok(ResponseResults<List<PositionResponseDto>>.Success(result.Item1, result.Item2));
+            return Ok(ResponseResults<IReadOnlyCollection<PositionResponseDto>>.Success(result.Item1, result.Item2));
         }
         catch (Exception ex)
         {
@@ -150,12 +150,12 @@ public class PositionController(IPositionService positionService, ILogger<Positi
             if (result.Item1 == 0)
             {
                 logger.LogWarning("No positions found for department id: {DepartmentId}", departmentId);
-                return NotFound(ResponseResults<List<PositionResponseDto>>.Failure(result.Item1));
+                return NotFound(ResponseResults<IReadOnlyCollection<PositionResponseDto>>.Failure(result.Item1));
             }
 
             var logs = result.Item2.Select(p => new { p.Id, p.Name }).ToList();
             logger.LogInformation("Retrieved positions for department id: {DepartmentId} results: {Logs}", departmentId, logs);
-            return Ok(ResponseResults<List<PositionResponseDto>>.Success(result.Item1, result.Item2));
+            return Ok(ResponseResults<IReadOnlyCollection<PositionResponseDto>>.Success(result.Item1, result.Item2));
         }
         catch (Exception ex)
         {
@@ -182,12 +182,12 @@ public class PositionController(IPositionService positionService, ILogger<Positi
             if (result.Item1 == 0)
             {
                 logger.LogWarning("StatusCode: {StatusCode}", result.Item1);
-                return NotFound(ResponseResults<List<PositionUserResponseDto>>.Failure(result.Item1));
+                return NotFound(ResponseResults<IReadOnlyCollection<PositionUserResponseDto>>.Failure(result.Item1));
             }
 
             var logs = result.Item2.Select(u => new { u.UserId, u.Name }).ToList();
             logger.LogInformation("Retrieved users for position id: {PositionId} results: {Logs}", positionId, logs);
-            return Ok(ResponseResults<List<PositionUserResponseDto>>.Success(result.Item1, result.Item2));
+            return Ok(ResponseResults<IReadOnlyCollection<PositionUserResponseDto>>.Success(result.Item1, result.Item2));
         }
         catch (Exception ex)
         {

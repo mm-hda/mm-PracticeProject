@@ -9,7 +9,7 @@ using backend.GenericResponse;
 
 namespace backend.Services;
 
-internal sealed class EmployeeProjectService(AppDbContext context) : IEmployeeProjectService
+internal sealed class EmployeeProjectService(AppDbContext _context) : IEmployeeProjectService
 {
     public async Task<Tuple<int>> CreateEmployeeProject(EmployeeProjectDto dto)
     {
@@ -32,14 +32,14 @@ internal sealed class EmployeeProjectService(AppDbContext context) : IEmployeePr
                 return new Tuple<int>(CustomCodes.InputsNotFound);
             }
 
-            var userExists = await context.Users.AnyAsync(x => x.Id == dto.UserId).ConfigureAwait(false);
+            var userExists = await _context.Users.AnyAsync(x => x.Id == dto.UserId).ConfigureAwait(false);
 
             if (!userExists)
             {
                 return new Tuple<int>(CustomCodes.UserNotFound);
             }
 
-            var project = await context.Projects.FirstOrDefaultAsync(x => x.Id == dto.ProjectId).ConfigureAwait(false);
+            var project = await _context.Projects.FirstOrDefaultAsync(x => x.Id == dto.ProjectId).ConfigureAwait(false);
 
             if (project == null)
             {
@@ -51,7 +51,7 @@ internal sealed class EmployeeProjectService(AppDbContext context) : IEmployeePr
                 return new Tuple<int>(CustomCodes.ProjectEnded);
             }
 
-            var alreadyAssigned = await context.EmployeeProjects.AnyAsync(x => x.UserId == dto.UserId && x.ProjectId == dto.ProjectId).ConfigureAwait(false);
+            var alreadyAssigned = await _context.EmployeeProjects.AnyAsync(x => x.UserId == dto.UserId && x.ProjectId == dto.ProjectId).ConfigureAwait(false);
 
             if (alreadyAssigned)
             {
@@ -66,9 +66,9 @@ internal sealed class EmployeeProjectService(AppDbContext context) : IEmployeePr
                 AssignedDate = DateTime.UtcNow
             };
 
-            await context.EmployeeProjects.AddAsync(employeeProject).ConfigureAwait(false);
+            await _context.EmployeeProjects.AddAsync(employeeProject).ConfigureAwait(false);
 
-            await context.SaveChangesAsync().ConfigureAwait(false);
+            await _context.SaveChangesAsync().ConfigureAwait(false);
 
             return new Tuple<int>(CustomCodes.EmployeeProjectCreatedSuccessfully);
         }
@@ -88,14 +88,14 @@ internal sealed class EmployeeProjectService(AppDbContext context) : IEmployeePr
                 return new Tuple<int>(CustomCodes.InvalidInput);
             }
 
-            var employeeProject = await context.EmployeeProjects.FirstOrDefaultAsync(x => x.Id == id).ConfigureAwait(false);
+            var employeeProject = await _context.EmployeeProjects.FirstOrDefaultAsync(x => x.Id == id).ConfigureAwait(false);
 
             if (employeeProject == null)
             {
                 return new Tuple<int>(CustomCodes.EmployeeProjectNotFound);
             }
 
-            var project = await context.Projects.FirstOrDefaultAsync(x => x.Id == employeeProject.ProjectId).ConfigureAwait(false);
+            var project = await _context.Projects.FirstOrDefaultAsync(x => x.Id == employeeProject.ProjectId).ConfigureAwait(false);
 
             if (project == null)
             {
@@ -112,9 +112,9 @@ internal sealed class EmployeeProjectService(AppDbContext context) : IEmployeePr
                 return new Tuple<int>(CustomCodes.InvalidInput);
             }
 
-            context.EmployeeProjects.Remove(employeeProject);
+            _context.EmployeeProjects.Remove(employeeProject);
 
-            await context.SaveChangesAsync().ConfigureAwait(false);
+            await _context.SaveChangesAsync().ConfigureAwait(false);
 
             return new Tuple<int>(CustomCodes.EmployeeProjectRemovedSuccessfully);
         }
@@ -125,11 +125,11 @@ internal sealed class EmployeeProjectService(AppDbContext context) : IEmployeePr
         }
     }
 
-    public async Task<Tuple<int, List<EmployeeProjectResponseDto>>> GetAllEmployeeProjects()
+    public async Task<Tuple<int, IReadOnlyCollection<EmployeeProjectResponseDto>>> GetAllEmployeeProjects()
     {
         try
         {
-            var employeeProjects = await context.EmployeeProjects.AsNoTracking()
+            var employeeProjects = await _context.EmployeeProjects.AsNoTracking()
                 .Include(x => x.User)
                     .ThenInclude(x => x!.Role)
                 .Include(x => x.Project)
@@ -145,16 +145,16 @@ internal sealed class EmployeeProjectService(AppDbContext context) : IEmployeePr
                     AssignedDate = x.AssignedDate
                 }).ToListAsync().ConfigureAwait(false);
 
-            return new Tuple<int, List<EmployeeProjectResponseDto>>(CustomCodes.DataRetrieved, employeeProjects);
+            return new Tuple<int, IReadOnlyCollection<EmployeeProjectResponseDto>>(CustomCodes.DataRetrieved, employeeProjects);
         }
         catch (Exception)
         {
-            return new Tuple<int, List<EmployeeProjectResponseDto>>(CustomCodes.InternalServerError, []);
+            return new Tuple<int, IReadOnlyCollection<EmployeeProjectResponseDto>>(CustomCodes.InternalServerError, []);
             throw;
         }
     }
 
-    public async Task<Tuple<int, List<ProjectResponseDto>, PaginationMetaDto?>> GetUserProjectsByUserId(Guid userId, PaginationDto dto)
+    public async Task<Tuple<int, IReadOnlyCollection<ProjectResponseDto>, PaginationMetaDto?>> GetUserProjectsByUserId(Guid userId, PaginationDto dto)
     {
         try
         {
@@ -165,28 +165,28 @@ internal sealed class EmployeeProjectService(AppDbContext context) : IEmployeePr
 
             if (userId == Guid.Empty)
             {
-                return new Tuple<int, List<ProjectResponseDto>, PaginationMetaDto?>(CustomCodes.InvalidInput, [], null);
+                return new Tuple<int, IReadOnlyCollection<ProjectResponseDto>, PaginationMetaDto?>(CustomCodes.InvalidInput, [], null);
             }
 
-            var userExists = await context.Users.AnyAsync(x => x.Id == userId).ConfigureAwait(false);
+            var userExists = await _context.Users.AnyAsync(x => x.Id == userId).ConfigureAwait(false);
 
             if (!userExists)
             {
-                return new Tuple<int, List<ProjectResponseDto>, PaginationMetaDto?>(CustomCodes.UserNotFound, [], null);
+                return new Tuple<int, IReadOnlyCollection<ProjectResponseDto>, PaginationMetaDto?>(CustomCodes.UserNotFound, [], null);
             }
 
-            var query = context.EmployeeProjects.AsNoTracking().Where(x => x.UserId == userId);
+            var query = _context.EmployeeProjects.AsNoTracking().Where(x => x.UserId == userId);
 
             if (query == null)
             {
-                return new Tuple<int, List<ProjectResponseDto>, PaginationMetaDto?>(CustomCodes.EmployeeProjectNotFound, [], null);
+                return new Tuple<int, IReadOnlyCollection<ProjectResponseDto>, PaginationMetaDto?>(CustomCodes.EmployeeProjectNotFound, [], null);
             }
 
             var totalRecords = await query.CountAsync().ConfigureAwait(false);
 
             if ((int)Math.Ceiling(totalRecords / (double)dto.PageSize) < dto.PageNumber)
             {
-                return new Tuple<int, List<ProjectResponseDto>, PaginationMetaDto?>(CustomCodes.PageNumberExceeds, [], null);
+                return new Tuple<int, IReadOnlyCollection<ProjectResponseDto>, PaginationMetaDto?>(CustomCodes.PageNumberExceeds, [], null);
             }
 
             var projects = await query
@@ -202,7 +202,7 @@ internal sealed class EmployeeProjectService(AppDbContext context) : IEmployeePr
                     EndDate = x.Project != null ? x.Project.EndDate : null,
                     ProjectManagerId = x.Project != null ? x.Project.ProjectManagerId : Guid.Empty,
                     ProjectManagerName = x.Project != null && x.Project.ProjectManager != null ? x.Project.ProjectManager.Name ?? "" : "",
-                    TotalUsers = context.EmployeeProjects.Count(ep => ep.ProjectId == x.ProjectId)
+                    TotalUsers = _context.EmployeeProjects.Count(ep => ep.ProjectId == x.ProjectId)
                 }).ToListAsync().ConfigureAwait(false);
 
             var meta = new PaginationMetaDto
@@ -213,11 +213,11 @@ internal sealed class EmployeeProjectService(AppDbContext context) : IEmployeePr
                 TotalPages = (int)Math.Ceiling(projects.Count / (double)dto.PageSize)
             };
 
-            return new Tuple<int, List<ProjectResponseDto>, PaginationMetaDto?>(CustomCodes.DataRetrieved, projects, meta);
+            return new Tuple<int, IReadOnlyCollection<ProjectResponseDto>, PaginationMetaDto?>(CustomCodes.DataRetrieved, projects, meta);
         }
         catch (Exception)
         {
-            return new Tuple<int, List<ProjectResponseDto>, PaginationMetaDto?>(CustomCodes.InternalServerError, [], null);
+            return new Tuple<int, IReadOnlyCollection<ProjectResponseDto>, PaginationMetaDto?>(CustomCodes.InternalServerError, [], null);
             throw;
         }
     }

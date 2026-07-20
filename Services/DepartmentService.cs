@@ -93,7 +93,7 @@ internal sealed class DepartmentService(AppDbContext context) : IDepartmentServi
         }
     }
 
-    public async Task<Tuple<int, List<DepartmentResponseDto>>> GetAllDepartments()
+    public async Task<Tuple<int, IReadOnlyCollection<DepartmentResponseDto>>> GetAllDepartments()
     {
         try
         {
@@ -106,11 +106,11 @@ internal sealed class DepartmentService(AppDbContext context) : IDepartmentServi
                     TotalUsers = context.Users.Count(u => u.DepartmentId == d.Id)
                 }).ToListAsync().ConfigureAwait(false);
 
-            return new Tuple<int, List<DepartmentResponseDto>>(CustomCodes.DataRetrieved, departments);
+            return new Tuple<int, IReadOnlyCollection<DepartmentResponseDto>>(CustomCodes.DataRetrieved, departments);
         }
         catch (Exception)
         {
-            return new Tuple<int, List<DepartmentResponseDto>>(CustomCodes.InternalServerError, []);
+            return new Tuple<int, IReadOnlyCollection<DepartmentResponseDto>>(CustomCodes.InternalServerError, []);
             throw;
         }
     }
@@ -144,20 +144,20 @@ internal sealed class DepartmentService(AppDbContext context) : IDepartmentServi
         }
     }
 
-    public async Task<Tuple<int, List<DepartmentUserResponseDto>>> GetDepartmentEmployees(Guid departmentId)
+    public async Task<Tuple<int, IReadOnlyCollection<DepartmentUserResponseDto>>> GetDepartmentEmployees(Guid departmentId)
     {
         try
         {
             if (departmentId == Guid.Empty)
             {
-                return new Tuple<int, List<DepartmentUserResponseDto>>(CustomCodes.InvalidInput, []);
+                return new Tuple<int, IReadOnlyCollection<DepartmentUserResponseDto>>(CustomCodes.InvalidInput, []);
             }
 
             var departmentExists = await context.Departments.AnyAsync(x => x.Id == departmentId).ConfigureAwait(false);
 
             if (!departmentExists)
             {
-                return new Tuple<int, List<DepartmentUserResponseDto>>(CustomCodes.DepartmentNotFound, []);
+                return new Tuple<int, IReadOnlyCollection<DepartmentUserResponseDto>>(CustomCodes.DepartmentNotFound, []);
             }
 
             var users = await context.Users.AsNoTracking()
@@ -178,11 +178,11 @@ internal sealed class DepartmentService(AppDbContext context) : IDepartmentServi
                     RoleName = x.Role != null ? x.Role.Name : ""
                 }).ToListAsync().ConfigureAwait(false);
 
-            return new Tuple<int, List<DepartmentUserResponseDto>>(CustomCodes.DataRetrieved, users);
+            return new Tuple<int, IReadOnlyCollection<DepartmentUserResponseDto>>(CustomCodes.DataRetrieved, users);
         }
         catch (Exception)
         {
-            return new Tuple<int, List<DepartmentUserResponseDto>>(CustomCodes.InternalServerError, []);
+            return new Tuple<int, IReadOnlyCollection<DepartmentUserResponseDto>>(CustomCodes.InternalServerError, []);
             throw;
         }
     }

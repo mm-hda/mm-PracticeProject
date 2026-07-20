@@ -140,7 +140,7 @@ internal sealed class ProjectService(AppDbContext context) : IProjectService
         }
     }
 
-    public async Task<Tuple<int, List<ProjectResponseDto>>> GetAllProjects()
+    public async Task<Tuple<int, IReadOnlyCollection<ProjectResponseDto>>> GetAllProjects()
     {
         try
         {
@@ -158,11 +158,11 @@ internal sealed class ProjectService(AppDbContext context) : IProjectService
                     TotalUsers = context.EmployeeProjects.Count(ep => ep.ProjectId == x.Id)
                 }).ToListAsync().ConfigureAwait(false);
 
-            return new Tuple<int, List<ProjectResponseDto>>(CustomCodes.DataRetrieved, projects);
+            return new Tuple<int, IReadOnlyCollection<ProjectResponseDto>>(CustomCodes.DataRetrieved, projects);
         }
         catch (Exception)
         {
-            return new Tuple<int, List<ProjectResponseDto>>(CustomCodes.InternalServerError, []);
+            return new Tuple<int, IReadOnlyCollection<ProjectResponseDto>>(CustomCodes.InternalServerError, []);
             throw;
         }
     }
@@ -205,20 +205,20 @@ internal sealed class ProjectService(AppDbContext context) : IProjectService
         }
     }
 
-    public async Task<Tuple<int, List<ProjectUserResponseDto>>> GetProjectEmployees(Guid projectId)
+    public async Task<Tuple<int, IReadOnlyCollection<ProjectUserResponseDto>>> GetProjectEmployees(Guid projectId)
     {
         try
         {
             if (projectId == Guid.Empty)
             {
-                return new Tuple<int, List<ProjectUserResponseDto>>(CustomCodes.InvalidInput, []);
+                return new Tuple<int, IReadOnlyCollection<ProjectUserResponseDto>>(CustomCodes.InvalidInput, []);
             }
 
             var projectExists = await context.Projects.AnyAsync(x => x.Id == projectId).ConfigureAwait(false);
 
             if (!projectExists)
             {
-                return new Tuple<int, List<ProjectUserResponseDto>>(CustomCodes.ProjectNotFound, []);
+                return new Tuple<int, IReadOnlyCollection<ProjectUserResponseDto>>(CustomCodes.ProjectNotFound, []);
             }
 
             var users = await context.EmployeeProjects.AsNoTracking()
@@ -243,11 +243,11 @@ internal sealed class ProjectService(AppDbContext context) : IProjectService
                     RoleName = x.User != null && x.User.Role != null ? x.User.Role.Name : ""
                 }).ToListAsync().ConfigureAwait(false);
 
-            return new Tuple<int, List<ProjectUserResponseDto>>(CustomCodes.DataRetrieved, users);
+            return new Tuple<int, IReadOnlyCollection<ProjectUserResponseDto>>(CustomCodes.DataRetrieved, users);
         }
         catch (Exception)
         {
-            return new Tuple<int, List<ProjectUserResponseDto>>(CustomCodes.InternalServerError, []);
+            return new Tuple<int, IReadOnlyCollection<ProjectUserResponseDto>>(CustomCodes.InternalServerError, []);
             throw;
         }
     }

@@ -15,7 +15,7 @@ public class UserController(IUserService userService, ILogger<UserController> lo
 {
 
     [HttpGet("GetAllUsers")]
-    public async Task<IActionResult> GetAllUsersAsync([FromQuery] PaginationDto dto)
+    public async Task<IActionResult> GetAllUsersAsync([FromQuery] PaginationDto dto, [FromHeader(Name = "jwt")] string jwt)
     {
         ArgumentNullException.ThrowIfNull(dto);
 
@@ -24,7 +24,7 @@ public class UserController(IUserService userService, ILogger<UserController> lo
         try
         {
             var result = await userService.GetAllUsers(dto).ConfigureAwait(false);
-
+            logger.LogInformation("tok: {Token}", jwt);
             if (result.Item1 == 0)
             {
                 logger.LogWarning("{Status code}", result.Item1);
@@ -32,7 +32,7 @@ public class UserController(IUserService userService, ILogger<UserController> lo
             }
 
             logger.LogInformation("Retrieved all users successfully. {COUNT}", result.Item2?.Count ?? 0);
-            return Ok(ResponseResults<List<UserResponseDto>>.Success(result.Item1, result.Item2, result.Item3));
+            return Ok(ResponseResults<IReadOnlyCollection<UserResponseDto>>.Success(result.Item1, result.Item2, result.Item3));
         }
         catch (Exception ex)
         {
@@ -59,7 +59,7 @@ public class UserController(IUserService userService, ILogger<UserController> lo
             var logs = result.Item2.Select(u => new { u.UserId, u.Name, u.Email }).ToList();
 
             logger.LogInformation("Retrieved users for search term: {SearchTerm} and logs: {Logs}", searchTerm, logs);
-            return Ok(ResponseResults<List<UserResponseDto>>.Success(result.Item1, result.Item2));
+            return Ok(ResponseResults<IReadOnlyCollection<UserResponseDto>>.Success(result.Item1, result.Item2));
         }
         catch (Exception ex)
         {
@@ -111,7 +111,7 @@ public class UserController(IUserService userService, ILogger<UserController> lo
             var result = await userService.GetUsersByFilter(dto).ConfigureAwait(false);
 
             logger.LogInformation("Retrieved users by filter the count: {Count}", result.Item2?.Count ?? 0);
-            return Ok(ResponseResults<List<UserResponseDto>>.Success(result.Item1, result.Item2));
+            return Ok(ResponseResults<IReadOnlyCollection<UserResponseDto>>.Success(result.Item1, result.Item2));
         }
         catch (Exception ex)
         {

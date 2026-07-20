@@ -88,7 +88,7 @@ public class EmployeeProjectController(IEmployeeProjectService employeeProjectSe
             var result = await employeeProjectService.GetAllEmployeeProjects().ConfigureAwait(false);
 
             logger.LogInformation("Retrieved all employee projects.");
-            return Ok(ResponseResults<List<EmployeeProjectResponseDto>>.Success(result.Item1, result.Item2));
+            return Ok(ResponseResults<IReadOnlyCollection<EmployeeProjectResponseDto>>.Success(result.Item1, result.Item2));
         }
         catch (Exception ex)
         {
@@ -116,11 +116,11 @@ public class EmployeeProjectController(IEmployeeProjectService employeeProjectSe
             if (result.Item1 == 0)
             {
                 logger.LogWarning("User projects not found for user id: {UserId}", userId);
-                return NotFound(ResponseResults<List<ProjectResponseDto>>.Failure(result.Item1));
+                return NotFound(ResponseResults<IReadOnlyCollection<ProjectResponseDto>>.Failure(result.Item1));
             }
 
             logger.LogInformation("Retrieved projects for user with id: {UserId}", userId);
-            return Ok(ResponseResults<List<ProjectResponseDto>>.Success(result.Item1, result.Item2, result.Item3));
+            return Ok(ResponseResults<IReadOnlyCollection<ProjectResponseDto>>.Success(result.Item1, result.Item2, result.Item3));
 
         }
         catch (Exception ex)

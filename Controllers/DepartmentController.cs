@@ -87,7 +87,7 @@ public class DepartmentController(IDepartmentService departmentService, ILogger<
             var result = await departmentService.GetAllDepartments().ConfigureAwait(false);
 
             logger.LogInformation("Retrieved all departments successfully. Count: {Count}", result.Item2.Count);
-            return Ok(ResponseResults<List<DepartmentResponseDto>>.Success(result.Item1, result.Item2));
+            return Ok(ResponseResults<IReadOnlyCollection<DepartmentResponseDto>>.Success(result.Item1, result.Item2));
         }
         catch (Exception ex)
         {
@@ -145,11 +145,11 @@ public class DepartmentController(IDepartmentService departmentService, ILogger<
             if (result.Item1 == 0)
             {
                 logger.LogWarning("No employees found for department id: {DepartmentId}", departmentId);
-                return NotFound(ResponseResults<List<DepartmentUserResponseDto>>.Failure(result.Item1));
+                return NotFound(ResponseResults<IReadOnlyCollection<DepartmentUserResponseDto>>.Failure(result.Item1));
             }
 
             logger.LogInformation("Retrieved employees for department id: {DepartmentId}", departmentId);
-            return Ok(ResponseResults<List<DepartmentUserResponseDto>>.Success(result.Item1, result.Item2));
+            return Ok(ResponseResults<IReadOnlyCollection<DepartmentUserResponseDto>>.Success(result.Item1, result.Item2));
         }
         catch (Exception ex)
         {

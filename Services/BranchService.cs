@@ -88,7 +88,7 @@ internal sealed class BranchService(AppDbContext context) : IBranchService
         }
     }
 
-    public async Task<Tuple<int, List<BranchResponseDto>>> GetAllBranches()
+    public async Task<Tuple<int, IReadOnlyCollection<BranchResponseDto>>> GetAllBranches()
     {
         try
         {
@@ -101,11 +101,11 @@ internal sealed class BranchService(AppDbContext context) : IBranchService
                     TotalUsers = context.Users.Count(u => u.BranchId == x.Id)
                 }).ToListAsync().ConfigureAwait(false);
 
-            return new Tuple<int, List<BranchResponseDto>>(CustomCodes.DataRetrieved, branches);
+            return new Tuple<int, IReadOnlyCollection<BranchResponseDto>>(CustomCodes.DataRetrieved, branches);
         }
         catch (Exception)
         {
-            return new Tuple<int, List<BranchResponseDto>>(CustomCodes.InternalServerError, []);
+            return new Tuple<int, IReadOnlyCollection<BranchResponseDto>>(CustomCodes.InternalServerError, []);
             throw;
         }
     }
@@ -137,7 +137,7 @@ internal sealed class BranchService(AppDbContext context) : IBranchService
         }
     }
 
-    public async Task<Tuple<int, List<BranchUserResponseDto>>> GetBranchUsers(Guid branchId)
+    public async Task<Tuple<int, IReadOnlyCollection<BranchUserResponseDto>>> GetBranchUsers(Guid branchId)
     {
         try
         {
@@ -161,14 +161,14 @@ internal sealed class BranchService(AppDbContext context) : IBranchService
 
             if (users == null || users.Count == 0)
             {
-                return new Tuple<int, List<BranchUserResponseDto>>(CustomCodes.BranchNotFound, []);
+                return new Tuple<int, IReadOnlyCollection<BranchUserResponseDto>>(CustomCodes.BranchNotFound, []);
             }
 
-            return new Tuple<int, List<BranchUserResponseDto>>(CustomCodes.DataRetrieved, users);
+            return new Tuple<int, IReadOnlyCollection<BranchUserResponseDto>>(CustomCodes.DataRetrieved, users);
         }
         catch (Exception)
         {
-            return new Tuple<int, List<BranchUserResponseDto>>(CustomCodes.InternalServerError, []);
+            return new Tuple<int, IReadOnlyCollection<BranchUserResponseDto>>(CustomCodes.InternalServerError, []);
             throw;
         }
     }

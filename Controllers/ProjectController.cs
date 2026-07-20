@@ -88,11 +88,11 @@ public class ProjectController(IProjectService projectService, ILogger<ProjectCo
             if (result.Item2 == null || result.Item2.Count == 0)
             {
                 logger.LogWarning(" StatusCode : {StatusCode}", result.Item1);
-                return NotFound(ResponseResults<List<ProjectResponseDto>>.Failure(result.Item1));
+                return NotFound(ResponseResults<IReadOnlyCollection<ProjectResponseDto>>.Failure(result.Item1));
             }
 
             logger.LogInformation("Retrieved all projects count: {Count}", result.Item2?.Count ?? 0);
-            return Ok(ResponseResults<List<ProjectResponseDto>>.Success(result.Item1, result.Item2));
+            return Ok(ResponseResults<IReadOnlyCollection<ProjectResponseDto>>.Success(result.Item1, result.Item2));
         }
         catch (Exception ex)
         {
@@ -150,11 +150,11 @@ public class ProjectController(IProjectService projectService, ILogger<ProjectCo
             if (result.Item1 == 0)
             {
                 logger.LogWarning("{StatusCode} id: {ProjectId}", result.Item1, projectId);
-                return NotFound(ResponseResults<List<ProjectUserResponseDto>>.Failure(result.Item1));
+                return NotFound(ResponseResults<IReadOnlyCollection<ProjectUserResponseDto>>.Failure(result.Item1));
             }
 
             logger.LogInformation("Retrieved employees for project with id: {ProjectId} count: {Count}", projectId, result.Item2?.Count ?? 0);
-            return Ok(ResponseResults<List<ProjectUserResponseDto>>.Success(result.Item1, result.Item2));
+            return Ok(ResponseResults<IReadOnlyCollection<ProjectUserResponseDto>>.Success(result.Item1, result.Item2));
         }
         catch (Exception ex)
         {

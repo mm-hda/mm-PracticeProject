@@ -3,7 +3,7 @@ using backend.Services;
 
 namespace backend.Extensions;
 
-public static class ServiceCollectionExtensions
+internal static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddApplicationServices(
         this IServiceCollection services)

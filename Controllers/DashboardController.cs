@@ -12,7 +12,6 @@ namespace backend.Controllers;
 [Route("api/[controller]")]
 public class DashboardController(IDashboardService dashboardService, ILogger<DashboardController> logger) : ControllerBase
 {
-
     [HttpGet("GetDashboard")]
     public async Task<IActionResult> GetDashboardAsync()
     {

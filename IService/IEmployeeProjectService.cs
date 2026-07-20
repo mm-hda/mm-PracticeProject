@@ -10,7 +10,7 @@ public interface IEmployeeProjectService
 
     Task<Tuple<int>> RemoveEmployeeProject(Guid id);
 
-    Task<Tuple<int, List<EmployeeProjectResponseDto>>> GetAllEmployeeProjects();
+    Task<Tuple<int, IReadOnlyCollection<EmployeeProjectResponseDto>>> GetAllEmployeeProjects();
 
-    Task<Tuple<int, List<ProjectResponseDto>, PaginationMetaDto?>> GetUserProjectsByUserId(Guid userId, PaginationDto dto);
+    Task<Tuple<int, IReadOnlyCollection<ProjectResponseDto>, PaginationMetaDto?>> GetUserProjectsByUserId(Guid userId, PaginationDto dto);
 }
