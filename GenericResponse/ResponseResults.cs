@@ -1,61 +1,55 @@
-using backend.Dto;
-using backend.Dto.Common;
+﻿using backend.Dto;
+using backend.Dto.CommonDtos;
+
 using System.Text.Json.Serialization;
 
+namespace backend.GenericResponse;
 
-namespace backend.GenericResponse
+internal sealed class ResponseResults<T>
 {
-    public class ResponseResults<T>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public T? Data { get; set; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public PaginationMetaDto? Meta { get; set; }
+    public ResponseStatusCode StatusCode { get; set; } = new();
+
+    public static ResponseResults<T> Success(int StatusCode, T? data = default, PaginationMetaDto? meta = null)
     {
-        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public T? Data { get; set; }
-        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public PaginationMetaDto? Meta { get; set; }
-        public bool Status { get; set; }
-        public string? Message { get; set; }
-
-
-        public static ResponseResults<T> Success(T? data, string Message)
+        if (meta == null)
         {
             return new ResponseResults<T>
             {
                 Data = data,
-                Message = Message,
-                Status = true
+                StatusCode = new ResponseStatusCode { StatusCode = StatusCode }
             };
         }
-        public static ResponseResults<T> Success(T? data, PaginationMetaDto meta, string Message)
-        {
-            if (meta == null)
-            {
-                return new ResponseResults<T>
-                {
-                    Data = data,
-                    Message = Message,
-                    Status = true
-                };
-            }
-            return new ResponseResults<T>
-            {
-                Data = data,
-                Meta = meta,
-                Message = Message,
-                Status = true
-            };
-        }
-
-        public static ResponseResults<T> Failure(T? data, string Message)
+        if (data == null)
         {
             return new ResponseResults<T>
             {
-                Message = Message,
-                Status = false
+                StatusCode = new ResponseStatusCode { StatusCode = StatusCode }
             };
         }
-
-        internal static object? Failure(object value, TokenDto item2)
+        return new ResponseResults<T>
         {
-            throw new NotImplementedException();
-        }
+            Data = data,
+            Meta = meta,
+            StatusCode = new ResponseStatusCode { StatusCode = StatusCode }
+        };
     }
+
+    public static ResponseResults<T> Failure(int StatusCode)
+    {
+        return new ResponseResults<T>
+        {
+            StatusCode = new ResponseStatusCode { StatusCode = StatusCode }
+        };
+    }
+
+    internal object? Failure(object value, TokenDto item2) => throw new NotImplementedException();
+}
+
+internal sealed class ResponseStatusCode
+{
+    public int StatusCode { get; set; }
 }

@@ -1,17 +1,16 @@
-using backend.Dto.ProjectDto;
+﻿using backend.Dto.ProjectDtos;
 
-namespace backend.IService
+namespace backend.IService;
+
+public interface IProjectService
 {
-    public interface IProjectService
-    {
-        Task<Tuple<int, string>> CreateProject(ProjectDto dto);
+    Task<Tuple<int>> CreateProject(ProjectDto dto);
 
-        Task<Tuple<int, string>> UpdateProject(ProjectDto dto);
+    Task<Tuple<int>> UpdateProject(ProjectDto dto);
 
-        Task<Tuple<int, List<ProjectResponseDto>, string>> GetAllProjects();
+    Task<Tuple<int, List<ProjectResponseDto>>> GetAllProjects();
 
-        Task<Tuple<int, ProjectResponseDto?, string>> GetProjectById(Guid id);
+    Task<Tuple<int, ProjectResponseDto?>> GetProjectById(Guid id);
 
-        Task<Tuple<int, List<ProjectUserResponseDto>, string>> GetProjectEmployees(Guid projectId);
-    }
+    Task<Tuple<int, List<ProjectUserResponseDto>>> GetProjectEmployees(Guid projectId);
 }

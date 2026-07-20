@@ -1,17 +1,16 @@
-using backend.Dto.EmployeeProjectDto;
-using backend.Dto.ProjectDto;
-using backend.Dto.Common;
+﻿using backend.Dto.EmployeeProjectDtos;
+using backend.Dto.ProjectDtos;
+using backend.Dto.CommonDtos;
 
-namespace backend.IService
+namespace backend.IService;
+
+public interface IEmployeeProjectService
 {
-    public interface IEmployeeProjectService
-    {
-        Task<Tuple<int, string>> CreateEmployeeProject(EmployeeProjectDto dto);
+    Task<Tuple<int>> CreateEmployeeProject(EmployeeProjectDto dto);
 
-        Task<Tuple<int, string>> RemoveEmployeeProject(Guid id);
+    Task<Tuple<int>> RemoveEmployeeProject(Guid id);
 
-        Task<Tuple<int, List<EmployeeProjectResponseDto>, string>> GetAllEmployeeProjects();
+    Task<Tuple<int, List<EmployeeProjectResponseDto>>> GetAllEmployeeProjects();
 
-        Task<Tuple<int, List<ProjectResponseDto>, PaginationMetaDto?, string>> GetUserProjectsByUserId(Guid userId, PaginationDto dto);
-    }
+    Task<Tuple<int, List<ProjectResponseDto>, PaginationMetaDto?>> GetUserProjectsByUserId(Guid userId, PaginationDto dto);
 }

@@ -1,33 +1,25 @@
-using backend.GenericResponse;
+﻿using backend.GenericResponse;
 
-namespace backend.Middleware
+namespace backend.Middleware;
+
+internal sealed class GlobalExceptionMiddleware(RequestDelegate next, ILogger<GlobalExceptionMiddleware> logger)
 {
-    public class GlobalExceptionMiddleware
+    public async Task InvokeAsync(HttpContext context)
     {
-        private readonly RequestDelegate _next;
-        private readonly ILogger<GlobalExceptionMiddleware> _logger;
-
-        public GlobalExceptionMiddleware(RequestDelegate next, ILogger<GlobalExceptionMiddleware> logger)
+        ArgumentNullException.ThrowIfNull(context);
+        try
         {
-            _next = next;
-            _logger = logger;
+            await next(context).ConfigureAwait(false);
         }
-
-        public async Task Invoke(
-            HttpContext context)
+        catch (Exception ex)
         {
-            try
-            {
-                await _next(context);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError("Database dependency is not available: {ExceptionMessage}", ex.Message);
+            logger.LogError("Database dependency is not available: {ExceptionMessage}", ex.Message);
 
-                context.Response.StatusCode = 500;
+            context.Response.StatusCode = 500;
 
-                await context.Response.WriteAsJsonAsync(ResponseResults<string>.Failure(null, "Database dependency is not found"));
-            }
+            await context.Response.WriteAsJsonAsync(ResponseResults<string>.Failure(CustomCodes.DatabaseDependencyNotFound)).ConfigureAwait(false);
+            throw;
         }
     }
 }
+

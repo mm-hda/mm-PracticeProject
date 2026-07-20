@@ -1,13 +1,12 @@
-using backend.Dto.UserDto;
-using backend.Dto.Common;
+﻿using backend.Dto.UserDtos;
+using backend.Dto.CommonDtos;
 
-namespace backend.IService
+namespace backend.IService;
+
+public interface IUserService
 {
-    public interface IUserService
-    {
-        Task<Tuple<int, List<UserResponseDto>, PaginationMetaDto?, string>> GetAllUsers(PaginationDto dto);
-        Task<Tuple<int, List<UserResponseDto>, string>> GetUserBySearch(string searchTerm);
-        Task<Tuple<int, UserResponseDto?, string>> GetUserById(Guid id);
-        Task<Tuple<int, List<UserResponseDto>, string>> GetUsersByFilter(UserFilterDto dto);
-    }
+    Task<Tuple<int, List<UserResponseDto>, PaginationMetaDto?>> GetAllUsers(PaginationDto dto);
+    Task<Tuple<int, List<UserResponseDto>>> GetUserBySearch(string searchTerm);
+    Task<Tuple<int, UserResponseDto?>> GetUserById(Guid id);
+    Task<Tuple<int, List<UserResponseDto>>> GetUsersByFilter(UserFilterDto dto);
 }

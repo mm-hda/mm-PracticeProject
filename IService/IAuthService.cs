@@ -1,11 +1,10 @@
-using backend.Dto;
+﻿using backend.Dto;
 
-namespace backend.IService
+namespace backend.IService;
+
+public interface IAuthService
 {
-    public interface IAuthService
-    {
-        Task<Tuple<int, TokenDto>> LoginUser(LoginDto dto);
+    Task<Tuple<int, TokenDto>> LoginUser(LoginDto dto);
 
-        Task<Tuple<int, string>> RegisterUser(RegisterUserDto dto);
-    }
+    Task<Tuple<int>> RegisterUser(RegisterUserDto dto);
 }

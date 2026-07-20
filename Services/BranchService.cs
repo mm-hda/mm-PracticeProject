@@ -1,165 +1,176 @@
-using backend.Data;
-using backend.Dto.BranchDto;
+﻿using backend.Data;
+using backend.Dto.BranchDtos;
 using backend.Entities;
 using backend.IService;
+using backend.GenericResponse;
+
 using Microsoft.EntityFrameworkCore;
 
-namespace backend.Services
+namespace backend.Services;
+
+internal sealed class BranchService(AppDbContext context) : IBranchService
 {
-    public class BranchService(AppDbContext _context) : IBranchService
+    public async Task<Tuple<int>> CreateBranch(BranchDto dto)
     {
-        public async Task<Tuple<int, string>> CreateBranch(BranchDto dto)
+        try
         {
-            try
+            ArgumentNullException.ThrowIfNull(dto);
+
+            if (dto == null || string.IsNullOrWhiteSpace(dto.Name))
             {
-                if (dto == null || string.IsNullOrWhiteSpace(dto.Name))
-                {
-                    return new Tuple<int, string>(0, "Invalid request body");
-                }
-
-                bool exists = await _context.Branches.AnyAsync(x => x.Name.ToLower() == dto.Name.ToLower());
-
-                if (exists)
-                {
-                    return new Tuple<int, string>(0, "Branch already exists");
-                }
-
-                Branch branch = new()
-                {
-                    Id = Guid.NewGuid(),
-                    Name = dto.Name,
-                    Location = dto.Location
-                };
-
-                await _context.Branches.AddAsync(branch);
-
-                await _context.SaveChangesAsync();
-
-                return new Tuple<int, string>(1, "Branch created successfully");
+                return new Tuple<int>(CustomCodes.InputsNotFound);
             }
-            catch (DbUpdateException ex)
+
+            var exists = await context.Branches.AnyAsync(x => string.Equals(x.Name, dto.Name, StringComparison.OrdinalIgnoreCase)).ConfigureAwait(false);
+
+            if (exists)
             {
-                return new Tuple<int, string>(0, ex.Message);
+                return new Tuple<int>(CustomCodes.BranchAlreadyExists);
             }
-            catch (Exception ex)
+
+            Branch branch = new()
             {
-                return new Tuple<int, string>(0, ex.Message);
-            }
+                Id = Guid.NewGuid(),
+                Name = dto.Name,
+                Location = dto.Location
+            };
+
+            await context.Branches.AddAsync(branch).ConfigureAwait(false);
+
+            await context.SaveChangesAsync().ConfigureAwait(false);
+
+            return new Tuple<int>(CustomCodes.BranchCreatedSuccessfully);
         }
-
-        public async Task<Tuple<int, string>> UpdateBranch(BranchDto dto)
+        catch (DbUpdateException)
         {
-            try
-            {
-                if (dto == null || dto.Id == Guid.Empty)
-                {
-                    return new Tuple<int, string>(0, "Invalid request body");
-                }
-
-                var branch = await _context.Branches.FirstOrDefaultAsync(x => x.Id == dto.Id);
-
-                if (branch == null)
-                {
-                    return new Tuple<int, string>(0, "Branch not found");
-                }
-
-                branch.Name = dto.Name;
-                branch.Location = dto.Location;
-
-                await _context.SaveChangesAsync();
-
-                return new Tuple<int, string>(1, "Branch updated successfully");
-            }
-            catch (DbUpdateException ex)
-            {
-                return new Tuple<int, string>(0, ex.Message);
-            }
-            catch (Exception ex)
-            {
-                return new Tuple<int, string>(0, ex.Message);
-            }
+            return new Tuple<int>(CustomCodes.BranchCreationFailed);
         }
-
-        public async Task<Tuple<int, List<BranchResponseDto>, string>> GetAllBranches()
+        catch (Exception)
         {
-            try
-            {
-                var branches = await _context.Branches.AsNoTracking()
-                    .Select(x => new BranchResponseDto
-                    {
-                        Id = x.Id,
-                        Name = x.Name,
-                        Location = x.Location,
-                        TotalUsers = _context.Users.Count(u => u.BranchId == x.Id)
-                    }).ToListAsync();
-
-                return new Tuple<int, List<BranchResponseDto>, string>(1, branches, "Branches retrieved successfully");
-            }
-            catch (Exception ex)
-            {
-                return new Tuple<int, List<BranchResponseDto>, string>(0, new List<BranchResponseDto>(), ex.Message);
-            }
+            return new Tuple<int>(CustomCodes.BranchCreationFailed);
+            throw;
         }
+    }
 
-        public async Task<Tuple<int, BranchResponseDto?, string>> GetBranchById(Guid id)
+    public async Task<Tuple<int>> UpdateBranch(BranchDto dto)
+    {
+        try
         {
-            try
-            {
-                var branch = await _context.Branches.AsNoTracking()
-                    .Where(x => x.Id == id)
-                    .Select(x => new BranchResponseDto
-                    {
-                        Id = x.Id,
-                        Name = x.Name,
-                        Location = x.Location,
-                        TotalUsers = _context.Users.Count(u => u.BranchId == x.Id)
-                    }).FirstOrDefaultAsync();
-                if (branch == null)
-                {
-                    return new Tuple<int, BranchResponseDto?, string>(0, null, "Branch not found");
-                }
+            ArgumentNullException.ThrowIfNull(dto);
 
-                return new Tuple<int, BranchResponseDto?, string>(1, branch, "Branch retrieved successfully");
-            }
-            catch (Exception ex)
+            if (dto == null || dto.Id == Guid.Empty)
             {
-                return new Tuple<int, BranchResponseDto?, string>(0, null, ex.Message);
+                return new Tuple<int>(CustomCodes.InputsNotFound);
             }
+
+            var branch = await context.Branches.FirstOrDefaultAsync(x => x.Id == dto.Id).ConfigureAwait(false);
+
+            if (branch == null)
+            {
+                return new Tuple<int>(CustomCodes.BranchNotFound);
+            }
+
+            branch.Name = dto.Name;
+            branch.Location = dto.Location;
+
+            await context.SaveChangesAsync().ConfigureAwait(false);
+
+            return new Tuple<int>(CustomCodes.BranchUpdatedSuccessfully);
         }
-
-        public async Task<Tuple<int, List<BranchUserResponseDto>, string>> GetBranchUsers(Guid branchId)
+        catch (DbUpdateException)
         {
-            try
-            {
-                var users = await _context.Users.AsNoTracking()
-                    .Include(x => x.Branch)
-                    .Include(x => x.Department)
-                    .Include(x => x.Position)
-                    .Include(x => x.Role)
-                    .Where(x => x.BranchId == branchId)
-                    .Select(x => new BranchUserResponseDto
-                    {
-                        UserId = x.Id,
-                        Name = x.Name ?? "",
-                        Email = x.Email ?? "",
-                        DOB = x.DOB,
-                        BranchName = x.Branch != null ? x.Branch.Name : "",
-                        DepartmentName = x.Department != null ? x.Department.Name : "",
-                        PositionName = x.Position != null ? x.Position.Name : "",
-                        RoleName = x.Role != null ? x.Role.Name : ""
-                    }).ToListAsync();
+            return new Tuple<int>(CustomCodes.BranchUpdateFailed);
+        }
+        catch (Exception)
+        {
+            return new Tuple<int>(CustomCodes.BranchUpdateFailed);
+            throw;
+        }
+    }
 
-                if (users == null || users.Count == 0)
+    public async Task<Tuple<int, List<BranchResponseDto>>> GetAllBranches()
+    {
+        try
+        {
+            var branches = await context.Branches.AsNoTracking()
+                .Select(x => new BranchResponseDto
                 {
-                    return new Tuple<int, List<BranchUserResponseDto>, string>(0, new List<BranchUserResponseDto>(), "No users found for the specified branch");
-                }
+                    Id = x.Id,
+                    Name = x.Name,
+                    Location = x.Location,
+                    TotalUsers = context.Users.Count(u => u.BranchId == x.Id)
+                }).ToListAsync().ConfigureAwait(false);
 
-                return new Tuple<int, List<BranchUserResponseDto>, string>(1, users, "Branch users retrieved successfully");
-            }
-            catch (Exception ex)
+            return new Tuple<int, List<BranchResponseDto>>(CustomCodes.DataRetrieved, branches);
+        }
+        catch (Exception)
+        {
+            return new Tuple<int, List<BranchResponseDto>>(CustomCodes.InternalServerError, []);
+            throw;
+        }
+    }
+
+    public async Task<Tuple<int, BranchResponseDto?>> GetBranchById(Guid id)
+    {
+        try
+        {
+            var branch = await context.Branches.AsNoTracking()
+                .Where(x => x.Id == id)
+                .Select(x => new BranchResponseDto
+                {
+                    Id = x.Id,
+                    Name = x.Name,
+                    Location = x.Location,
+                    TotalUsers = context.Users.Count(u => u.BranchId == x.Id)
+                }).FirstOrDefaultAsync().ConfigureAwait(false);
+            if (branch == null)
             {
-                return new Tuple<int, List<BranchUserResponseDto>, string>(0, new List<BranchUserResponseDto>(), ex.Message);
+                return new Tuple<int, BranchResponseDto?>(CustomCodes.BranchNotFound, null);
             }
+
+            return new Tuple<int, BranchResponseDto?>(CustomCodes.DataRetrieved, branch);
+        }
+        catch (Exception)
+        {
+            return new Tuple<int, BranchResponseDto?>(CustomCodes.InternalServerError, null);
+            throw;
+        }
+    }
+
+    public async Task<Tuple<int, List<BranchUserResponseDto>>> GetBranchUsers(Guid branchId)
+    {
+        try
+        {
+            var users = await context.Users.AsNoTracking()
+                .Include(x => x.Branch)
+                .Include(x => x.Department)
+                .Include(x => x.Position)
+                .Include(x => x.Role)
+                .Where(x => x.BranchId == branchId)
+                .Select(x => new BranchUserResponseDto
+                {
+                    UserId = x.Id,
+                    Name = x.Name ?? "",
+                    Email = x.Email ?? "",
+                    DOB = x.DOB,
+                    BranchName = x.Branch != null ? x.Branch.Name : "",
+                    DepartmentName = x.Department != null ? x.Department.Name : "",
+                    PositionName = x.Position != null ? x.Position.Name : "",
+                    RoleName = x.Role != null ? x.Role.Name : ""
+                }).ToListAsync().ConfigureAwait(false);
+
+            if (users == null || users.Count == 0)
+            {
+                return new Tuple<int, List<BranchUserResponseDto>>(CustomCodes.BranchNotFound, []);
+            }
+
+            return new Tuple<int, List<BranchUserResponseDto>>(CustomCodes.DataRetrieved, users);
+        }
+        catch (Exception)
+        {
+            return new Tuple<int, List<BranchUserResponseDto>>(CustomCodes.InternalServerError, []);
+            throw;
         }
     }
 }
+

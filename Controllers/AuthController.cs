@@ -1,94 +1,97 @@
-using backend.Dto;
+﻿using backend.Dto;
 using backend.GenericResponse;
 using backend.IService;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using backend.Authorization;
 
-namespace backend.Controllers
+namespace backend.Controllers;
+
+[ApiController]
+[Route("api/[controller]")]
+public class AuthController(IAuthService authService, ILogger<AuthController> logger) : ControllerBase
 {
-    [ApiController]
-    [Route("api/[controller]")]
-    public class AuthController(IAuthService _authService, ILogger<AuthController> _logger) : ControllerBase
+    [AllowAnonymous]
+    [HttpPost("Login")]
+    public async Task<IActionResult> LoginAsync([FromBody] LoginDto loginDto)
     {
-        [AllowAnonymous]
-        [HttpPost("Login")]
-        public async Task<IActionResult> Login([FromBody] LoginDto loginDto)
+        ArgumentNullException.ThrowIfNull(loginDto);
+        logger.LogTrace("Login called with dto: {@Email}", loginDto.Email);
+        try
         {
-            _logger.LogTrace("Login called with dto: {@Email}", loginDto.Email);
-            try
+            if (!ModelState.IsValid)
             {
-                if (!ModelState.IsValid)
-                {
-                    _logger.LogWarning("Invalid request body provided for login.");
-                    return BadRequest(ResponseResults<string>.Failure(null, "Invalid request body"));
-                }
-
-                var result = await _authService.LoginUser(loginDto);
-
-                if (result.Item1 == 0)
-                {
-                    _logger.LogWarning("Login failed for user: {Email}", loginDto.Email);
-                    return NotFound(ResponseResults<string>.Failure(null, result.Item2.Message));
-                }
-
-                if (result.Item1 == 1)
-                {
-                    _logger.LogWarning("Invalid credentials provided for user: {Email}", loginDto.Email);
-                    return BadRequest(ResponseResults<string>.Failure(null, result.Item2.Message));
-                }
-
-                if (result.Item1 == 3)
-                {
-                    _logger.LogError("An error occurred while logging in user: {Email}", loginDto.Email);
-                    return StatusCode(500, ResponseResults<string>.Failure(null, result.Item2.Message));
-                }
-
-                _logger.LogInformation("User logged in successfully: {Email}", loginDto.Email);
-                return Ok(ResponseResults<TokenDto>.Success(result.Item2, result.Item2.Message));
+                logger.LogWarning("Invalid request body provided for login.");
+                return BadRequest(ResponseResults<string>.Failure(CustomCodes.InvalidInput));
             }
-            catch (Exception ex)
+
+            var result = await authService.LoginUser(loginDto).ConfigureAwait(false);
+
+            if (result.Item1 == 0)
             {
-                _logger.LogError(ex, "An error occurred while logging in user: {Email}", loginDto.Email);
-                return StatusCode(500, ResponseResults<string>.Failure(null, ex.Message));
+                logger.LogWarning("Login failed for user: {Email}", loginDto.Email);
+                return NotFound(ResponseResults<string>.Failure(result.Item1));
             }
+
+            if (result.Item1 == 1)
+            {
+                logger.LogWarning("Invalid credentials provided for user: {Email}", loginDto.Email);
+                return BadRequest(ResponseResults<string>.Failure(result.Item1));
+            }
+
+            if (result.Item1 == 3)
+            {
+                logger.LogError("An error occurred while logging in user: {Email}", loginDto.Email);
+                return StatusCode(500, ResponseResults<string>.Failure(result.Item1));
+            }
+
+            logger.LogInformation("User logged in successfully: {Email}", loginDto.Email);
+            return Ok(ResponseResults<TokenDto>.Success(result.Item1, result.Item2));
         }
-
-        [Authorize(Roles = RoleConstants.Admin)]
-        [HttpPost("Register")]
-        public async Task<IActionResult> Register([FromBody] RegisterUserDto registerDto)
+        catch (Exception ex)
         {
-            _logger.LogTrace("Register called with dto: {@Email}", registerDto.Email);
-            try
+            logger.LogError(ex, "An error occurred while logging in user: {Email}", loginDto.Email);
+            return StatusCode(500, ResponseResults<string>.Failure(CustomCodes.InternalServerError));
+            throw;
+        }
+    }
+
+    [Authorize(Roles = RoleConstants.Admin)]
+    [HttpPost("Register")]
+    public async Task<IActionResult> RegisterAsync([FromBody] RegisterUserDto registerDto)
+    {
+        ArgumentNullException.ThrowIfNull(registerDto);
+        logger.LogTrace("Register called with dto: {@Email}", registerDto.Email);
+        try
+        {
+            if (!ModelState.IsValid)
             {
-                if (!ModelState.IsValid)
-                {
-                    _logger.LogWarning("Invalid request body provided for user registration.");
-                    return BadRequest(ResponseResults<string>.Failure(null, "Invalid request body"));
-                }
-
-                var result = await _authService.RegisterUser(registerDto);
-
-                if (result.Item1 == 0)
-                {
-                    _logger.LogWarning("User registration failed for email: {Email}", registerDto.Email);
-                    return BadRequest(ResponseResults<string>.Failure(null, result.Item2));
-                }
-
-                if (result.Item1 == 2)
-                {
-                    _logger.LogError("An error occurred while registering user: {Email}", registerDto.Email);
-                    return StatusCode(500, ResponseResults<string>.Failure(null, result.Item2));
-                }
-
-                _logger.LogInformation("User registered successfully: {Email}", registerDto.Email);
-                return Ok(ResponseResults<string>.Success(null, result.Item2));
+                logger.LogWarning("Invalid request body provided for user registration.");
+                return BadRequest(ResponseResults<string>.Failure(CustomCodes.InvalidInput));
             }
-            catch (Exception ex)
+
+            var result = await authService.RegisterUser(registerDto).ConfigureAwait(false);
+
+            if (result.Item1 == 0)
             {
-                _logger.LogError(ex, "An error occurred while registering user: {Email}", registerDto.Email);
-                return StatusCode(500, ResponseResults<string>.Failure(null, ex.Message));
+                logger.LogWarning("User registration failed for email: {Email}", registerDto.Email);
+                return BadRequest(ResponseResults<string>.Failure(result.Item1));
             }
+
+            if (result.Item1 == 2)
+            {
+                logger.LogError("An error occurred while registering user: {Email}", registerDto.Email);
+                return StatusCode(500, ResponseResults<string>.Failure(result.Item1));
+            }
+
+            logger.LogInformation("User registered successfully: {Email}", registerDto.Email);
+            return Ok(ResponseResults<string>.Success(result.Item1));
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "An error occurred while registering user: {Email}", registerDto.Email);
+            return StatusCode(500, ResponseResults<string>.Failure(CustomCodes.InternalServerError));
+            throw;
         }
     }
 }

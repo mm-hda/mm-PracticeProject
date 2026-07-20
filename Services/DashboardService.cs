@@ -1,112 +1,114 @@
-using backend.Data;
-using backend.Dto.DashboardDto;
+﻿using backend.Data;
+using backend.Dto.DashboardDtos;
 using backend.IService;
+using backend.GenericResponse;
+
 using Microsoft.EntityFrameworkCore;
 
-namespace backend.Services
+namespace backend.Services;
+
+internal sealed class DashboardService(AppDbContext context) : IDashboardService
 {
-    public class DashboardService(AppDbContext _context) : IDashboardService
+    public async Task<Tuple<int, DashboardResponseDto>> GetDashboard()
     {
-        public async Task<Tuple<int, DashboardResponseDto, string>> GetDashboard()
+        try
         {
-            try
-            {
-                DashboardResponseDto dashboard = new();
+            DashboardResponseDto dashboard = new();
 
-                dashboard.TotalUsers = await _context.Users.AsNoTracking()
-                .Include(x => x.Role)
-                .CountAsync(x => x.Role != null && x.Role.Name != "Admin");
+            dashboard.TotalUsers = await context.Users.AsNoTracking()
+            .Include(x => x.Role)
+            .CountAsync(x => x.Role != null && x.Role.Name != "Admin").ConfigureAwait(false);
 
-                dashboard.TotalBranches = await _context.Branches.AsNoTracking().CountAsync();
+            dashboard.TotalBranches = await context.Branches.AsNoTracking().CountAsync().ConfigureAwait(false);
 
-                dashboard.TotalDepartments = await _context.Departments.AsNoTracking().CountAsync();
+            dashboard.TotalDepartments = await context.Departments.AsNoTracking().CountAsync().ConfigureAwait(false);
 
-                dashboard.TotalProjects = await _context.Projects.AsNoTracking().CountAsync();
+            dashboard.TotalProjects = await context.Projects.AsNoTracking().CountAsync().ConfigureAwait(false);
 
-                dashboard.TotalRunningProjects = await _context.Projects.AsNoTracking()
-                .CountAsync(x => x.EndDate == null || x.EndDate >= DateTime.UtcNow);
+            dashboard.TotalRunningProjects = await context.Projects.AsNoTracking()
+            .CountAsync(x => x.EndDate == null || x.EndDate >= DateTime.UtcNow).ConfigureAwait(false);
 
-                dashboard.RoleWiseUserCounts = await _context.Roles.AsNoTracking()
-                    .Where(r => r.Name != "Admin")
-                    .Select(r => new RoleUserCountDto
-                    {
-                        RoleId = r.Id,
-                        RoleName = r.Name,
-                        UserCount = _context.Users.Count(u => u.RoleId == r.Id)
-                    }).ToListAsync();
+            dashboard.RoleWiseUserCounts = await context.Roles.AsNoTracking()
+                .Where(r => r.Name != "Admin")
+                .Select(r => new RoleUserCountDto
+                {
+                    RoleId = r.Id,
+                    RoleName = r.Name,
+                    UserCount = context.Users.Count(u => u.RoleId == r.Id)
+                }).ToListAsync().ConfigureAwait(false);
 
-                dashboard.Branches = await _context.Branches.AsNoTracking()
-                    .Select(b => new BranchDashboardDto
-                    {
-                        BranchId = b.Id,
-                        BranchName = b.Name,
-                        Location = b.Location,
+            dashboard.Branches = await context.Branches.AsNoTracking()
+                .Select(b => new BranchDashboardDto
+                {
+                    BranchId = b.Id,
+                    BranchName = b.Name,
+                    Location = b.Location,
 
-                        UserCount = _context.Users.Include(u => u.Role)
-                        .Count(u => u.BranchId == b.Id && u.Role != null && u.Role.Name != "Admin")
-                    }).ToListAsync();
+                    UserCount = context.Users.Include(u => u.Role)
+                    .Count(u => u.BranchId == b.Id && u.Role != null && u.Role.Name != "Admin")
+                }).ToListAsync().ConfigureAwait(false);
 
-                dashboard.Departments = await _context.Departments.AsNoTracking()
-                    .Where(d => d.Name != "Admin")
-                    .Select(d => new DepartmentDashboardDto
-                    {
-                        DepartmentId = d.Id,
+            dashboard.Departments = await context.Departments.AsNoTracking()
+                .Where(d => d.Name != "Admin")
+                .Select(d => new DepartmentDashboardDto
+                {
+                    DepartmentId = d.Id,
 
-                        DepartmentName = d.Name,
+                    DepartmentName = d.Name,
 
-                        UserCount = _context.Users
-                            .Include(u => u.Role)
-                            .Count(u => u.DepartmentId == d.Id && u.Role != null && u.Role.Name != "Admin"),
+                    UserCount = context.Users
+                        .Include(u => u.Role)
+                        .Count(u => u.DepartmentId == d.Id && u.Role != null && u.Role.Name != "Admin"),
 
-                        TotalPositions = _context.Positions
-                            .Count(p => p.DepartmentId == d.Id),
+                    TotalPositions = context.Positions
+                        .Count(p => p.DepartmentId == d.Id),
 
-                        Positions = _context.Positions
-                            .Where(p => p.DepartmentId == d.Id)
-                            .Select(p => new PositionDashboardDto
-                            {
-                                PositionId = p.Id,
-                                PositionName = p.Name,
-                                UserCount = _context.Users.Include(u => u.Role)
-                                .Count(u => u.PositionId == p.Id && u.Role != null && u.Role.Name != "Admin")
-                            }).ToList()
-                    }).ToListAsync();
+                    Positions = context.Positions
+                        .Where(p => p.DepartmentId == d.Id)
+                        .Select(p => new PositionDashboardDto
+                        {
+                            PositionId = p.Id,
+                            PositionName = p.Name,
+                            UserCount = context.Users.Include(u => u.Role)
+                            .Count(u => u.PositionId == p.Id && u.Role != null && u.Role.Name != "Admin")
+                        }).ToList()
+                }).ToListAsync().ConfigureAwait(false);
 
-                dashboard.RunningProjects = await _context.Projects.AsNoTracking()
-                    .Include(x => x.ProjectManager)
-                    .Where(x => x.EndDate == null || x.EndDate >= DateTime.UtcNow)
-                    .Select(p => new ProjectDashboardDto
-                    {
-                        ProjectId = p.Id,
+            dashboard.RunningProjects = await context.Projects.AsNoTracking()
+                .Include(x => x.ProjectManager)
+                .Where(x => x.EndDate == null || x.EndDate >= DateTime.UtcNow)
+                .Select(p => new ProjectDashboardDto
+                {
+                    ProjectId = p.Id,
 
-                        ProjectName = p.Name,
+                    ProjectName = p.Name,
 
-                        Description = p.Description,
+                    Description = p.Description,
 
-                        StartDate = p.StartDate,
+                    StartDate = p.StartDate,
 
-                        EndDate = p.EndDate,
+                    EndDate = p.EndDate,
 
-                        ProjectManagerId = p.ProjectManagerId,
+                    ProjectManagerId = p.ProjectManagerId,
 
-                        ProjectManagerName = p.ProjectManager != null ? p.ProjectManager.Name : "",
+                    ProjectManagerName = p.ProjectManager != null ? p.ProjectManager.Name : "",
 
-                        UserCount = _context.EmployeeProjects
-                            .Include(ep => ep.User)
-                            .ThenInclude(u => u!.Role)
-                            .Count(ep =>
-                                ep.ProjectId == p.Id &&
-                                ep.User != null &&
-                                ep.User.Role != null &&
-                                ep.User.Role.Name != "Admin")
-                    }).ToListAsync();
+                    UserCount = context.EmployeeProjects
+                        .Include(ep => ep.User)
+                        .ThenInclude(u => u!.Role)
+                        .Count(ep =>
+                            ep.ProjectId == p.Id &&
+                            ep.User != null &&
+                            ep.User.Role != null &&
+                            ep.User.Role.Name != "Admin")
+                }).ToListAsync().ConfigureAwait(false);
 
-                return new Tuple<int, DashboardResponseDto, string>(1, dashboard, "Dashboard retrieved successfully");
-            }
-            catch (Exception ex)
-            {
-                return new Tuple<int, DashboardResponseDto, string>(0, new DashboardResponseDto(), ex.Message);
-            }
+            return new Tuple<int, DashboardResponseDto>(CustomCodes.DataRetrieved, dashboard);
+        }
+        catch (Exception)
+        {
+            return new Tuple<int, DashboardResponseDto>(CustomCodes.InternalServerError, new DashboardResponseDto());
+            throw;
         }
     }
 }

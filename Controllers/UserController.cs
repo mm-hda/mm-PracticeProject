@@ -1,121 +1,123 @@
-using backend.Dto.UserDto;
-using backend.Dto.Common;
+﻿using backend.Dto.UserDtos;
+using backend.Dto.CommonDtos;
 using backend.GenericResponse;
 using backend.IService;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using backend.Authorization;
 
-namespace backend.Controllers
+namespace backend.Controllers;
+
+[Authorize(Roles = RoleConstants.Admin)]
+[ApiController]
+[Route("api/[controller]")]
+public class UserController(IUserService userService, ILogger<UserController> logger) : ControllerBase
 {
 
-    [Authorize(Roles = RoleConstants.Admin)]
-    [ApiController]
-    [Route("api/[controller]")]
-    public class UserController(IUserService _userService, ILogger<UserController> _logger) : ControllerBase
+    [HttpGet("GetAllUsers")]
+    public async Task<IActionResult> GetAllUsersAsync([FromQuery] PaginationDto dto)
     {
+        ArgumentNullException.ThrowIfNull(dto);
 
-        [HttpGet("GetAllUsers")]
-        public async Task<IActionResult> GetAllUsers([FromQuery] PaginationDto dto)
+        logger.LogTrace("GetAllUsers called. Page:{PageNumber}, PageSize:{PageSize}", dto.PageNumber, dto.PageSize);
+
+        try
         {
-            _logger.LogTrace("GetAllUsers called. Page:{PageNumber}, PageSize:{PageSize}", dto.PageNumber, dto.PageSize);
+            var result = await userService.GetAllUsers(dto).ConfigureAwait(false);
 
-            try
+            if (result.Item1 == 0)
             {
-                var result = await _userService.GetAllUsers(dto);
-
-                if (result.Item1 == 0)
-                {
-                    _logger.LogWarning("{Message}", result.Item3);
-                    return NotFound(ResponseResults<List<UserResponseDto>>.Failure(null, result.Item4));
-                }
-
-                _logger.LogInformation("Retrieved all users successfully. {COUNT}", result.Item2?.Count ?? 0);
-                return Ok(ResponseResults<List<UserResponseDto>>.Success(result.Item2, result.Item3 ?? new PaginationMetaDto(), result.Item4));
+                logger.LogWarning("{Status code}", result.Item1);
+                return NotFound(ResponseResults<List<UserResponseDto>>.Failure(result.Item1));
             }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error while retrieving users.");
 
-                return StatusCode(500, ResponseResults<string>.Failure(null, ex.Message));
-            }
+            logger.LogInformation("Retrieved all users successfully. {COUNT}", result.Item2?.Count ?? 0);
+            return Ok(ResponseResults<List<UserResponseDto>>.Success(result.Item1, result.Item2, result.Item3));
         }
-
-        [HttpGet("GetUserBySearch")]
-        public async Task<IActionResult> GetUserBySearch([FromQuery] string searchTerm)
+        catch (Exception ex)
         {
-            _logger.LogTrace("GetUserBySearch called with searchTerm: {SearchTerm}", searchTerm);
-            try
-            {
-                var result = await _userService.GetUserBySearch(searchTerm);
-
-                if (result.Item1 == 0)
-                {
-                    _logger.LogWarning("{Message} search term: {SearchTerm}", result.Item3, searchTerm);
-                    return NotFound(ResponseResults<string>.Failure(null, result.Item3));
-                }
-
-                var logs = result.Item2.Select(u => new { u.UserId, u.Name, u.Email }).ToList();
-
-                _logger.LogInformation("Retrieved users for search term: {SearchTerm} and logs: {Logs}", searchTerm, logs);
-                return Ok(ResponseResults<List<UserResponseDto>>.Success(result.Item2, result.Item3));
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "An error occurred while searching for users with term: {SearchTerm}", searchTerm);
-                return StatusCode(500, ResponseResults<string>.Failure(null, ex.Message));
-            }
+            logger.LogError(ex, "Error while retrieving users.");
+            return StatusCode(500, ResponseResults<string>.Failure(CustomCodes.InternalServerError));
+            throw;
         }
+    }
 
-
-        [HttpGet("GetUserById/{id}")]
-        public async Task<IActionResult> GetUserById(Guid id)
+    [HttpGet("GetUserBySearch")]
+    public async Task<IActionResult> GetUserBySearchAsync([FromQuery] string searchTerm)
+    {
+        logger.LogTrace("GetUserBySearch called with searchTerm: {SearchTerm}", searchTerm);
+        try
         {
-            _logger.LogTrace("GetUserById called with id: {UserId}", id);
-            try
+            var result = await userService.GetUserBySearch(searchTerm).ConfigureAwait(false);
+
+            if (result.Item1 == 0)
             {
-                if (id == Guid.Empty)
-                {
-                    _logger.LogWarning("Invalid user id provided: {UserId}", id);
-                    return BadRequest(ResponseResults<string>.Failure(null, "Invalid user id"));
-                }
-
-                var result = await _userService.GetUserById(id);
-
-                if (result.Item1 == 0)
-                {
-                    _logger.LogWarning("{Message} id: {UserId}", result.Item3, id);
-                    return NotFound(ResponseResults<string>.Failure(null, result.Item3));
-                }
-
-                var logs = new { result.Item2?.UserId, result.Item2?.Name, result.Item2?.Email };
-                _logger.LogInformation("Retrieved user with id: {UserId} and logs: {Logs}", id, logs);
-
-                return Ok(ResponseResults<UserResponseDto>.Success(result.Item2, result.Item3));
+                logger.LogWarning("{Status code} search term: {SearchTerm}", result.Item1, searchTerm);
+                return NotFound(ResponseResults<string>.Failure(result.Item1));
             }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "An error occurred while fetching user with id: {UserId}", id);
-                return StatusCode(500, ResponseResults<string>.Failure(null, ex.Message));
-            }
+
+            var logs = result.Item2.Select(u => new { u.UserId, u.Name, u.Email }).ToList();
+
+            logger.LogInformation("Retrieved users for search term: {SearchTerm} and logs: {Logs}", searchTerm, logs);
+            return Ok(ResponseResults<List<UserResponseDto>>.Success(result.Item1, result.Item2));
         }
-
-        [HttpPost("GetUsersByFilter")]
-        public async Task<IActionResult> GetUsersByFilter([FromBody] UserFilterDto dto)
+        catch (Exception ex)
         {
-            _logger.LogTrace("GetUsersByFilter called.");
-            try
-            {
-                var result = await _userService.GetUsersByFilter(dto);
+            logger.LogError(ex, "An error occurred while searching for users with term: {SearchTerm}", searchTerm);
+            return StatusCode(500, ResponseResults<string>.Failure(CustomCodes.InternalServerError));
+            throw;
+        }
+    }
 
-                _logger.LogInformation("Retrieved users by filter the count: {Count}", result.Item2?.Count ?? 0);
-                return Ok(ResponseResults<List<UserResponseDto>>.Success(result.Item2, result.Item3));
-            }
-            catch (Exception ex)
+    [HttpGet("GetUserById/{id}")]
+    public async Task<IActionResult> GetUserByIdAsync(Guid id)
+    {
+        logger.LogTrace("GetUserById called with id: {UserId}", id);
+        try
+        {
+            if (id == Guid.Empty)
             {
-                _logger.LogError(ex, "An error occurred while fetching users by filter.");
-                return StatusCode(500, ResponseResults<string>.Failure(null, ex.Message));
+                logger.LogWarning("Invalid user id provided: {UserId}", id);
+                return BadRequest(ResponseResults<string>.Failure(CustomCodes.InvalidInput));
             }
+
+            var result = await userService.GetUserById(id).ConfigureAwait(false);
+
+            if (result.Item1 == 0)
+            {
+                logger.LogWarning("{Status code} id: {UserId}", result.Item1, id);
+                return NotFound(ResponseResults<string>.Failure(result.Item1));
+            }
+
+            var logs = new { result.Item2?.UserId, result.Item2?.Name, result.Item2?.Email };
+            logger.LogInformation("Retrieved user with id: {UserId} and logs: {Logs}", id, logs);
+
+            return Ok(ResponseResults<UserResponseDto>.Success(result.Item1, result.Item2));
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "An error occurred while fetching user with id: {UserId}", id);
+            return StatusCode(500, ResponseResults<string>.Failure(CustomCodes.InternalServerError));
+            throw;
+        }
+    }
+
+    [HttpPost("GetUsersByFilter")]
+    public async Task<IActionResult> GetUsersByFilterAsync([FromBody] UserFilterDto dto)
+    {
+        logger.LogTrace("GetUsersByFilter called.");
+        try
+        {
+            var result = await userService.GetUsersByFilter(dto).ConfigureAwait(false);
+
+            logger.LogInformation("Retrieved users by filter the count: {Count}", result.Item2?.Count ?? 0);
+            return Ok(ResponseResults<List<UserResponseDto>>.Success(result.Item1, result.Item2));
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "An error occurred while fetching users by filter.");
+            return StatusCode(500, ResponseResults<string>.Failure(CustomCodes.InternalServerError));
+            throw;
         }
     }
 }

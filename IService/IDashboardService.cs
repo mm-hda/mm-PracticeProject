@@ -1,9 +1,8 @@
-using backend.Dto.DashboardDto;
+﻿using backend.Dto.DashboardDtos;
 
-namespace backend.IService
+namespace backend.IService;
+
+public interface IDashboardService
 {
-    public interface IDashboardService
-    {
-        Task<Tuple<int, DashboardResponseDto, string>> GetDashboard();
-    }
+    Task<Tuple<int, DashboardResponseDto>> GetDashboard();
 }

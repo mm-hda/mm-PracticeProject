@@ -1,114 +1,119 @@
-using backend.Data;
-using backend.Dto.RoleDto;
+﻿using backend.Data;
+using backend.Dto.RoleDtos;
 using backend.Entities;
 using backend.IService;
+using backend.GenericResponse;
+
 using Microsoft.EntityFrameworkCore;
 
-namespace backend.Services
+namespace backend.Services;
+
+internal sealed class RoleService(AppDbContext context) : IRoleService
 {
-    public class RoleService(AppDbContext _context) : IRoleService
+    public async Task<Tuple<int>> CreateRole(RoleDto dto)
     {
-        public async Task<Tuple<int, string>> CreateRole(RoleDto dto)
+        try
         {
-            try
-            {
-                bool exists = await _context.Roles.AnyAsync(x => x.Name.ToLower() == dto.Name.ToLower());
+            ArgumentNullException.ThrowIfNull(dto);
 
-                if (exists)
+            var exists = await context.Roles.AnyAsync(x => x.Name.Equals(dto.Name, StringComparison.OrdinalIgnoreCase)).ConfigureAwait(false);
+
+            if (exists)
+            {
+                return new Tuple<int>(CustomCodes.RoleAlreadyExists);
+            }
+
+            Role role = new()
+            {
+                Id = Guid.NewGuid(),
+                Name = dto.Name
+            };
+
+            await context.Roles.AddAsync(role).ConfigureAwait(false);
+
+            await context.SaveChangesAsync().ConfigureAwait(false);
+
+            return new Tuple<int>(CustomCodes.RoleCreatedSuccessfully);
+        }
+        catch (Exception)
+        {
+            return new Tuple<int>(CustomCodes.RoleCreationFailed);
+            throw;
+        }
+    }
+
+    public async Task<Tuple<int, List<RoleResponseDto>>> GetAllRoles()
+    {
+        try
+        {
+            var roles = await context.Roles.AsNoTracking()
+                .Select(x => new RoleResponseDto
                 {
-                    return new Tuple<int, string>(0, "Role already exists");
-                }
+                    Id = x.Id,
+                    Name = x.Name
+                }).ToListAsync().ConfigureAwait(false);
+            if (roles.Count == 0)
+            {
+                return new Tuple<int, List<RoleResponseDto>>(CustomCodes.RoleNotFound, []);
+            }
 
-                Role role = new()
+            return new Tuple<int, List<RoleResponseDto>>(CustomCodes.DataRetrieved, roles);
+        }
+        catch (Exception)
+        {
+            return new Tuple<int, List<RoleResponseDto>>(CustomCodes.InternalServerError, []);
+            throw;
+        }
+    }
+
+    public async Task<Tuple<int, RoleResponseDto?>> GetRoleById(Guid id)
+    {
+        try
+        {
+            var role = await context.Roles.AsNoTracking()
+                .Where(x => x.Id == id)
+                .Select(x => new RoleResponseDto
                 {
-                    Id = Guid.NewGuid(),
-                    Name = dto.Name
-                };
+                    Id = x.Id,
+                    Name = x.Name
+                }).FirstOrDefaultAsync().ConfigureAwait(false);
 
-                await _context.Roles.AddAsync(role);
-
-                await _context.SaveChangesAsync();
-
-                return new Tuple<int, string>(1, "Role created successfully");
-            }
-            catch (Exception ex)
-            {
-                return new Tuple<int, string>(0, ex.Message);
-            }
+            return new Tuple<int, RoleResponseDto?>(role != null ? CustomCodes.DataRetrieved : CustomCodes.RoleNotFound, role);
         }
-
-        public async Task<Tuple<int, List<RoleResponseDto>, string>> GetAllRoles()
+        catch (Exception)
         {
-            try
-            {
-                var roles = await _context.Roles.AsNoTracking()
-                    .Select(x => new RoleResponseDto
-                    {
-                        Id = x.Id,
-                        Name = x.Name
-                    }).ToListAsync();
-
-                return new Tuple<int, List<RoleResponseDto>, string>(1, roles, "Roles retrieved successfully");
-            }
-            catch (Exception ex)
-            {
-                return new Tuple<int, List<RoleResponseDto>, string>(0, new List<RoleResponseDto>(), ex.Message);
-            }
+            return new Tuple<int, RoleResponseDto?>(CustomCodes.InternalServerError, null);
+            throw;
         }
+    }
 
-        public async Task<Tuple<int, RoleResponseDto?, string>> GetRoleById(Guid id)
+    public async Task<Tuple<int, List<RoleUserResponseDto>>> GetUsersByRole(Guid roleId)
+    {
+        try
         {
-            try
-            {
-                var role = await _context.Roles.AsNoTracking()
-                    .Where(x => x.Id == id)
-                    .Select(x => new RoleResponseDto
-                    {
-                        Id = x.Id,
-                        Name = x.Name
-                    }).FirstOrDefaultAsync();
+            var users = await context.Users
+                .Include(x => x.Role)
+                .Include(x => x.Department)
+                .Include(x => x.Position)
+                .Include(x => x.Branch)
+                .Where(x => x.RoleId == roleId)
+                .Select(x => new RoleUserResponseDto
+                {
+                    UserId = x.Id,
+                    Name = x.Name ?? "",
+                    Email = x.Email ?? "",
+                    RoleName = x.Role != null ? x.Role.Name : "",
+                    DepartmentName = x.Department != null ? x.Department.Name : "",
+                    PositionName = x.Position != null ? x.Position.Name : "",
+                    BranchName = x.Branch != null ? x.Branch.Name : ""
+                }).ToListAsync().ConfigureAwait(false);
 
-                return new Tuple<int, RoleResponseDto?, string>(role != null ? 1 : 0, role, role != null ? "Role retrieved successfully" : "Role not found");
-            }
-            catch (Exception ex)
-            {
-                return new Tuple<int, RoleResponseDto?, string>(0, null, ex.Message);
-            }
+            return new Tuple<int, List<RoleUserResponseDto>>(CustomCodes.DataRetrieved, users);
         }
-
-        public async Task<Tuple<int, List<RoleUserResponseDto>, string>> GetUsersByRole(Guid roleId)
+        catch (Exception)
         {
-            try
-            {
-                var users = await _context.Users
-                    .Include(x => x.Role)
-                    .Include(x => x.Department)
-                    .Include(x => x.Position)
-                    .Include(x => x.Branch)
-                    .Where(x => x.RoleId == roleId)
-                    .Select(x => new RoleUserResponseDto
-                    {
-                        UserId = x.Id,
-
-                        Name = x.Name ?? "",
-
-                        Email = x.Email ?? "",
-
-                        RoleName = x.Role != null ? x.Role.Name : "",
-
-                        DepartmentName = x.Department != null ? x.Department.Name : "",
-
-                        PositionName = x.Position != null ? x.Position.Name : "",
-
-                        BranchName = x.Branch != null ? x.Branch.Name : ""
-                    }).ToListAsync();
-
-                return new Tuple<int, List<RoleUserResponseDto>, string>(1, users, "Users retrieved successfully");
-            }
-            catch (Exception ex)
-            {
-                return new Tuple<int, List<RoleUserResponseDto>, string>(0, new List<RoleUserResponseDto>(), ex.Message);
-            }
+            return new Tuple<int, List<RoleUserResponseDto>>(CustomCodes.InternalServerError, []);
+            throw;
         }
     }
 }

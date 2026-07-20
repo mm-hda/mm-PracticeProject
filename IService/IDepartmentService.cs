@@ -1,17 +1,16 @@
-using backend.Dto.DepartmentDto;
+﻿using backend.Dto.DepartmentDtos;
 
-namespace backend.IService
+namespace backend.IService;
+
+public interface IDepartmentService
 {
-    public interface IDepartmentService
-    {
-        Task<Tuple<int, string>> CreateDepartment(DepartmentDto dto);
+    Task<Tuple<int>> CreateDepartment(DepartmentDto dto);
 
-        Task<Tuple<int, string>> UpdateDepartment(DepartmentDto dto);
+    Task<Tuple<int>> UpdateDepartment(DepartmentDto dto);
 
-        Task<Tuple<int, List<DepartmentResponseDto>, string>> GetAllDepartments();
+    Task<Tuple<int, List<DepartmentResponseDto>>> GetAllDepartments();
 
-        Task<Tuple<int, DepartmentResponseDto?, string>> GetDepartmentById(Guid id);
+    Task<Tuple<int, DepartmentResponseDto?>> GetDepartmentById(Guid id);
 
-        Task<Tuple<int, List<DepartmentUserResponseDto>, string>> GetDepartmentEmployees(Guid departmentId);
-    }
+    Task<Tuple<int, List<DepartmentUserResponseDto>>> GetDepartmentEmployees(Guid departmentId);
 }

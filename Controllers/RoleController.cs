@@ -1,118 +1,123 @@
-using backend.Dto.RoleDto;
+﻿using backend.Dto.RoleDtos;
 using backend.GenericResponse;
 using backend.IService;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using backend.Authorization;
 
-namespace backend.Controllers
+namespace backend.Controllers;
+
+[Authorize(Roles = RoleConstants.Admin)]
+[ApiController]
+[Route("api/[controller]")]
+public class RoleController(IRoleService roleService, ILogger<RoleController> logger) : ControllerBase
 {
-    [Authorize(Roles = RoleConstants.Admin)]
-    [ApiController]
-    [Route("api/[controller]")]
-    public class RoleController(IRoleService _roleService, ILogger<RoleController> _logger) : ControllerBase
+
+    [HttpPost("CreateRole")]
+    public async Task<IActionResult> CreateRoleAsync(RoleDto dto)
     {
+        ArgumentNullException.ThrowIfNull(dto);
 
-        [HttpPost("CreateRole")]
-        public async Task<IActionResult> CreateRole(RoleDto dto)
+        logger.LogTrace("CreateRole called with dto: {RoleName}", dto.Name);
+        try
         {
-            _logger.LogTrace("CreateRole called with dto: {RoleName}", dto.Name);
-            try
+
+            if (!ModelState.IsValid)
             {
-
-                if (!ModelState.IsValid)
-                {
-                    _logger.LogWarning("Invalid request body provided.");
-                    return BadRequest(ResponseResults<string>.Failure(null, "Invalid request body"));
-                }
-
-                var result = await _roleService.CreateRole(dto);
-
-                if (result.Item1 == 0)
-                {
-                    _logger.LogWarning("{Message}", result.Item2);
-                    return BadRequest(ResponseResults<string>.Failure(null, result.Item2));
-                }
-
-                _logger.LogInformation("Role created successfully name: {RoleName}", dto.Name);
-                return Ok(ResponseResults<string>.Success(null, result.Item2));
+                logger.LogWarning("Invalid request body provided.");
+                return BadRequest(ResponseResults<string>.Failure(CustomCodes.InvalidInput));
             }
-            catch (Exception ex)
+
+            var result = await roleService.CreateRole(dto).ConfigureAwait(false);
+
+            if (result.Item1 == 0)
             {
-                _logger.LogError(ex, "An error occurred while creating role.");
-                return StatusCode(500, ResponseResults<string>.Failure(null, ex.Message));
+                logger.LogWarning("{Status code}", result.Item1);
+                return BadRequest(ResponseResults<string>.Failure(result.Item1));
             }
+
+            logger.LogInformation("Role created successfully name: {RoleName}", dto.Name);
+            return Ok(ResponseResults<string>.Success(result.Item1));
         }
-
-        [HttpGet("GetAllRoles")]
-        public async Task<IActionResult> GetAllRoles()
+        catch (Exception ex)
         {
-            _logger.LogTrace("GetAllRoles called.");
-            try
-            {
-                var result = await _roleService.GetAllRoles();
-
-                if (result.Item1 == 0)
-                {
-                    _logger.LogWarning("{Message}", result.Item3);
-                    return NotFound(ResponseResults<string>.Failure(null, result.Item3));
-                }
-
-                _logger.LogInformation("Retrieved all roles count: {Count}", result.Item2?.Count ?? 0);
-                return Ok(ResponseResults<List<RoleResponseDto>>.Success(result.Item2, result.Item3));
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "An error occurred while fetching all roles.");
-                return StatusCode(500, ResponseResults<string>.Failure(null, ex.Message));
-            }
+            logger.LogError(ex, "An error occurred while creating role.");
+            return StatusCode(500, ResponseResults<string>.Failure(CustomCodes.InternalServerError));
+            throw;
         }
+    }
 
-        [HttpGet("GetRoleById/{id}")]
-        public async Task<IActionResult> GetRoleById(Guid id)
+    [HttpGet("GetAllRoles")]
+    public async Task<IActionResult> GetAllRolesAsync()
+    {
+        logger.LogTrace("GetAllRoles called.");
+        try
         {
-            _logger.LogTrace("GetRoleById called with id: {RoleId}", id);
-            try
-            {
-                var result = await _roleService.GetRoleById(id);
+            var result = await roleService.GetAllRoles().ConfigureAwait(false);
 
-                if (result.Item1 == 0)
-                {
-                    _logger.LogWarning("{Message} id: {RoleId}", result.Item3, id);
-                    return NotFound(ResponseResults<string>.Failure(null, result.Item3));
-                }
-
-                _logger.LogInformation("Retrieved role with id: {RoleId} name: {RoleName}", id, result.Item2?.Name);
-                return Ok(ResponseResults<RoleResponseDto>.Success(result.Item2, result.Item3));
-            }
-            catch (Exception ex)
+            if (result.Item1 == 0)
             {
-                _logger.LogError(ex, "An error occurred while fetching role with id: {RoleId}", id);
-                return StatusCode(500, ResponseResults<string>.Failure(null, ex.Message));
+                logger.LogWarning("{Status code}", result.Item1);
+                return NotFound(ResponseResults<string>.Failure(result.Item1));
             }
+
+            logger.LogInformation("Retrieved all roles count: {Count}", result.Item2?.Count ?? 0);
+            return Ok(ResponseResults<List<RoleResponseDto>>.Success(result.Item1, result.Item2));
         }
-
-        [HttpGet("GetUsersByRole/{roleId}")]
-        public async Task<IActionResult> GetUsersByRole(Guid roleId)
+        catch (Exception ex)
         {
-            _logger.LogTrace("GetUsersByRole called with id: {RoleId}", roleId);
-            try
-            {
-                var result = await _roleService.GetUsersByRole(roleId);
-                if (result.Item1 == 0)
-                {
-                    _logger.LogWarning("{Message} id: {RoleId}", result.Item3, roleId);
-                    return NotFound(ResponseResults<string>.Failure(null, result.Item3));
-                }
+            logger.LogError(ex, "An error occurred while fetching all roles.");
+            return StatusCode(500, ResponseResults<string>.Failure(CustomCodes.InternalServerError));
+            throw;
+        }
+    }
 
-                _logger.LogInformation("Retrieved users for role with id: {RoleId} count: {Count}", roleId, result.Item2?.Count ?? 0);
-                return Ok(ResponseResults<List<RoleUserResponseDto>>.Success(result.Item2, result.Item3));
-            }
-            catch (Exception ex)
+    [HttpGet("GetRoleById/{id}")]
+    public async Task<IActionResult> GetRoleByIdAsync(Guid id)
+    {
+        logger.LogTrace("GetRoleById called with id: {RoleId}", id);
+        try
+        {
+            var result = await roleService.GetRoleById(id).ConfigureAwait(false);
+
+            if (result.Item1 == 0)
             {
-                _logger.LogError(ex, "An error occurred while fetching users for role with id: {RoleId}", roleId);
-                return StatusCode(500, ResponseResults<string>.Failure(null, ex.Message));
+                logger.LogWarning("{Status code} id: {RoleId}", result.Item1, id);
+                return NotFound(ResponseResults<string>.Failure(result.Item1));
             }
+
+            logger.LogInformation("Retrieved role with id: {RoleId} name: {RoleName}", id, result.Item2?.Name);
+            return Ok(ResponseResults<RoleResponseDto>.Success(result.Item1, result.Item2));
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "An error occurred while fetching role with id: {RoleId}", id);
+            return StatusCode(500, ResponseResults<string>.Failure(CustomCodes.InternalServerError));
+            throw;
+        }
+    }
+
+    [HttpGet("GetUsersByRole/{roleId}")]
+    public async Task<IActionResult> GetUsersByRoleAsync(Guid roleId)
+    {
+        logger.LogTrace("GetUsersByRole called with id: {RoleId}", roleId);
+        try
+        {
+            var result = await roleService.GetUsersByRole(roleId).ConfigureAwait(false);
+            if (result.Item1 == 0)
+            {
+                logger.LogWarning("{Status code} id: {RoleId}", result.Item1, roleId);
+                return NotFound(ResponseResults<string>.Failure(result.Item1));
+            }
+
+            logger.LogInformation("Retrieved users for role with id: {RoleId} count: {Count}", roleId, result.Item2?.Count ?? 0);
+            return Ok(ResponseResults<List<RoleUserResponseDto>>.Success(result.Item1, result.Item2));
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "An error occurred while fetching users for role with id: {RoleId}", roleId);
+            return StatusCode(500, ResponseResults<string>.Failure(CustomCodes.InternalServerError));
+            throw;
         }
     }
 }

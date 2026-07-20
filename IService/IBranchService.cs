@@ -1,17 +1,16 @@
-using backend.Dto.BranchDto;
+﻿using backend.Dto.BranchDtos;
 
-namespace backend.IService
+namespace backend.IService;
+
+public interface IBranchService
 {
-    public interface IBranchService
-    {
-        Task<Tuple<int, string>> CreateBranch(BranchDto dto);
+    Task<Tuple<int>> CreateBranch(BranchDto dto);
 
-        Task<Tuple<int, string>> UpdateBranch(BranchDto dto);
+    Task<Tuple<int>> UpdateBranch(BranchDto dto);
 
-        Task<Tuple<int, List<BranchResponseDto>, string>> GetAllBranches();
+    Task<Tuple<int, List<BranchResponseDto>>> GetAllBranches();
 
-        Task<Tuple<int, BranchResponseDto?, string>> GetBranchById(Guid id);
+    Task<Tuple<int, BranchResponseDto?>> GetBranchById(Guid id);
 
-        Task<Tuple<int, List<BranchUserResponseDto>, string>> GetBranchUsers(Guid branchId);
-    }
+    Task<Tuple<int, List<BranchUserResponseDto>>> GetBranchUsers(Guid branchId);
 }
