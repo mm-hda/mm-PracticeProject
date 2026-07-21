@@ -5,6 +5,7 @@ using backend.IService;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using backend.Authorization;
+using Asp.Versioning;
 
 namespace backend.Controllers.V1;
 
@@ -69,6 +70,7 @@ public class UserController(IUserService userService, ILogger<UserController> lo
         }
     }
 
+    [ApiVersion("1.0")]
     [HttpGet("GetUserById/{id}")]
     public async Task<IActionResult> GetUserByIdAsync(Guid id)
     {
