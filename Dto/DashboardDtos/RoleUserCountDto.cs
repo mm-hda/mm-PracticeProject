@@ -3,6 +3,6 @@
 public class RoleUserCountDto
 {
     public Guid RoleId { get; set; }
-    public string RoleName { get; set; } = string.Empty;
+    public string? RoleName { get; set; }
     public int UserCount { get; set; }
 }

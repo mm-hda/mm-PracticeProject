@@ -1,4 +1,11 @@
 ﻿using backend.Extensions;
+using backend.Filters;
+using backend.Validations.AuthValidators;
+
+using FluentValidation;
+using FluentValidation.AspNetCore;
+
+using Microsoft.AspNetCore.Mvc;
 
 using Serilog;
 
@@ -16,7 +23,13 @@ builder.Services.AddAuthorization();
 
 builder.Logging.AddFilter("Microsoft.EntityFrameworkCore", LogLevel.Warning);
 
-builder.Services.AddControllers();
+builder.Services.Configure<ApiBehaviorOptions>(options => options.SuppressModelStateInvalidFilter = true);
+
+builder.Services.AddControllers(options => options.Filters.Add<ValidationFilter>());
+
+builder.Services.AddFluentValidationAutoValidation();
+
+builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 
 builder.Services.AddSwaggerServices();
 
