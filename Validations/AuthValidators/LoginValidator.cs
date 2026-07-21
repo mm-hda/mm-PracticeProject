@@ -12,7 +12,7 @@ public class LoginValidator : AbstractValidator<LoginDto>
 {
     public LoginValidator()
     {
-        RuleFor(x => x.Email)
+        RuleFor(x => x.Email ?? "")
         .Must(x => !string.IsNullOrWhiteSpace(x))
           .NotEmpty().WithMessage(CustomCodes.InputsNotFound.ToString(CultureInfo.InvariantCulture))
           .ValidCompanyEmail().WithMessage(CustomCodes.InvalidEmail.ToString(CultureInfo.InvariantCulture));

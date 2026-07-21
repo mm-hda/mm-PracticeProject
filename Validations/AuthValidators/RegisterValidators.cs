@@ -38,7 +38,7 @@ public sealed class RegisterUserValidator
             .Matches(@"^[a-zA-Z\s]+$")
             .WithMessage(CustomCodes.InvalidNameFormat.ToString(CultureInfo.InvariantCulture));
 
-        RuleFor(x => x.Email)
+        RuleFor(x => x.Email ?? "")
             .NotEmpty()
             .WithMessage(CustomCodes.EmailRequired.ToString(CultureInfo.InvariantCulture))
 

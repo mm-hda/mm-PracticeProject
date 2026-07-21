@@ -1,6 +1,7 @@
 ﻿using backend.Extensions;
 using backend.Filters;
-using backend.Validations.AuthValidators;
+
+using Asp.Versioning;
 
 using FluentValidation;
 using FluentValidation.AspNetCore;
@@ -24,6 +25,21 @@ builder.Services.AddAuthorization();
 builder.Logging.AddFilter("Microsoft.EntityFrameworkCore", LogLevel.Warning);
 
 builder.Services.Configure<ApiBehaviorOptions>(options => options.SuppressModelStateInvalidFilter = true);
+
+builder.Services
+    .AddApiVersioning(options =>
+    {
+        options.DefaultApiVersion = new ApiVersion(1, 0);
+        options.AssumeDefaultVersionWhenUnspecified = true;
+        options.ReportApiVersions = true;
+        options.ApiVersionReader =
+            new UrlSegmentApiVersionReader();
+    })
+    .AddApiExplorer(options =>
+    {
+        options.GroupNameFormat = "'v'VVV";
+        options.SubstituteApiVersionInUrl = true;
+    });
 
 builder.Services.AddControllers(options => options.Filters.Add<ValidationFilter>());
 

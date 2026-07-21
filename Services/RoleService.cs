@@ -26,7 +26,7 @@ internal sealed class RoleService(AppDbContext context) : IRoleService
             Role role = new()
             {
                 Id = Guid.NewGuid(),
-                Name = dto.Name
+                Name = dto.Name ?? ""
             };
 
             await context.Roles.AddAsync(role).ConfigureAwait(false);

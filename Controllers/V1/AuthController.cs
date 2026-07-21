@@ -4,10 +4,13 @@ using backend.IService;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using backend.Authorization;
+using Asp.Versioning;
 
-namespace backend.Controllers;
+namespace backend.Controllers.V1;
 
 [ApiController]
+[ApiVersion("1.0")]
+[Route("api/V{version:apiVersion}/[controller]")]
 [Route("api/[controller]")]
 public class AuthController(IAuthService authService, ILogger<AuthController> logger) : ControllerBase
 {
@@ -61,7 +64,7 @@ public class AuthController(IAuthService authService, ILogger<AuthController> lo
     public async Task<IActionResult> RegisterAsync([FromBody] RegisterUserDto registerDto)
     {
         ArgumentNullException.ThrowIfNull(registerDto);
-        logger.LogTrace("Register called with dto: {@Email}", registerDto.Email);
+        logger.LogTrace("Register called V1 with dto: {@Email}", registerDto.Email);
         try
         {
             if (!ModelState.IsValid)

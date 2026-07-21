@@ -39,7 +39,7 @@ internal sealed class AuthService(AppDbContext context, IConfiguration configura
 
             var passwordHasher = new PasswordHasher<string>();
 
-            var verificationResult = passwordHasher.VerifyHashedPassword(dto.Email, existingUser.Password ?? "", dto.Password);
+            var verificationResult = passwordHasher.VerifyHashedPassword(dto.Email ?? "", existingUser.Password ?? "", dto.Password ?? "");
 
             if (verificationResult == PasswordVerificationResult.Failed)
             {
@@ -49,7 +49,7 @@ internal sealed class AuthService(AppDbContext context, IConfiguration configura
 
             if (verificationResult == PasswordVerificationResult.SuccessRehashNeeded)
             {
-                existingUser.Password = PasswordHashing(existingUser.Email ?? "", dto.Password);
+                existingUser.Password = PasswordHashing(existingUser.Email ?? "", dto.Password ?? "");
 
                 await context.SaveChangesAsync().ConfigureAwait(false);
             }
@@ -126,9 +126,9 @@ internal sealed class AuthService(AppDbContext context, IConfiguration configura
             User newUser = new()
             {
                 Id = Guid.NewGuid(),
-                Name = dto.Name,
-                Email = dto.Email,
-                Password = PasswordHashing(dto.Email, dto.Password),
+                Name = dto.Name ?? "",
+                Email = dto.Email ?? "",
+                Password = PasswordHashing(dto.Email ?? "", dto.Password ?? ""),
                 DOB = dto.DOB,
                 BranchId = dto.BranchId,
                 DepartmentId = dto.DepartmentId,

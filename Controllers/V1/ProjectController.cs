@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using backend.Authorization;
 
-namespace backend.Controllers;
+namespace backend.Controllers.V1;
 
 [Authorize(Roles = RoleConstants.Admin + "," + RoleConstants.Manager)]
 [ApiController]

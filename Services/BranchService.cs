@@ -32,7 +32,7 @@ internal sealed class BranchService(AppDbContext context) : IBranchService
             {
                 Id = Guid.NewGuid(),
                 Name = dto.Name,
-                Location = dto.Location
+                Location = dto.Location ?? ""
             };
 
             await context.Branches.AddAsync(branch).ConfigureAwait(false);
@@ -70,8 +70,8 @@ internal sealed class BranchService(AppDbContext context) : IBranchService
                 return new Tuple<int>(CustomCodes.BranchNotFound);
             }
 
-            branch.Name = dto.Name;
-            branch.Location = dto.Location;
+            branch.Name = dto.Name ?? branch.Name;
+            branch.Location = dto.Location ?? branch.Location;
 
             await context.SaveChangesAsync().ConfigureAwait(false);
 

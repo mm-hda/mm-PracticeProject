@@ -8,12 +8,11 @@ using System.Globalization;
 
 namespace backend.Validations.RoleValidators;
 
-public sealed class RoleValidator
-    : AbstractValidator<RoleDto>
+public sealed class RoleValidator : AbstractValidator<RoleDto>
 {
     public RoleValidator()
     {
-        RuleFor(x => x.Name)
+        RuleFor(x => x.Name ?? "")
             .NotEmpty()
             .WithMessage(CustomCodes.RoleNameRequired.ToString(CultureInfo.InvariantCulture))
 
