@@ -17,7 +17,7 @@ bld/
 # Visual Studio cache/options directory
 .vs/
 .bin/
-bin
+bin/
 
 # Visual Studio Code
 .vscode/
@@ -77,3 +77,4 @@ Thumbs.db
 .env
 .env.local
 *.pem
+*.bin/
