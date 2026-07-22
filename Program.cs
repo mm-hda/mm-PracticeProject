@@ -29,7 +29,7 @@ builder.Services.Configure<ApiBehaviorOptions>(options => options.SuppressModelS
 builder.Services
     .AddApiVersioning(options =>
     {
-        options.DefaultApiVersion = new ApiVersion(1, 0);
+        options.DefaultApiVersion = new ApiVersion(2, 0);
         options.AssumeDefaultVersionWhenUnspecified = true;
         options.ReportApiVersions = true;
         options.ApiVersionReader = new UrlSegmentApiVersionReader();

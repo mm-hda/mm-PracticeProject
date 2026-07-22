@@ -87,6 +87,74 @@ public static class ValidationExtensions
         });
     }
 
+    private static readonly string[] HtmlTags =
+    [
+    "<script",
+        "</script>",
+
+        "<iframe",
+        "</iframe>",
+
+        "<object",
+        "</object>",
+
+        "<embed",
+        "</embed>",
+
+        "<form",
+        "</form>",
+
+        "<input",
+        "<button",
+        "</button>",
+
+        "<textarea",
+        "</textarea>",
+
+        "<select",
+        "</select>",
+
+        "<option",
+        "</option>",
+
+        "<img",
+
+        "<svg",
+        "</svg>",
+
+        "<video",
+        "</video>",
+
+        "<audio",
+        "</audio>",
+
+        "<link",
+
+        "<style",
+        "</style>",
+
+        "<meta",
+
+        "<h1",
+        "<h2",
+        "<h3",
+        "<h4",
+        "<h5",
+        "<h6",
+
+        "<div",
+        "</div>",
+
+        "<span",
+        "</span>",
+
+        "<p",
+        "</p>",
+
+        "<a",
+        "</a>"
+    ];
+
     public static IRuleBuilderOptions<T, string> NoHtml<T>(this IRuleBuilder<T, string> ruleBuilder)
     {
         return ruleBuilder.Must(text =>
@@ -95,8 +163,12 @@ public static class ValidationExtensions
             {
                 return true;
             }
-            return !text.Contains("<script", StringComparison.OrdinalIgnoreCase)
-                   && !text.Contains("</script>", StringComparison.OrdinalIgnoreCase);
+
+            return !HtmlTags.Any(tag =>
+                text.Contains(
+                    tag,
+                    StringComparison.OrdinalIgnoreCase));
         });
     }
 }
+

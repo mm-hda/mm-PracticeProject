@@ -10,6 +10,7 @@ using Asp.Versioning;
 namespace backend.Controllers.V1;
 
 [Authorize(Roles = RoleConstants.Admin)]
+[ApiVersion("1.0")]
 [ApiController]
 [Route("api/[controller]")]
 public class UserController(IUserService userService, ILogger<UserController> logger) : ControllerBase
@@ -70,7 +71,6 @@ public class UserController(IUserService userService, ILogger<UserController> lo
         }
     }
 
-    [ApiVersion("1.0")]
     [HttpGet("GetUserById/{id}")]
     public async Task<IActionResult> GetUserByIdAsync(Guid id)
     {
