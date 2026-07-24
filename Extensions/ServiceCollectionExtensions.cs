@@ -1,6 +1,7 @@
 ﻿using backend.IService;
 using backend.Services;
-
+using backend.IRepository;
+using backend.Repositories;
 namespace backend.Extensions;
 
 internal static class ServiceCollectionExtensions
@@ -17,6 +18,17 @@ internal static class ServiceCollectionExtensions
         services.AddScoped<IEmployeeProjectService, EmployeeProjectService>();
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<IDashboardService, DashboardService>();
+        services.AddScoped<IAuthRepository, AuthRepository>();
+        services.AddScoped<IRoleRepository, RoleRepository>();
+        services.AddScoped<IDepartmentRepository, DepartmentRepository>();
+        services.AddScoped<IBranchRepository, BranchRepository>();
+        services.AddScoped<IPositionRepository, PositionRepository>();
+        services.AddScoped<IProjectRepository, ProjectRepository>();
+        services.AddScoped<IEmployeeProjectRepository, EmployeeProjectRepository>();
+        services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<IDashboardRepository, DashboardRepository>();
+
+        services.AddScoped<IUnitOfWork, UnitOfWork>();
 
         return services;
     }

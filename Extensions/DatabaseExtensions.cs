@@ -12,7 +12,7 @@ internal static class DatabaseExtensions
         this IServiceCollection services,
         IConfiguration configuration)
     {
-        services.AddDbContext<AppDbContext>(options => options.UseSqlite(configuration.GetConnectionString("MyConnection")));
+        services.AddDbContext<AppDbContext>(options => options.UseNpgsql(configuration.GetConnectionString("MyConnection")));
 
         return services;
     }

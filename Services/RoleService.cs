@@ -1,23 +1,23 @@
-﻿using backend.Data;
-using backend.Dto.RoleDtos;
+﻿using backend.Dto.RoleDtos;
 using backend.Entities;
-using backend.IService;
 using backend.GenericResponse;
+using backend.IRepository;
+using backend.IService;
 
 using Microsoft.EntityFrameworkCore;
 
 namespace backend.Services;
 
-internal sealed class RoleService(AppDbContext context) : IRoleService
+internal sealed class RoleService(IRoleRepository roleRepository, IUnitOfWork unitOfWork) : IRoleService
 {
     public async Task<ServiceResponse<object>> CreateRole(RoleDto dto, CancellationToken cancellationToken)
     {
-        using var transaction = await context.Database.BeginTransactionAsync(cancellationToken).ConfigureAwait(false);
+        using var transaction = await unitOfWork.BeginTransactionAsync(cancellationToken).ConfigureAwait(false);
         try
         {
             ArgumentNullException.ThrowIfNull(dto);
 
-            var exists = await context.Roles.AnyAsync(x => x.Name.Equals(dto.Name, StringComparison.OrdinalIgnoreCase), cancellationToken).ConfigureAwait(false);
+            var exists = await roleRepository.RoleExistsAsync(dto.Name, cancellationToken).ConfigureAwait(false);
 
             if (exists)
             {
@@ -30,9 +30,9 @@ internal sealed class RoleService(AppDbContext context) : IRoleService
                 Name = dto.Name ?? ""
             };
 
-            await context.Roles.AddAsync(role, cancellationToken).ConfigureAwait(false);
+            await roleRepository.AddAsync(role, cancellationToken).ConfigureAwait(false);
 
-            await context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+            await unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
             await transaction.CommitAsync(cancellationToken).ConfigureAwait(false);
 
@@ -60,12 +60,8 @@ internal sealed class RoleService(AppDbContext context) : IRoleService
     {
         try
         {
-            var roles = await context.Roles.AsNoTracking()
-                .Select(x => new RoleResponseDto
-                {
-                    Id = x.Id,
-                    Name = x.Name
-                }).ToListAsync().ConfigureAwait(false);
+            var roles = await roleRepository.GetAllRolesAsync().ConfigureAwait(false);
+
             if (roles.Count == 0)
             {
                 return new ServiceResponse<IReadOnlyCollection<RoleResponseDto>> { IsSuccess = false, StatusCode = CustomCodes.RoleNotFound };
@@ -84,13 +80,7 @@ internal sealed class RoleService(AppDbContext context) : IRoleService
     {
         try
         {
-            var role = await context.Roles.AsNoTracking()
-                .Where(x => x.Id == id)
-                .Select(x => new RoleResponseDto
-                {
-                    Id = x.Id,
-                    Name = x.Name
-                }).FirstOrDefaultAsync().ConfigureAwait(false);
+            var role = await roleRepository.GetRoleByIdAsync(id).ConfigureAwait(false);
 
             if (role == null)
             {
@@ -110,27 +100,13 @@ internal sealed class RoleService(AppDbContext context) : IRoleService
     {
         try
         {
-            var users = await context.Users
-                .Include(x => x.Role)
-                .Include(x => x.Department)
-                .Include(x => x.Position)
-                .Include(x => x.Branch)
-                .Where(x => x.RoleId == roleId)
-                .Select(x => new RoleUserResponseDto
-                {
-                    UserId = x.Id,
-                    Name = x.Name ?? "",
-                    Email = x.Email ?? "",
-                    RoleName = x.Role != null ? x.Role.Name : "",
-                    DepartmentName = x.Department != null ? x.Department.Name : "",
-                    PositionName = x.Position != null ? x.Position.Name : "",
-                    BranchName = x.Branch != null ? x.Branch.Name : ""
-                }).ToListAsync().ConfigureAwait(false);
+            var users = await roleRepository.GetUsersByRoleAsync(roleId).ConfigureAwait(false);
 
             if (users.Count == 0)
             {
                 return new ServiceResponse<IReadOnlyCollection<RoleUserResponseDto>> { IsSuccess = false, StatusCode = CustomCodes.UserNotFound };
             }
+
             return new ServiceResponse<IReadOnlyCollection<RoleUserResponseDto>> { IsSuccess = true, StatusCode = CustomCodes.DataRetrieved, Data = users };
         }
         catch (Exception)

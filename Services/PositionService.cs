@@ -1,24 +1,25 @@
-﻿using backend.Data;
-using backend.Dto.PositionDtos;
+﻿using backend.Dto.PositionDtos;
 using backend.Entities;
-using backend.IService;
 using backend.GenericResponse;
+using backend.IRepository;
+using backend.IService;
 
 using Microsoft.EntityFrameworkCore;
 
 namespace backend.Services;
 
-internal sealed class PositionService(AppDbContext context) : IPositionService
+internal sealed class PositionService(IPositionRepository positionRepository, IUnitOfWork unitOfWork) : IPositionService
 {
     public async Task<ServiceResponse<object>> CreatePosition(PositionDto dto, CancellationToken cancellationToken)
     {
-        using var transaction = await context.Database.BeginTransactionAsync(cancellationToken).ConfigureAwait(false);
+        using var transaction = await unitOfWork.BeginTransactionAsync(cancellationToken).ConfigureAwait(false);
+
         try
         {
             ArgumentNullException.ThrowIfNull(dto);
 
-            var departmentExists = await context.Departments
-                .AnyAsync(x => x.Id == dto.DepartmentId, cancellationToken)
+            var departmentExists = await positionRepository
+                .DepartmentExistsAsync(dto.DepartmentId, cancellationToken)
                 .ConfigureAwait(false);
 
             if (!departmentExists)
@@ -26,8 +27,9 @@ internal sealed class PositionService(AppDbContext context) : IPositionService
                 return new ServiceResponse<object> { IsSuccess = false, StatusCode = CustomCodes.DepartmentNotFound };
             }
 
-            var exists = await context.Positions.AnyAsync(x => x.Name.Equals(dto.Name, StringComparison.OrdinalIgnoreCase) && x.DepartmentId == dto.DepartmentId, cancellationToken)
-            .ConfigureAwait(false);
+            var exists = await positionRepository
+                .PositionExistsAsync(dto.Name, dto.DepartmentId, cancellationToken)
+                .ConfigureAwait(false);
 
             if (exists)
             {
@@ -41,9 +43,9 @@ internal sealed class PositionService(AppDbContext context) : IPositionService
                 DepartmentId = dto.DepartmentId
             };
 
-            await context.Positions.AddAsync(position, cancellationToken).ConfigureAwait(false);
+            await positionRepository.AddAsync(position, cancellationToken).ConfigureAwait(false);
 
-            await context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+            await unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
             await transaction.CommitAsync(cancellationToken).ConfigureAwait(false);
 
@@ -52,16 +54,19 @@ internal sealed class PositionService(AppDbContext context) : IPositionService
         catch (OperationCanceledException)
         {
             await transaction.RollbackAsync(cancellationToken).ConfigureAwait(false);
+
             return new ServiceResponse<object> { IsSuccess = false, StatusCode = CustomCodes.OperationCancelled };
         }
         catch (DbUpdateException)
         {
             await transaction.RollbackAsync(cancellationToken).ConfigureAwait(false);
+
             return new ServiceResponse<object> { IsSuccess = false, StatusCode = CustomCodes.PositionCreationFailed };
         }
         catch (Exception)
         {
             await transaction.RollbackAsync(cancellationToken).ConfigureAwait(false);
+
             return new ServiceResponse<object> { IsSuccess = false, StatusCode = CustomCodes.PositionCreationFailed };
             throw;
         }
@@ -69,28 +74,33 @@ internal sealed class PositionService(AppDbContext context) : IPositionService
 
     public async Task<ServiceResponse<object>> UpdatePosition(PositionDto dto, CancellationToken cancellationToken)
     {
-        using var transaction = await context.Database.BeginTransactionAsync(cancellationToken).ConfigureAwait(false);
+        using var transaction = await unitOfWork.BeginTransactionAsync(cancellationToken).ConfigureAwait(false);
+
         try
         {
             ArgumentNullException.ThrowIfNull(dto);
 
-            var position = await context.Positions.FirstOrDefaultAsync(x => x.Id == dto.Id, cancellationToken).ConfigureAwait(false);
+            var position = await positionRepository
+                .GetByIdAsync(dto.Id, cancellationToken)
+                .ConfigureAwait(false);
 
             if (position == null)
             {
                 return new ServiceResponse<object> { IsSuccess = false, StatusCode = CustomCodes.PositionNotFound };
             }
 
-            var departmentExists = await context.Departments.AnyAsync(x => x.Id == dto.DepartmentId, cancellationToken).ConfigureAwait(false);
+            var departmentExists = await positionRepository
+                .DepartmentExistsAsync(dto.DepartmentId, cancellationToken)
+                .ConfigureAwait(false);
 
             if (!departmentExists)
             {
                 return new ServiceResponse<object> { IsSuccess = false, StatusCode = CustomCodes.DepartmentNotFound };
             }
 
-            var duplicate = await context.Positions.AnyAsync(x => x.Id != dto.Id
-                    && x.Name.Equals(dto.Name, StringComparison.OrdinalIgnoreCase)
-                    && x.DepartmentId == dto.DepartmentId, cancellationToken).ConfigureAwait(false);
+            var duplicate = await positionRepository
+                .DuplicatePositionExistsAsync(dto.Id, dto.Name, dto.DepartmentId, cancellationToken)
+                .ConfigureAwait(false);
 
             if (duplicate)
             {
@@ -100,7 +110,7 @@ internal sealed class PositionService(AppDbContext context) : IPositionService
             position.Name = dto.Name ?? "";
             position.DepartmentId = dto.DepartmentId;
 
-            await context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+            await unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
             await transaction.CommitAsync(cancellationToken).ConfigureAwait(false);
 
@@ -109,16 +119,19 @@ internal sealed class PositionService(AppDbContext context) : IPositionService
         catch (OperationCanceledException)
         {
             await transaction.RollbackAsync(cancellationToken).ConfigureAwait(false);
+
             return new ServiceResponse<object> { IsSuccess = false, StatusCode = CustomCodes.OperationCancelled };
         }
         catch (DbUpdateException)
         {
             await transaction.RollbackAsync(cancellationToken).ConfigureAwait(false);
+
             return new ServiceResponse<object> { IsSuccess = false, StatusCode = CustomCodes.PositionUpdateFailed };
         }
         catch (Exception)
         {
             await transaction.RollbackAsync(cancellationToken).ConfigureAwait(false);
+
             return new ServiceResponse<object> { IsSuccess = false, StatusCode = CustomCodes.PositionUpdateFailed };
             throw;
         }
@@ -128,22 +141,24 @@ internal sealed class PositionService(AppDbContext context) : IPositionService
     {
         try
         {
-            var positions = await context.Positions.AsNoTracking()
-                .Include(x => x.Department)
-                .Select(x => new PositionResponseDto
-                {
-                    Id = x.Id,
-                    Name = x.Name,
-                    DepartmentId = x.DepartmentId,
-                    DepartmentName = x.Department != null ? x.Department.Name : "",
-                    TotalUsers = context.Users.Count(u => u.PositionId == x.Id)
-                }).ToListAsync().ConfigureAwait(false);
+            var positions = await positionRepository
+                .GetAllPositionsAsync()
+                .ConfigureAwait(false);
 
-            return new ServiceResponse<IReadOnlyCollection<PositionResponseDto>> { IsSuccess = true, StatusCode = CustomCodes.DataRetrieved, Data = positions };
+            return new ServiceResponse<IReadOnlyCollection<PositionResponseDto>>
+            {
+                IsSuccess = true,
+                StatusCode = CustomCodes.DataRetrieved,
+                Data = positions
+            };
         }
         catch (Exception)
         {
-            return new ServiceResponse<IReadOnlyCollection<PositionResponseDto>> { IsSuccess = false, StatusCode = CustomCodes.InternalServerError };
+            return new ServiceResponse<IReadOnlyCollection<PositionResponseDto>>
+            {
+                IsSuccess = false,
+                StatusCode = CustomCodes.InternalServerError
+            };
             throw;
         }
     }
@@ -152,28 +167,33 @@ internal sealed class PositionService(AppDbContext context) : IPositionService
     {
         try
         {
-            var position = await context.Positions.AsNoTracking()
-                .Include(x => x.Department)
-                .Where(x => x.Id == id)
-                .Select(x => new PositionResponseDto
-                {
-                    Id = x.Id,
-                    Name = x.Name,
-                    DepartmentId = x.DepartmentId,
-                    DepartmentName = x.Department != null ? x.Department.Name : "",
-                    TotalUsers = context.Users.Count(u => u.PositionId == x.Id)
-                }).FirstOrDefaultAsync().ConfigureAwait(false);
+            var position = await positionRepository
+                .GetPositionByIdAsync(id)
+                .ConfigureAwait(false);
 
             if (position == null)
             {
-                return new ServiceResponse<PositionResponseDto?> { IsSuccess = false, StatusCode = CustomCodes.PositionNotFound };
+                return new ServiceResponse<PositionResponseDto?>
+                {
+                    IsSuccess = false,
+                    StatusCode = CustomCodes.PositionNotFound
+                };
             }
 
-            return new ServiceResponse<PositionResponseDto?> { IsSuccess = true, StatusCode = CustomCodes.DataRetrieved, Data = position };
+            return new ServiceResponse<PositionResponseDto?>
+            {
+                IsSuccess = true,
+                StatusCode = CustomCodes.DataRetrieved,
+                Data = position
+            };
         }
         catch (Exception)
         {
-            return new ServiceResponse<PositionResponseDto?> { IsSuccess = false, StatusCode = CustomCodes.InternalServerError };
+            return new ServiceResponse<PositionResponseDto?>
+            {
+                IsSuccess = false,
+                StatusCode = CustomCodes.InternalServerError
+            };
             throw;
         }
     }
@@ -182,30 +202,37 @@ internal sealed class PositionService(AppDbContext context) : IPositionService
     {
         try
         {
-            var departmentExists = await context.Departments.AnyAsync(x => x.Id == departmentId).ConfigureAwait(false);
+            var departmentExists = await positionRepository
+                .DepartmentExistsAsync(departmentId, CancellationToken.None)
+                .ConfigureAwait(false);
 
             if (!departmentExists)
             {
-                return new ServiceResponse<IReadOnlyCollection<PositionResponseDto>> { IsSuccess = false, StatusCode = CustomCodes.DepartmentNotFound };
+                return new ServiceResponse<IReadOnlyCollection<PositionResponseDto>>
+                {
+                    IsSuccess = false,
+                    StatusCode = CustomCodes.DepartmentNotFound
+                };
             }
 
-            var positions = await context.Positions.AsNoTracking()
-                .Include(x => x.Department)
-                .Where(x => x.DepartmentId == departmentId)
-                .Select(x => new PositionResponseDto
-                {
-                    Id = x.Id,
-                    Name = x.Name,
-                    DepartmentId = x.DepartmentId,
-                    DepartmentName = x.Department != null ? x.Department.Name : "",
-                    TotalUsers = context.Users.Count(u => u.PositionId == x.Id)
-                }).ToListAsync().ConfigureAwait(false);
+            var positions = await positionRepository
+                .GetPositionsByDepartmentAsync(departmentId)
+                .ConfigureAwait(false);
 
-            return new ServiceResponse<IReadOnlyCollection<PositionResponseDto>> { IsSuccess = true, StatusCode = CustomCodes.DataRetrieved, Data = positions };
+            return new ServiceResponse<IReadOnlyCollection<PositionResponseDto>>
+            {
+                IsSuccess = true,
+                StatusCode = CustomCodes.DataRetrieved,
+                Data = positions
+            };
         }
         catch (Exception)
         {
-            return new ServiceResponse<IReadOnlyCollection<PositionResponseDto>> { IsSuccess = false, StatusCode = CustomCodes.InternalServerError };
+            return new ServiceResponse<IReadOnlyCollection<PositionResponseDto>>
+            {
+                IsSuccess = false,
+                StatusCode = CustomCodes.InternalServerError
+            };
             throw;
         }
     }
@@ -214,36 +241,37 @@ internal sealed class PositionService(AppDbContext context) : IPositionService
     {
         try
         {
-            var positionExists = await context.Positions.AnyAsync(x => x.Id == positionId).ConfigureAwait(false);
+            var positionExists = await positionRepository
+                .PositionExistsAsync(positionId)
+                .ConfigureAwait(false);
 
             if (!positionExists)
             {
-                return new ServiceResponse<IReadOnlyCollection<PositionUserResponseDto>> { IsSuccess = false, StatusCode = CustomCodes.PositionNotFound };
+                return new ServiceResponse<IReadOnlyCollection<PositionUserResponseDto>>
+                {
+                    IsSuccess = false,
+                    StatusCode = CustomCodes.PositionNotFound
+                };
             }
 
-            var users = await context.Users.AsNoTracking()
-                .Include(x => x.Branch)
-                .Include(x => x.Department)
-                .Include(x => x.Position)
-                .Include(x => x.Role)
-                .Where(x => x.PositionId == positionId)
-                .Select(x => new PositionUserResponseDto
-                {
-                    UserId = x.Id,
-                    Name = x.Name ?? "",
-                    Email = x.Email ?? "",
-                    DOB = x.DOB,
-                    BranchName = x.Branch != null ? x.Branch.Name : "",
-                    DepartmentName = x.Department != null ? x.Department.Name : "",
-                    PositionName = x.Position != null ? x.Position.Name : "",
-                    RoleName = x.Role != null ? x.Role.Name : ""
-                }).ToListAsync().ConfigureAwait(false);
+            var users = await positionRepository
+                .GetPositionUsersAsync(positionId)
+                .ConfigureAwait(false);
 
-            return new ServiceResponse<IReadOnlyCollection<PositionUserResponseDto>> { IsSuccess = true, StatusCode = CustomCodes.DataRetrieved, Data = users };
+            return new ServiceResponse<IReadOnlyCollection<PositionUserResponseDto>>
+            {
+                IsSuccess = true,
+                StatusCode = CustomCodes.DataRetrieved,
+                Data = users
+            };
         }
         catch (Exception)
         {
-            return new ServiceResponse<IReadOnlyCollection<PositionUserResponseDto>> { IsSuccess = false, StatusCode = CustomCodes.InternalServerError };
+            return new ServiceResponse<IReadOnlyCollection<PositionUserResponseDto>>
+            {
+                IsSuccess = false,
+                StatusCode = CustomCodes.InternalServerError
+            };
             throw;
         }
     }

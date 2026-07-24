@@ -1,23 +1,23 @@
-﻿using backend.Data;
-using backend.Dto.DepartmentDtos;
+﻿using backend.Dto.DepartmentDtos;
 using backend.Entities;
-using backend.IService;
 using backend.GenericResponse;
+using backend.IRepository;
+using backend.IService;
 
 using Microsoft.EntityFrameworkCore;
 
 namespace backend.Services;
 
-internal sealed class DepartmentService(AppDbContext context) : IDepartmentService
+internal sealed class DepartmentService(IDepartmentRepository departmentRepository, IUnitOfWork unitOfWork) : IDepartmentService
 {
     public async Task<ServiceResponse<object>> CreateDepartment(DepartmentDto dto, CancellationToken cancellationToken)
     {
-        using var transaction = await context.Database.BeginTransactionAsync(cancellationToken).ConfigureAwait(false);
+        using var transaction = await unitOfWork.BeginTransactionAsync(cancellationToken).ConfigureAwait(false);
         try
         {
             ArgumentNullException.ThrowIfNull(dto);
 
-            var exists = await context.Departments.AnyAsync(x => x.Name.Equals(dto.Name, StringComparison.OrdinalIgnoreCase), cancellationToken).ConfigureAwait(false);
+            var exists = await departmentRepository.DepartmentExistsAsync(dto.Name, cancellationToken).ConfigureAwait(false);
 
             if (exists)
             {
@@ -30,20 +30,21 @@ internal sealed class DepartmentService(AppDbContext context) : IDepartmentServi
                 Name = dto.Name ?? ""
             };
 
-            await context.Departments.AddAsync(department, cancellationToken).ConfigureAwait(false);
+            await departmentRepository.AddAsync(department, cancellationToken).ConfigureAwait(false);
 
             try
             {
-                await context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+                await unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
             }
             catch (DbUpdateException)
             {
                 return new ServiceResponse<object> { IsSuccess = false, StatusCode = CustomCodes.DepartmentCreationFailed };
             }
 
-            await context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+            await unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
             await transaction.CommitAsync(cancellationToken).ConfigureAwait(false);
+
             return new ServiceResponse<object> { IsSuccess = true, StatusCode = CustomCodes.DepartmentCreatedSuccessfully };
         }
         catch (OperationCanceledException)
@@ -60,19 +61,19 @@ internal sealed class DepartmentService(AppDbContext context) : IDepartmentServi
 
     public async Task<ServiceResponse<object>> UpdateDepartment(DepartmentDto dto, CancellationToken cancellationToken)
     {
-        using var transaction = await context.Database.BeginTransactionAsync(cancellationToken).ConfigureAwait(false);
+        using var transaction = await unitOfWork.BeginTransactionAsync(cancellationToken).ConfigureAwait(false);
         try
         {
             ArgumentNullException.ThrowIfNull(dto);
 
-            var existing = await context.Departments.FirstOrDefaultAsync(x => x.Id == dto.Id, cancellationToken).ConfigureAwait(false);
+            var existing = await departmentRepository.GetByIdAsync(dto.Id, cancellationToken).ConfigureAwait(false);
 
             if (existing == null)
             {
                 return new ServiceResponse<object> { IsSuccess = false, StatusCode = CustomCodes.DepartmentNotFound };
             }
 
-            var duplicate = await context.Departments.AnyAsync(x => x.Id != dto.Id && x.Name.Equals(dto.Name, StringComparison.OrdinalIgnoreCase), cancellationToken).ConfigureAwait(false);
+            var duplicate = await departmentRepository.DuplicateDepartmentExistsAsync(dto.Id, dto.Name, cancellationToken).ConfigureAwait(false);
 
             if (duplicate)
             {
@@ -81,7 +82,7 @@ internal sealed class DepartmentService(AppDbContext context) : IDepartmentServi
 
             existing.Name = dto.Name ?? "";
 
-            await context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+            await unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
             await transaction.CommitAsync(cancellationToken).ConfigureAwait(false);
 
@@ -104,14 +105,7 @@ internal sealed class DepartmentService(AppDbContext context) : IDepartmentServi
     {
         try
         {
-            var departments = await context.Departments.AsNoTracking()
-                .Select(d => new DepartmentResponseDto
-                {
-                    Id = d.Id,
-                    Name = d.Name,
-                    TotalPositions = context.Positions.Count(p => p.DepartmentId == d.Id),
-                    TotalUsers = context.Users.Count(u => u.DepartmentId == d.Id)
-                }).ToListAsync().ConfigureAwait(false);
+            var departments = await departmentRepository.GetAllDepartmentsAsync().ConfigureAwait(false);
 
             return new ServiceResponse<IReadOnlyCollection<DepartmentResponseDto>> { IsSuccess = true, StatusCode = CustomCodes.DataRetrieved, Data = departments };
         }
@@ -126,15 +120,7 @@ internal sealed class DepartmentService(AppDbContext context) : IDepartmentServi
     {
         try
         {
-            var department = await context.Departments.AsNoTracking()
-                .Where(x => x.Id == id)
-                .Select(x => new DepartmentResponseDto
-                {
-                    Id = x.Id,
-                    Name = x.Name,
-                    TotalPositions = context.Positions.Count(p => p.DepartmentId == x.Id),
-                    TotalUsers = context.Users.Count(u => u.DepartmentId == x.Id)
-                }).FirstOrDefaultAsync().ConfigureAwait(false);
+            var department = await departmentRepository.GetDepartmentByIdAsync(id).ConfigureAwait(false);
 
             if (department == null)
             {
@@ -154,30 +140,14 @@ internal sealed class DepartmentService(AppDbContext context) : IDepartmentServi
     {
         try
         {
-            var departmentExists = await context.Departments.AnyAsync(x => x.Id == departmentId).ConfigureAwait(false);
+            var departmentExists = await departmentRepository.DepartmentExistsByIdAsync(departmentId).ConfigureAwait(false);
 
             if (!departmentExists)
             {
                 return new ServiceResponse<IReadOnlyCollection<DepartmentUserResponseDto>> { IsSuccess = false, StatusCode = CustomCodes.DepartmentNotFound };
             }
 
-            var users = await context.Users.AsNoTracking()
-                .Include(x => x.Branch)
-                .Include(x => x.Department)
-                .Include(x => x.Position)
-                .Include(x => x.Role)
-                .Where(x => x.DepartmentId == departmentId)
-                .Select(x => new DepartmentUserResponseDto
-                {
-                    UserId = x.Id,
-                    Name = x.Name ?? "",
-                    Email = x.Email ?? "",
-                    DOB = x.DOB,
-                    BranchName = x.Branch != null ? x.Branch.Name : "",
-                    DepartmentName = x.Department != null ? x.Department.Name : "",
-                    PositionName = x.Position != null ? x.Position.Name : "",
-                    RoleName = x.Role != null ? x.Role.Name : ""
-                }).ToListAsync().ConfigureAwait(false);
+            var users = await departmentRepository.GetDepartmentEmployeesAsync(departmentId).ConfigureAwait(false);
 
             return new ServiceResponse<IReadOnlyCollection<DepartmentUserResponseDto>> { IsSuccess = true, StatusCode = CustomCodes.DataRetrieved, Data = users };
         }

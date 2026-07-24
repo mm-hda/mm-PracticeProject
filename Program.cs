@@ -1,8 +1,6 @@
 ﻿using backend.Extensions;
 using backend.Filters;
 
-using Asp.Versioning;
-
 using FluentValidation;
 using FluentValidation.AspNetCore;
 

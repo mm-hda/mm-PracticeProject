@@ -1,8 +1,8 @@
-﻿using backend.Data;
-using backend.Dto;
+﻿using backend.Dto;
 using backend.Entities;
-using backend.IService;
 using backend.GenericResponse;
+using backend.IRepository;
+using backend.IService;
 
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -14,44 +14,60 @@ using System.Text;
 
 namespace backend.Services;
 
-internal sealed class AuthService(AppDbContext context, IConfiguration configuration) : IAuthService
+internal sealed class AuthService(IAuthRepository authRepository, IUnitOfWork unitOfWork, IConfiguration configuration, ILogger<AuthService> logger) : IAuthService
 {
     public async Task<ServiceResponse<TokenDto>> LoginUser(LoginDto dto, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(dto);
+
         try
         {
-            ArgumentNullException.ThrowIfNull(dto);
+
             TokenDto tokenDto = new();
 
-            var existingUser = await context.Users
-                .Include(x => x.Role)
-                .Include(x => x.Branch)
-                .Include(x => x.Department)
-                .Include(x => x.Position)
-                .FirstOrDefaultAsync(x => x.Email == dto.Email, cancellationToken)
-                .ConfigureAwait(false);
+            var existingUser = await authRepository.GetUserByEmailWithDetailsAsync(dto.Email, cancellationToken).ConfigureAwait(false);
 
             if (existingUser == null)
             {
+
                 tokenDto.Message = "User not found";
-                return new ServiceResponse<TokenDto> { StatusCode = CustomCodes.UserNotFound, IsSuccess = false };
+
+                return new ServiceResponse<TokenDto>
+                {
+                    StatusCode = CustomCodes.UserNotFound,
+                    IsSuccess = false,
+                    Data = tokenDto
+                };
             }
 
             var passwordHasher = new PasswordHasher<string>();
 
-            var verificationResult = passwordHasher.VerifyHashedPassword(dto.Email ?? "", existingUser.Password ?? "", dto.Password ?? "");
+            var verificationResult = passwordHasher.VerifyHashedPassword(
+                dto.Email ?? string.Empty,
+                existingUser.Password ?? string.Empty,
+                dto.Password ?? string.Empty);
 
             if (verificationResult == PasswordVerificationResult.Failed)
             {
+
                 tokenDto.Message = "Invalid credentials";
-                return new ServiceResponse<TokenDto> { StatusCode = CustomCodes.InvalidCredentials, IsSuccess = false };
+
+                return new ServiceResponse<TokenDto>
+                {
+                    StatusCode = CustomCodes.InvalidCredentials,
+                    IsSuccess = false,
+                    Data = tokenDto
+                };
             }
 
             if (verificationResult == PasswordVerificationResult.SuccessRehashNeeded)
             {
-                existingUser.Password = PasswordHashing(existingUser.Email ?? "", dto.Password ?? "");
+                existingUser.Password = PasswordHashing(existingUser.Email ?? string.Empty, dto.Password ?? string.Empty);
 
-                await context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+                await unitOfWork
+                    .SaveChangesAsync(cancellationToken)
+                    .ConfigureAwait(false);
+
             }
 
             var token = GetJwtToken(existingUser);
@@ -59,19 +75,38 @@ internal sealed class AuthService(AppDbContext context, IConfiguration configura
             tokenDto.Token = token;
             tokenDto.Message = "Login successful";
             tokenDto.UserId = existingUser.Id;
-            tokenDto.Name = existingUser.Name ?? "";
-            tokenDto.Email = existingUser.Email ?? "";
-            tokenDto.Role = existingUser.Role != null ? existingUser.Role.Name : "";
+            tokenDto.Name = existingUser.Name ?? string.Empty;
+            tokenDto.Email = existingUser.Email ?? string.Empty;
+            tokenDto.Role = existingUser.Role?.Name ?? string.Empty;
 
-            return new ServiceResponse<TokenDto> { StatusCode = CustomCodes.LoginSuccessfully, IsSuccess = true, Data = tokenDto };
+            return new ServiceResponse<TokenDto>
+            {
+                StatusCode = CustomCodes.LoginSuccessfully,
+                IsSuccess = true,
+                Data = tokenDto
+            };
+        }
+        catch (OperationCanceledException)
+        {
+
+            throw;
         }
         catch (InvalidOperationException)
         {
-            return new ServiceResponse<TokenDto> { StatusCode = CustomCodes.InternalServerError, IsSuccess = false };
+
+            return new ServiceResponse<TokenDto>
+            {
+                StatusCode = CustomCodes.InternalServerError,
+                IsSuccess = false
+            };
         }
         catch (Exception)
         {
-            return new ServiceResponse<TokenDto> { StatusCode = CustomCodes.InternalServerError, IsSuccess = false };
+            return new ServiceResponse<TokenDto>
+            {
+                StatusCode = CustomCodes.InternalServerError,
+                IsSuccess = false
+            };
             throw;
         }
     }
@@ -80,51 +115,93 @@ internal sealed class AuthService(AppDbContext context, IConfiguration configura
     {
         ArgumentNullException.ThrowIfNull(dto);
 
-        using var transaction = await context.Database.BeginTransactionAsync(cancellationToken).ConfigureAwait(false);
+        using var transaction = await unitOfWork.BeginTransactionAsync(cancellationToken).ConfigureAwait(false);
+
         try
         {
 
-            var existingUser = await context.Users.FirstOrDefaultAsync(x => x.Email == dto.Email, cancellationToken).ConfigureAwait(false);
+            var emailExists = await authRepository
+                .EmailExistsAsync(
+                    dto.Email,
+                    cancellationToken)
+                .ConfigureAwait(false);
 
-            if (existingUser != null)
+            if (emailExists)
             {
-                return new ServiceResponse<object> { StatusCode = CustomCodes.UserAlreadyExists, IsSuccess = false };
+                return new ServiceResponse<object>
+                {
+                    StatusCode = CustomCodes.UserAlreadyExists,
+                    IsSuccess = false
+                };
             }
 
-            var branchExists = await context.Branches.AnyAsync(x => x.Id == dto.BranchId, cancellationToken).ConfigureAwait(false);
+            var branchExists = await authRepository.BranchExistsAsync(dto.BranchId, cancellationToken).ConfigureAwait(false);
 
             if (!branchExists)
             {
-                return new ServiceResponse<object> { StatusCode = CustomCodes.BranchNotFound, IsSuccess = false };
+                return new ServiceResponse<object>
+                {
+                    StatusCode = CustomCodes.BranchNotFound,
+                    IsSuccess = false
+                };
             }
 
-            var departmentExists = await context.Departments.AnyAsync(x => x.Id == dto.DepartmentId, cancellationToken).ConfigureAwait(false);
+            var departmentExists = await authRepository
+                .DepartmentExistsAsync(
+                    dto.DepartmentId,
+                    cancellationToken)
+                .ConfigureAwait(false);
 
             if (!departmentExists)
             {
-                return new ServiceResponse<object> { StatusCode = CustomCodes.DepartmentNotFound, IsSuccess = false };
+                return new ServiceResponse<object>
+                {
+                    StatusCode = CustomCodes.DepartmentNotFound,
+                    IsSuccess = false
+                };
             }
 
-            var positionExists = await context.Positions.AnyAsync(x => x.Id == dto.PositionId && x.DepartmentId == dto.DepartmentId, cancellationToken).ConfigureAwait(false);
+            var positionExists = await authRepository
+                .PositionExistsAsync(
+                    dto.PositionId,
+                    dto.DepartmentId,
+                    cancellationToken)
+                .ConfigureAwait(false);
 
             if (!positionExists)
             {
-                return new ServiceResponse<object> { StatusCode = CustomCodes.PositionNotFound, IsSuccess = false };
+                return new ServiceResponse<object>
+                {
+                    StatusCode = CustomCodes.PositionNotFound,
+                    IsSuccess = false
+                };
             }
 
-            var roleExists = await context.Roles.AnyAsync(x => x.Id == dto.RoleId, cancellationToken).ConfigureAwait(false);
+            var roleExists = await authRepository
+                .RoleExistsAsync(
+                    dto.RoleId,
+                    cancellationToken)
+                .ConfigureAwait(false);
 
             if (!roleExists)
             {
-                return new ServiceResponse<object> { StatusCode = CustomCodes.RoleNotFound, IsSuccess = false };
+                return new ServiceResponse<object>
+                {
+                    StatusCode = CustomCodes.RoleNotFound,
+                    IsSuccess = false
+                };
             }
+
+            cancellationToken.ThrowIfCancellationRequested();
 
             User newUser = new()
             {
                 Id = Guid.NewGuid(),
-                Name = dto.Name ?? "",
-                Email = dto.Email ?? "",
-                Password = PasswordHashing(dto.Email ?? "", dto.Password ?? ""),
+                Name = dto.Name ?? string.Empty,
+                Email = dto.Email ?? string.Empty,
+                Password = PasswordHashing(
+                    dto.Email ?? string.Empty,
+                    dto.Password ?? string.Empty),
                 DOB = dto.DOB,
                 BranchId = dto.BranchId,
                 DepartmentId = dto.DepartmentId,
@@ -132,28 +209,48 @@ internal sealed class AuthService(AppDbContext context, IConfiguration configura
                 RoleId = dto.RoleId
             };
 
-            await context.Users.AddAsync(newUser, cancellationToken).ConfigureAwait(false);
+            await authRepository.AddUserAsync(newUser, cancellationToken).ConfigureAwait(false);
 
-            await context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+            await unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
             await transaction.CommitAsync(cancellationToken).ConfigureAwait(false);
 
-            return new ServiceResponse<object> { StatusCode = CustomCodes.UserCreatedSuccessfully, IsSuccess = true };
+
+            return new ServiceResponse<object>
+            {
+                StatusCode = CustomCodes.UserCreatedSuccessfully,
+                IsSuccess = true
+            };
         }
         catch (OperationCanceledException)
         {
-            await transaction.RollbackAsync(cancellationToken).ConfigureAwait(false);
-            return new ServiceResponse<object> { StatusCode = CustomCodes.InternalServerError, IsSuccess = false };
+            await transaction.RollbackAsync(CancellationToken.None).ConfigureAwait(false);
+
+            return new ServiceResponse<object>
+            {
+                StatusCode = CustomCodes.OperationCancelled,
+                IsSuccess = false
+            };
         }
         catch (DbUpdateException)
         {
-            await transaction.RollbackAsync(cancellationToken).ConfigureAwait(false);
-            return new ServiceResponse<object> { StatusCode = CustomCodes.UserCreationFailed, IsSuccess = false };
+            await transaction.RollbackAsync(CancellationToken.None).ConfigureAwait(false);
+
+            return new ServiceResponse<object>
+            {
+                StatusCode = CustomCodes.UserCreationFailed,
+                IsSuccess = false
+            };
         }
         catch (Exception)
         {
-            await transaction.RollbackAsync(cancellationToken).ConfigureAwait(false);
-            return new ServiceResponse<object> { StatusCode = CustomCodes.InternalServerError, IsSuccess = false };
+            await transaction.RollbackAsync(CancellationToken.None).ConfigureAwait(false);
+
+            return new ServiceResponse<object>
+            {
+                StatusCode = CustomCodes.InternalServerError,
+                IsSuccess = false
+            };
             throw;
         }
     }
@@ -161,19 +258,25 @@ internal sealed class AuthService(AppDbContext context, IConfiguration configura
     private string GetJwtToken(User user)
     {
         var claims = new List<Claim>
-            {
-                new(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                new(ClaimTypes.Name, user.Name ?? ""),
-                new(ClaimTypes.Email, user.Email ?? ""),
-                new(ClaimTypes.Role, user.Role?.Name ?? "")
-            };
+        {
+            new(ClaimTypes.NameIdentifier, user.Id.ToString()),
+            new(ClaimTypes.Name, user.Name ?? string.Empty),
+            new(ClaimTypes.Email, user.Email ?? string.Empty)
+        };
 
-        if (user.Role != null)
+        if (!string.IsNullOrWhiteSpace(user.Role?.Name))
         {
             claims.Add(new Claim(ClaimTypes.Role, user.Role.Name));
         }
 
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:Key"]!));
+        var jwtKey = configuration["Jwt:Key"];
+
+        if (string.IsNullOrWhiteSpace(jwtKey))
+        {
+            throw new InvalidOperationException("JWT key is missing.");
+        }
+
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
 
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
@@ -182,8 +285,7 @@ internal sealed class AuthService(AppDbContext context, IConfiguration configura
             audience: configuration["Jwt:Audience"],
             claims: claims,
             expires: DateTime.UtcNow.AddDays(10),
-            signingCredentials: creds
-        );
+            signingCredentials: creds);
 
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
@@ -195,4 +297,3 @@ internal sealed class AuthService(AppDbContext context, IConfiguration configura
         return passwordHasher.HashPassword(email, password);
     }
 }
-

@@ -1,14 +1,12 @@
-﻿using backend.Data;
+﻿using backend.Dto.CommonDtos;
 using backend.Dto.UserDtos;
-using backend.Dto.CommonDtos;
-using backend.IService;
 using backend.GenericResponse;
-
-using Microsoft.EntityFrameworkCore;
+using backend.IRepository;
+using backend.IService;
 
 namespace backend.Services;
 
-internal sealed class UserService(AppDbContext context) : IUserService
+internal sealed class UserService(IUserRepository userRepository) : IUserService
 {
     public async Task<ServiceResponse<IReadOnlyCollection<UserResponseDto>>> GetAllUsers(PaginationDto dto, CancellationToken cancellationToken)
     {
@@ -19,15 +17,7 @@ internal sealed class UserService(AppDbContext context) : IUserService
             dto.PageNumber = dto.PageNumber <= 0 ? 1 : dto.PageNumber;
             dto.PageSize = dto.PageSize <= 0 ? 10 : dto.PageSize;
 
-            var query = context.Users
-                .AsNoTracking()
-                .Include(x => x.Role)
-                .Include(x => x.Branch)
-                .Include(x => x.Department)
-                .Include(x => x.Position)
-                .Where(x => x.Role != null && x.Role.Name != "Admin");
-
-            var totalRecords = await query.CountAsync(cancellationToken).ConfigureAwait(false);
+            var totalRecords = await userRepository.GetUsersCountAsync(cancellationToken).ConfigureAwait(false);
 
             if (totalRecords == 0)
             {
@@ -39,21 +29,7 @@ internal sealed class UserService(AppDbContext context) : IUserService
                 return new ServiceResponse<IReadOnlyCollection<UserResponseDto>> { IsSuccess = false, StatusCode = CustomCodes.UserNotFound };
             }
 
-            var users = await query
-                .OrderBy(x => x.Name)
-                .Skip((dto.PageNumber - 1) * dto.PageSize)
-                .Take(dto.PageSize)
-                .Select(x => new UserResponseDto
-                {
-                    UserId = x.Id,
-                    Name = x.Name,
-                    Email = x.Email,
-                    DOB = x.DOB,
-                    RoleName = x.Role != null ? x.Role.Name : "",
-                    BranchName = x.Branch != null ? x.Branch.Name : "",
-                    DepartmentName = x.Department != null ? x.Department.Name : "",
-                    PositionName = x.Position != null ? x.Position.Name : ""
-                }).ToListAsync(cancellationToken).ConfigureAwait(false);
+            var users = await userRepository.GetAllUsersAsync(dto.PageNumber, dto.PageSize, cancellationToken).ConfigureAwait(false);
 
             var meta = new PaginationMetaDto
             {
@@ -80,24 +56,7 @@ internal sealed class UserService(AppDbContext context) : IUserService
     {
         try
         {
-
-            var users = await context.Users.AsNoTracking()
-                .Include(x => x.Role)
-                .Include(x => x.Branch)
-                .Include(x => x.Department)
-                .Include(x => x.Position)
-                .Where(x => EF.Functions.Like(x.Name, $"%{searchTerm}%") || EF.Functions.Like(x.Email, $"%{searchTerm}%"))
-                .Select(x => new UserResponseDto
-                {
-                    UserId = x.Id,
-                    Name = x.Name,
-                    Email = x.Email,
-                    DOB = x.DOB,
-                    RoleName = x.Role != null ? x.Role.Name : "",
-                    BranchName = x.Branch != null ? x.Branch.Name : "",
-                    DepartmentName = x.Department != null ? x.Department.Name : "",
-                    PositionName = x.Position != null ? x.Position.Name : ""
-                }).ToListAsync().ConfigureAwait(false);
+            var users = await userRepository.GetUserBySearchAsync(searchTerm).ConfigureAwait(false);
 
             if (users == null)
             {
@@ -117,23 +76,7 @@ internal sealed class UserService(AppDbContext context) : IUserService
     {
         try
         {
-            var user = await context.Users.AsNoTracking()
-                .Include(x => x.Role)
-                .Include(x => x.Branch)
-                .Include(x => x.Department)
-                .Include(x => x.Position)
-                .Where(x => x.Id == id)
-                .Select(x => new UserResponseDto
-                {
-                    UserId = x.Id,
-                    Name = x.Name,
-                    Email = x.Email,
-                    DOB = x.DOB,
-                    RoleName = x.Role != null ? x.Role.Name : "",
-                    BranchName = x.Branch != null ? x.Branch.Name : "",
-                    DepartmentName = x.Department != null ? x.Department.Name : "",
-                    PositionName = x.Position != null ? x.Position.Name : ""
-                }).FirstOrDefaultAsync().ConfigureAwait(false);
+            var user = await userRepository.GetUserByIdAsync(id).ConfigureAwait(false);
 
             if (user == null)
             {
@@ -155,45 +98,7 @@ internal sealed class UserService(AppDbContext context) : IUserService
         {
             ArgumentNullException.ThrowIfNull(dto);
 
-            var query = context.Users.AsNoTracking()
-                .Include(x => x.Role)
-                .Include(x => x.Branch)
-                .Include(x => x.Department)
-                .Include(x => x.Position)
-                .Where(x => x.Role != null && x.Role.Name != "Admin")
-                .AsQueryable();
-
-            if (dto.RoleId.HasValue)
-            {
-                query = query.Where(x => x.RoleId == dto.RoleId.Value);
-            }
-
-            if (dto.BranchId.HasValue)
-            {
-                query = query.Where(x => x.BranchId == dto.BranchId.Value);
-            }
-
-            if (dto.DepartmentId.HasValue)
-            {
-                query = query.Where(x => x.DepartmentId == dto.DepartmentId.Value);
-            }
-
-            if (dto.PositionId.HasValue)
-            {
-                query = query.Where(x => x.PositionId == dto.PositionId.Value);
-            }
-
-            var users = await query.Select(x => new UserResponseDto
-            {
-                UserId = x.Id,
-                Name = x.Name,
-                Email = x.Email,
-                DOB = x.DOB,
-                RoleName = x.Role != null ? x.Role.Name : "",
-                BranchName = x.Branch != null ? x.Branch.Name : "",
-                DepartmentName = x.Department != null ? x.Department.Name : "",
-                PositionName = x.Position != null ? x.Position.Name : ""
-            }).ToListAsync().ConfigureAwait(false);
+            var users = await userRepository.GetUsersByFilterAsync(dto).ConfigureAwait(false);
 
             if (users == null || users.Count == 0)
             {
@@ -209,4 +114,3 @@ internal sealed class UserService(AppDbContext context) : IUserService
         }
     }
 }
-
