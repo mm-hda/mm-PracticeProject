@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace backend.Services;
 
-internal sealed class BranchService(IBranchRepository branchRepository, IUnitOfWork unitOfWork, ILogger<BranchService> logger) : IBranchService
+internal sealed class BranchService(IBranchRepository branchRepository, IUnitOfWork unitOfWork) : IBranchService
 {
     public async Task<ServiceResponse<object>> CreateBranch(BranchDto dto, CancellationToken cancellationToken)
     {
@@ -150,8 +150,7 @@ internal sealed class BranchService(IBranchRepository branchRepository, IUnitOfW
     {
         try
         {
-            var branches =
-                await branchRepository.GetAllBranchesAsync().ConfigureAwait(false);
+            var branches = await branchRepository.GetAllBranchesAsync().ConfigureAwait(false);
 
             return new()
             {

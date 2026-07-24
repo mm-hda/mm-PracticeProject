@@ -14,7 +14,7 @@ using System.Text;
 
 namespace backend.Services;
 
-internal sealed class AuthService(IAuthRepository authRepository, IUnitOfWork unitOfWork, IConfiguration configuration, ILogger<AuthService> logger) : IAuthService
+internal sealed class AuthService(IAuthRepository authRepository, IUnitOfWork unitOfWork, IConfiguration configuration) : IAuthService
 {
     public async Task<ServiceResponse<TokenDto>> LoginUser(LoginDto dto, CancellationToken cancellationToken)
     {
@@ -22,7 +22,6 @@ internal sealed class AuthService(IAuthRepository authRepository, IUnitOfWork un
 
         try
         {
-
             TokenDto tokenDto = new();
 
             var existingUser = await authRepository.GetUserByEmailWithDetailsAsync(dto.Email, cancellationToken).ConfigureAwait(false);
@@ -120,11 +119,7 @@ internal sealed class AuthService(IAuthRepository authRepository, IUnitOfWork un
         try
         {
 
-            var emailExists = await authRepository
-                .EmailExistsAsync(
-                    dto.Email,
-                    cancellationToken)
-                .ConfigureAwait(false);
+            var emailExists = await authRepository.EmailExistsAsync(dto.Email, cancellationToken).ConfigureAwait(false);
 
             if (emailExists)
             {
@@ -146,11 +141,7 @@ internal sealed class AuthService(IAuthRepository authRepository, IUnitOfWork un
                 };
             }
 
-            var departmentExists = await authRepository
-                .DepartmentExistsAsync(
-                    dto.DepartmentId,
-                    cancellationToken)
-                .ConfigureAwait(false);
+            var departmentExists = await authRepository.DepartmentExistsAsync(dto.DepartmentId, cancellationToken).ConfigureAwait(false);
 
             if (!departmentExists)
             {
@@ -161,12 +152,7 @@ internal sealed class AuthService(IAuthRepository authRepository, IUnitOfWork un
                 };
             }
 
-            var positionExists = await authRepository
-                .PositionExistsAsync(
-                    dto.PositionId,
-                    dto.DepartmentId,
-                    cancellationToken)
-                .ConfigureAwait(false);
+            var positionExists = await authRepository.PositionExistsAsync(dto.PositionId, dto.DepartmentId, cancellationToken).ConfigureAwait(false);
 
             if (!positionExists)
             {
@@ -178,9 +164,7 @@ internal sealed class AuthService(IAuthRepository authRepository, IUnitOfWork un
             }
 
             var roleExists = await authRepository
-                .RoleExistsAsync(
-                    dto.RoleId,
-                    cancellationToken)
+                .RoleExistsAsync(dto.RoleId, cancellationToken)
                 .ConfigureAwait(false);
 
             if (!roleExists)
@@ -214,7 +198,6 @@ internal sealed class AuthService(IAuthRepository authRepository, IUnitOfWork un
             await unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
             await transaction.CommitAsync(cancellationToken).ConfigureAwait(false);
-
 
             return new ServiceResponse<object>
             {
