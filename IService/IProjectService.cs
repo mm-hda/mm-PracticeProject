@@ -1,16 +1,17 @@
 ﻿using backend.Dto.ProjectDtos;
+using backend.GenericResponse;
 
 namespace backend.IService;
 
 public interface IProjectService
 {
-    Task<Tuple<int>> CreateProject(ProjectDto dto);
+    Task<ServiceResponse<object>> CreateProject(ProjectDto dto, CancellationToken cancellationToken);
 
-    Task<Tuple<int>> UpdateProject(ProjectDto dto);
+    Task<ServiceResponse<object>> UpdateProject(ProjectDto dto, CancellationToken cancellationToken);
 
-    Task<Tuple<int, IReadOnlyCollection<ProjectResponseDto>>> GetAllProjects();
+    Task<ServiceResponse<IReadOnlyCollection<ProjectResponseDto>>> GetAllProjects();
 
-    Task<Tuple<int, ProjectResponseDto?>> GetProjectById(Guid id);
+    Task<ServiceResponse<ProjectResponseDto?>> GetProjectById(Guid id);
 
-    Task<Tuple<int, IReadOnlyCollection<ProjectUserResponseDto>>> GetProjectEmployees(Guid projectId);
+    Task<ServiceResponse<IReadOnlyCollection<ProjectUserResponseDto>>> GetProjectEmployees(Guid projectId);
 }

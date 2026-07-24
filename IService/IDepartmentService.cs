@@ -1,16 +1,16 @@
 ﻿using backend.Dto.DepartmentDtos;
-
+using backend.GenericResponse;
 namespace backend.IService;
 
 public interface IDepartmentService
 {
-    Task<Tuple<int>> CreateDepartment(DepartmentDto dto);
+    Task<ServiceResponse<object>> CreateDepartment(DepartmentDto dto, CancellationToken cancellationToken);
 
-    Task<Tuple<int>> UpdateDepartment(DepartmentDto dto);
+    Task<ServiceResponse<object>> UpdateDepartment(DepartmentDto dto, CancellationToken cancellationToken);
 
-    Task<Tuple<int, IReadOnlyCollection<DepartmentResponseDto>>> GetAllDepartments();
+    Task<ServiceResponse<IReadOnlyCollection<DepartmentResponseDto>>> GetAllDepartments();
 
-    Task<Tuple<int, DepartmentResponseDto?>> GetDepartmentById(Guid id);
+    Task<ServiceResponse<DepartmentResponseDto?>> GetDepartmentById(Guid id);
 
-    Task<Tuple<int, IReadOnlyCollection<DepartmentUserResponseDto>>> GetDepartmentEmployees(Guid departmentId);
+    Task<ServiceResponse<IReadOnlyCollection<DepartmentUserResponseDto>>> GetDepartmentEmployees(Guid departmentId);
 }

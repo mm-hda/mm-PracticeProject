@@ -10,85 +10,96 @@ namespace backend.Services;
 
 internal sealed class BranchService(AppDbContext context) : IBranchService
 {
-    public async Task<Tuple<int>> CreateBranch(BranchDto dto)
+    public async Task<ServiceResponse<object>> CreateBranch(BranchDto dto, CancellationToken cancellationToken)
     {
+        using var transaction = await context.Database.BeginTransactionAsync(cancellationToken).ConfigureAwait(false);
+
         try
         {
             ArgumentNullException.ThrowIfNull(dto);
 
-            if (dto == null || string.IsNullOrWhiteSpace(dto.Name))
-            {
-                return new Tuple<int>(CustomCodes.InputsNotFound);
-            }
-
-            var exists = await context.Branches.AnyAsync(x => string.Equals(x.Name, dto.Name, StringComparison.OrdinalIgnoreCase)).ConfigureAwait(false);
+            var exists = await context.Branches.AnyAsync(x => string.Equals(x.Name, dto.Name, StringComparison.OrdinalIgnoreCase), cancellationToken).ConfigureAwait(false);
 
             if (exists)
             {
-                return new Tuple<int>(CustomCodes.BranchAlreadyExists);
+                return new ServiceResponse<object> { StatusCode = CustomCodes.BranchAlreadyExists, IsSuccess = false };
             }
 
             Branch branch = new()
             {
                 Id = Guid.NewGuid(),
-                Name = dto.Name,
+                Name = dto.Name ?? "",
                 Location = dto.Location ?? ""
             };
 
-            await context.Branches.AddAsync(branch).ConfigureAwait(false);
+            await context.Branches.AddAsync(branch, cancellationToken).ConfigureAwait(false);
 
-            await context.SaveChangesAsync().ConfigureAwait(false);
+            await context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
-            return new Tuple<int>(CustomCodes.BranchCreatedSuccessfully);
+            await transaction.CommitAsync(cancellationToken).ConfigureAwait(false);
+
+            return new ServiceResponse<object> { StatusCode = CustomCodes.BranchCreatedSuccessfully, IsSuccess = true };
+        }
+        catch (OperationCanceledException)
+        {
+            await transaction.RollbackAsync(cancellationToken).ConfigureAwait(false);
+            return new ServiceResponse<object> { StatusCode = CustomCodes.OperationCancelled, IsSuccess = false };
         }
         catch (DbUpdateException)
         {
-            return new Tuple<int>(CustomCodes.BranchCreationFailed);
+            await transaction.RollbackAsync(cancellationToken).ConfigureAwait(false);
+            return new ServiceResponse<object> { StatusCode = CustomCodes.BranchCreationFailed, IsSuccess = false };
         }
         catch (Exception)
         {
-            return new Tuple<int>(CustomCodes.BranchCreationFailed);
+            await transaction.RollbackAsync(cancellationToken).ConfigureAwait(false);
+            return new ServiceResponse<object> { StatusCode = CustomCodes.BranchCreationFailed, IsSuccess = false };
             throw;
         }
     }
 
-    public async Task<Tuple<int>> UpdateBranch(BranchDto dto)
+    public async Task<ServiceResponse<object>> UpdateBranch(BranchDto dto, CancellationToken cancellationToken)
     {
+        using var transaction = await context.Database.BeginTransactionAsync(cancellationToken).ConfigureAwait(false);
         try
         {
             ArgumentNullException.ThrowIfNull(dto);
 
-            if (dto == null || dto.Id == Guid.Empty)
-            {
-                return new Tuple<int>(CustomCodes.InputsNotFound);
-            }
-
-            var branch = await context.Branches.FirstOrDefaultAsync(x => x.Id == dto.Id).ConfigureAwait(false);
+            var branch = await context.Branches.FirstOrDefaultAsync(x => x.Id == dto.Id, cancellationToken).ConfigureAwait(false);
 
             if (branch == null)
             {
-                return new Tuple<int>(CustomCodes.BranchNotFound);
+                return new ServiceResponse<object> { StatusCode = CustomCodes.BranchNotFound, IsSuccess = false };
             }
 
             branch.Name = dto.Name ?? branch.Name;
             branch.Location = dto.Location ?? branch.Location;
 
-            await context.SaveChangesAsync().ConfigureAwait(false);
+            await context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
-            return new Tuple<int>(CustomCodes.BranchUpdatedSuccessfully);
+            await transaction.CommitAsync(cancellationToken).ConfigureAwait(false);
+
+            return new ServiceResponse<object> { StatusCode = CustomCodes.BranchUpdatedSuccessfully, IsSuccess = true };
+        }
+        catch (OperationCanceledException)
+        {
+            await transaction.RollbackAsync(cancellationToken).ConfigureAwait(false);
+            return new ServiceResponse<object> { StatusCode = CustomCodes.OperationCancelled, IsSuccess = false };
         }
         catch (DbUpdateException)
         {
-            return new Tuple<int>(CustomCodes.BranchUpdateFailed);
+            await transaction.RollbackAsync(cancellationToken).ConfigureAwait(false);
+            return new ServiceResponse<object> { StatusCode = CustomCodes.BranchUpdateFailed, IsSuccess = false };
         }
         catch (Exception)
         {
-            return new Tuple<int>(CustomCodes.BranchUpdateFailed);
+            await transaction.RollbackAsync(cancellationToken).ConfigureAwait(false);
+            return new ServiceResponse<object> { StatusCode = CustomCodes.BranchUpdateFailed, IsSuccess = false };
             throw;
         }
     }
 
-    public async Task<Tuple<int, IReadOnlyCollection<BranchResponseDto>>> GetAllBranches()
+    public async Task<ServiceResponse<IReadOnlyCollection<BranchResponseDto>>> GetAllBranches()
     {
         try
         {
@@ -101,16 +112,16 @@ internal sealed class BranchService(AppDbContext context) : IBranchService
                     TotalUsers = context.Users.Count(u => u.BranchId == x.Id)
                 }).ToListAsync().ConfigureAwait(false);
 
-            return new Tuple<int, IReadOnlyCollection<BranchResponseDto>>(CustomCodes.DataRetrieved, branches);
+            return new ServiceResponse<IReadOnlyCollection<BranchResponseDto>> { StatusCode = CustomCodes.DataRetrieved, IsSuccess = true, Data = branches };
         }
         catch (Exception)
         {
-            return new Tuple<int, IReadOnlyCollection<BranchResponseDto>>(CustomCodes.InternalServerError, []);
+            return new ServiceResponse<IReadOnlyCollection<BranchResponseDto>> { StatusCode = CustomCodes.InternalServerError, IsSuccess = false };
             throw;
         }
     }
 
-    public async Task<Tuple<int, BranchResponseDto?>> GetBranchById(Guid id)
+    public async Task<ServiceResponse<BranchResponseDto?>> GetBranchById(Guid id)
     {
         try
         {
@@ -125,19 +136,19 @@ internal sealed class BranchService(AppDbContext context) : IBranchService
                 }).FirstOrDefaultAsync().ConfigureAwait(false);
             if (branch == null)
             {
-                return new Tuple<int, BranchResponseDto?>(CustomCodes.BranchNotFound, null);
+                return new ServiceResponse<BranchResponseDto?> { StatusCode = CustomCodes.BranchNotFound, IsSuccess = false };
             }
 
-            return new Tuple<int, BranchResponseDto?>(CustomCodes.DataRetrieved, branch);
+            return new ServiceResponse<BranchResponseDto?> { StatusCode = CustomCodes.DataRetrieved, IsSuccess = true, Data = branch };
         }
         catch (Exception)
         {
-            return new Tuple<int, BranchResponseDto?>(CustomCodes.InternalServerError, null);
+            return new ServiceResponse<BranchResponseDto?> { StatusCode = CustomCodes.InternalServerError, IsSuccess = false };
             throw;
         }
     }
 
-    public async Task<Tuple<int, IReadOnlyCollection<BranchUserResponseDto>>> GetBranchUsers(Guid branchId)
+    public async Task<ServiceResponse<IReadOnlyCollection<BranchUserResponseDto>>> GetBranchUsers(Guid branchId)
     {
         try
         {
@@ -161,14 +172,14 @@ internal sealed class BranchService(AppDbContext context) : IBranchService
 
             if (users == null || users.Count == 0)
             {
-                return new Tuple<int, IReadOnlyCollection<BranchUserResponseDto>>(CustomCodes.BranchNotFound, []);
+                return new ServiceResponse<IReadOnlyCollection<BranchUserResponseDto>> { StatusCode = CustomCodes.BranchNotFound, IsSuccess = false };
             }
 
-            return new Tuple<int, IReadOnlyCollection<BranchUserResponseDto>>(CustomCodes.DataRetrieved, users);
+            return new ServiceResponse<IReadOnlyCollection<BranchUserResponseDto>> { StatusCode = CustomCodes.DataRetrieved, IsSuccess = true, Data = users };
         }
         catch (Exception)
         {
-            return new Tuple<int, IReadOnlyCollection<BranchUserResponseDto>>(CustomCodes.InternalServerError, []);
+            return new ServiceResponse<IReadOnlyCollection<BranchUserResponseDto>> { StatusCode = CustomCodes.InternalServerError, IsSuccess = false };
             throw;
         }
     }

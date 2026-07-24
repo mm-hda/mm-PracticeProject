@@ -9,7 +9,7 @@ namespace backend.Services;
 
 internal sealed class DashboardService(AppDbContext context) : IDashboardService
 {
-    public async Task<Tuple<int, DashboardResponseDto>> GetDashboard()
+    public async Task<ServiceResponse<DashboardResponseDto>> GetDashboard()
     {
         try
         {
@@ -103,11 +103,11 @@ internal sealed class DashboardService(AppDbContext context) : IDashboardService
                             ep.User.Role.Name != "Admin")
                 }).ToListAsync().ConfigureAwait(false);
 
-            return new Tuple<int, DashboardResponseDto>(CustomCodes.DataRetrieved, dashboard);
+            return new ServiceResponse<DashboardResponseDto> { StatusCode = CustomCodes.DataRetrieved, IsSuccess = true, Data = dashboard };
         }
         catch (Exception)
         {
-            return new Tuple<int, DashboardResponseDto>(CustomCodes.InternalServerError, new DashboardResponseDto());
+            return new ServiceResponse<DashboardResponseDto> { StatusCode = CustomCodes.InternalServerError, IsSuccess = false, Data = new DashboardResponseDto() };
             throw;
         }
     }

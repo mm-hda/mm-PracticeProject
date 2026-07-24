@@ -1,18 +1,18 @@
 ﻿using backend.Dto.PositionDtos;
-
+using backend.GenericResponse;
 namespace backend.IService;
 
 public interface IPositionService
 {
-    Task<Tuple<int>> CreatePosition(PositionDto dto);
+    Task<ServiceResponse<object>> CreatePosition(PositionDto dto, CancellationToken cancellationToken);
 
-    Task<Tuple<int>> UpdatePosition(PositionDto dto);
+    Task<ServiceResponse<object>> UpdatePosition(PositionDto dto, CancellationToken cancellationToken);
 
-    Task<Tuple<int, IReadOnlyCollection<PositionResponseDto>>> GetAllPositions();
+    Task<ServiceResponse<IReadOnlyCollection<PositionResponseDto>>> GetAllPositions();
 
-    Task<Tuple<int, PositionResponseDto?>> GetPositionById(Guid id);
+    Task<ServiceResponse<PositionResponseDto?>> GetPositionById(Guid id);
 
-    Task<Tuple<int, IReadOnlyCollection<PositionResponseDto>>> GetPositionsByDepartment(Guid departmentId);
+    Task<ServiceResponse<IReadOnlyCollection<PositionResponseDto>>> GetPositionsByDepartment(Guid departmentId);
 
-    Task<Tuple<int, IReadOnlyCollection<PositionUserResponseDto>>> GetPositionUsers(Guid positionId);
+    Task<ServiceResponse<IReadOnlyCollection<PositionUserResponseDto>>> GetPositionUsers(Guid positionId);
 }

@@ -10,7 +10,7 @@ namespace backend.Services;
 
 internal sealed class UserService(AppDbContext context) : IUserService
 {
-    public async Task<Tuple<int, IReadOnlyCollection<UserResponseDto>, PaginationMetaDto?>> GetAllUsers(PaginationDto dto)
+    public async Task<ServiceResponse<IReadOnlyCollection<UserResponseDto>>> GetAllUsers(PaginationDto dto, CancellationToken cancellationToken)
     {
         try
         {
@@ -27,16 +27,16 @@ internal sealed class UserService(AppDbContext context) : IUserService
                 .Include(x => x.Position)
                 .Where(x => x.Role != null && x.Role.Name != "Admin");
 
-            var totalRecords = await query.CountAsync().ConfigureAwait(false);
+            var totalRecords = await query.CountAsync(cancellationToken).ConfigureAwait(false);
 
             if (totalRecords == 0)
             {
-                return new(CustomCodes.UserNotFound, [], null);
+                return new ServiceResponse<IReadOnlyCollection<UserResponseDto>> { IsSuccess = false, StatusCode = CustomCodes.UserNotFound };
             }
 
             if ((int)Math.Ceiling(totalRecords / (double)dto.PageSize) < dto.PageNumber)
             {
-                return new(CustomCodes.PageNumberExceeds, [], null);
+                return new ServiceResponse<IReadOnlyCollection<UserResponseDto>> { IsSuccess = false, StatusCode = CustomCodes.UserNotFound };
             }
 
             var users = await query
@@ -53,7 +53,7 @@ internal sealed class UserService(AppDbContext context) : IUserService
                     BranchName = x.Branch != null ? x.Branch.Name : "",
                     DepartmentName = x.Department != null ? x.Department.Name : "",
                     PositionName = x.Position != null ? x.Position.Name : ""
-                }).ToListAsync().ConfigureAwait(false);
+                }).ToListAsync(cancellationToken).ConfigureAwait(false);
 
             var meta = new PaginationMetaDto
             {
@@ -63,23 +63,23 @@ internal sealed class UserService(AppDbContext context) : IUserService
                 TotalPages = (int)Math.Ceiling(totalRecords / (double)dto.PageSize)
             };
 
-            return new(CustomCodes.DataRetrieved, users, meta);
+            return new ServiceResponse<IReadOnlyCollection<UserResponseDto>> { IsSuccess = true, StatusCode = CustomCodes.DataRetrieved, Data = users, Meta = meta };
+        }
+        catch (OperationCanceledException)
+        {
+            return new ServiceResponse<IReadOnlyCollection<UserResponseDto>> { IsSuccess = false, StatusCode = CustomCodes.InternalServerError };
         }
         catch (Exception)
         {
-            return new(CustomCodes.InternalServerError, [], null);
+            return new ServiceResponse<IReadOnlyCollection<UserResponseDto>> { IsSuccess = false, StatusCode = CustomCodes.InternalServerError };
             throw;
         }
     }
 
-    public async Task<Tuple<int, IReadOnlyCollection<UserResponseDto>>> GetUserBySearch(string searchTerm)
+    public async Task<ServiceResponse<IReadOnlyCollection<UserResponseDto>>> GetUserBySearch(string searchTerm)
     {
         try
         {
-            if (string.IsNullOrWhiteSpace(searchTerm))
-            {
-                return new(CustomCodes.InvalidInput, []);
-            }
 
             var users = await context.Users.AsNoTracking()
                 .Include(x => x.Role)
@@ -101,19 +101,19 @@ internal sealed class UserService(AppDbContext context) : IUserService
 
             if (users == null)
             {
-                return new(CustomCodes.UserNotFound, []);
+                return new ServiceResponse<IReadOnlyCollection<UserResponseDto>> { IsSuccess = false, StatusCode = CustomCodes.UserNotFound };
             }
 
-            return new(CustomCodes.DataRetrieved, users);
+            return new ServiceResponse<IReadOnlyCollection<UserResponseDto>> { IsSuccess = true, StatusCode = CustomCodes.DataRetrieved, Data = users };
         }
         catch (Exception)
         {
-            return new(CustomCodes.InternalServerError, []);
+            return new ServiceResponse<IReadOnlyCollection<UserResponseDto>> { IsSuccess = false, StatusCode = CustomCodes.InternalServerError };
             throw;
         }
     }
 
-    public async Task<Tuple<int, UserResponseDto?>> GetUserById(Guid id)
+    public async Task<ServiceResponse<UserResponseDto?>> GetUserById(Guid id)
     {
         try
         {
@@ -137,19 +137,19 @@ internal sealed class UserService(AppDbContext context) : IUserService
 
             if (user == null)
             {
-                return new(CustomCodes.UserNotFound, new UserResponseDto());
+                return new ServiceResponse<UserResponseDto?> { IsSuccess = false, StatusCode = CustomCodes.UserNotFound };
             }
 
-            return new(CustomCodes.DataRetrieved, user);
+            return new ServiceResponse<UserResponseDto?> { IsSuccess = true, StatusCode = CustomCodes.DataRetrieved, Data = user };
         }
         catch (Exception)
         {
-            return new(CustomCodes.InternalServerError, new UserResponseDto());
+            return new ServiceResponse<UserResponseDto?> { IsSuccess = false, StatusCode = CustomCodes.InternalServerError, Data = null };
             throw;
         }
     }
 
-    public async Task<Tuple<int, IReadOnlyCollection<UserResponseDto>>> GetUsersByFilter(UserFilterDto dto)
+    public async Task<ServiceResponse<IReadOnlyCollection<UserResponseDto>>> GetUsersByFilter(UserFilterDto dto)
     {
         try
         {
@@ -197,14 +197,14 @@ internal sealed class UserService(AppDbContext context) : IUserService
 
             if (users == null || users.Count == 0)
             {
-                return new(CustomCodes.UserNotFound, []);
+                return new ServiceResponse<IReadOnlyCollection<UserResponseDto>> { IsSuccess = false, StatusCode = CustomCodes.UserNotFound };
             }
 
-            return new(CustomCodes.DataRetrieved, users);
+            return new ServiceResponse<IReadOnlyCollection<UserResponseDto>> { IsSuccess = true, StatusCode = CustomCodes.DataRetrieved, Data = users };
         }
         catch (Exception)
         {
-            return new(CustomCodes.InternalServerError, []);
+            return new ServiceResponse<IReadOnlyCollection<UserResponseDto>> { IsSuccess = false, StatusCode = CustomCodes.InternalServerError };
             throw;
         }
     }

@@ -18,10 +18,11 @@ public class AuthController(IAuthService authService, ILogger<AuthController> lo
 
     [Authorize(Roles = RoleConstants.Admin)]
     [HttpPost("Register")]
-    public async Task<IActionResult> RegisterAsync([FromBody] RegisterUserDtoV2 registerDto)
+    public async Task<IActionResult> RegisterAsync([FromBody] RegisterUserDtoV2 registerDto, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(registerDto);
         logger.LogTrace("Register called V2 with dto: {@Email}", registerDto.Email);
+
         try
         {
             if (!ModelState.IsValid)
@@ -42,22 +43,22 @@ public class AuthController(IAuthService authService, ILogger<AuthController> lo
                 PositionId = registerDto.PositionId
             };
 
-            var result = await authService.RegisterUser(dto).ConfigureAwait(false);
+            var result = await authService.RegisterUser(dto, cancellationToken).ConfigureAwait(false);
 
-            if (result.Item1 == 0)
+            if (!result.IsSuccess)
             {
                 logger.LogWarning("User registration failed for email: {Email}", registerDto.Email);
-                return BadRequest(ResponseResults<string>.Failure(result.Item1));
+                return BadRequest(ResponseResults<string>.Failure(result.StatusCode));
             }
 
-            if (result.Item1 == 2)
+            if (result.StatusCode == 2)
             {
                 logger.LogError("An error occurred while registering user: {Email}", registerDto.Email);
-                return StatusCode(500, ResponseResults<string>.Failure(result.Item1));
+                return StatusCode(500, ResponseResults<string>.Failure(result.StatusCode));
             }
 
             logger.LogInformation("User registered successfully: {Email}", registerDto.Email);
-            return Ok(ResponseResults<string>.Success(result.Item1));
+            return Ok(ResponseResults<string>.Success(result.StatusCode));
         }
         catch (Exception ex)
         {

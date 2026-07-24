@@ -2,6 +2,7 @@
 using Microsoft.IdentityModel.Tokens;
 
 using System.Text;
+
 namespace backend.Extensions;
 
 internal static class AuthenticationExtensions
@@ -10,9 +11,18 @@ internal static class AuthenticationExtensions
         this IServiceCollection services,
         IConfiguration configuration)
     {
+        var jwtKey = configuration["Jwt:Key"];
+
+        if (string.IsNullOrWhiteSpace(jwtKey))
+        {
+            throw new InvalidOperationException(
+                "JWT Key is missing. Configure Jwt:Key using User Secrets, Environment Variables, or Azure Key Vault.");
+        }
+
         services.AddAuthentication(options =>
         {
             options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+
             options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
         })
         .AddJwtBearer(options =>
@@ -23,15 +33,15 @@ internal static class AuthenticationExtensions
                 {
                     context.HandleResponse();
 
-                    context.Response.StatusCode = 401;
+                    context.Response.StatusCode = StatusCodes.Status401Unauthorized;
                     context.Response.ContentType = "application/json";
 
                     await context.Response.WriteAsync("""
-            {
-                "status": false,
-                "message": "Unauthorized request"
-            }
-            """).ConfigureAwait(false);
+                    {
+                        "status": false,
+                        "message": "Unauthorized request"
+                    }
+                    """).ConfigureAwait(false);
                 }
             };
 
@@ -45,11 +55,10 @@ internal static class AuthenticationExtensions
                 ValidIssuer = configuration["Jwt:Issuer"],
                 ValidAudience = configuration["Jwt:Audience"],
 
-                IssuerSigningKey = new SymmetricSecurityKey(
-                    Encoding.UTF8.GetBytes(configuration["Jwt:Key"]!)
-                )
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
             };
         });
+
         return services;
     }
 }

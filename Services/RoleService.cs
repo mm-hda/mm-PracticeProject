@@ -10,17 +10,18 @@ namespace backend.Services;
 
 internal sealed class RoleService(AppDbContext context) : IRoleService
 {
-    public async Task<Tuple<int>> CreateRole(RoleDto dto)
+    public async Task<ServiceResponse<object>> CreateRole(RoleDto dto, CancellationToken cancellationToken)
     {
+        using var transaction = await context.Database.BeginTransactionAsync(cancellationToken).ConfigureAwait(false);
         try
         {
             ArgumentNullException.ThrowIfNull(dto);
 
-            var exists = await context.Roles.AnyAsync(x => x.Name.Equals(dto.Name, StringComparison.OrdinalIgnoreCase)).ConfigureAwait(false);
+            var exists = await context.Roles.AnyAsync(x => x.Name.Equals(dto.Name, StringComparison.OrdinalIgnoreCase), cancellationToken).ConfigureAwait(false);
 
             if (exists)
             {
-                return new Tuple<int>(CustomCodes.RoleAlreadyExists);
+                return new ServiceResponse<object> { IsSuccess = false, StatusCode = CustomCodes.RoleAlreadyExists };
             }
 
             Role role = new()
@@ -29,20 +30,33 @@ internal sealed class RoleService(AppDbContext context) : IRoleService
                 Name = dto.Name ?? ""
             };
 
-            await context.Roles.AddAsync(role).ConfigureAwait(false);
+            await context.Roles.AddAsync(role, cancellationToken).ConfigureAwait(false);
 
-            await context.SaveChangesAsync().ConfigureAwait(false);
+            await context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
-            return new Tuple<int>(CustomCodes.RoleCreatedSuccessfully);
+            await transaction.CommitAsync(cancellationToken).ConfigureAwait(false);
+
+            return new ServiceResponse<object> { IsSuccess = true, StatusCode = CustomCodes.RoleCreatedSuccessfully };
+        }
+        catch (OperationCanceledException)
+        {
+            await transaction.RollbackAsync(cancellationToken).ConfigureAwait(false);
+            return new ServiceResponse<object> { IsSuccess = false, StatusCode = CustomCodes.OperationCancelled };
+        }
+        catch (DbUpdateException)
+        {
+            await transaction.RollbackAsync(cancellationToken).ConfigureAwait(false);
+            return new ServiceResponse<object> { IsSuccess = false, StatusCode = CustomCodes.RoleCreationFailed };
         }
         catch (Exception)
         {
-            return new Tuple<int>(CustomCodes.RoleCreationFailed);
+            await transaction.RollbackAsync(cancellationToken).ConfigureAwait(false);
+            return new ServiceResponse<object> { IsSuccess = false, StatusCode = CustomCodes.RoleCreationFailed };
             throw;
         }
     }
 
-    public async Task<Tuple<int, IReadOnlyCollection<RoleResponseDto>>> GetAllRoles()
+    public async Task<ServiceResponse<IReadOnlyCollection<RoleResponseDto>>> GetAllRoles()
     {
         try
         {
@@ -54,19 +68,19 @@ internal sealed class RoleService(AppDbContext context) : IRoleService
                 }).ToListAsync().ConfigureAwait(false);
             if (roles.Count == 0)
             {
-                return new Tuple<int, IReadOnlyCollection<RoleResponseDto>>(CustomCodes.RoleNotFound, []);
+                return new ServiceResponse<IReadOnlyCollection<RoleResponseDto>> { IsSuccess = false, StatusCode = CustomCodes.RoleNotFound };
             }
 
-            return new Tuple<int, IReadOnlyCollection<RoleResponseDto>>(CustomCodes.DataRetrieved, roles);
+            return new ServiceResponse<IReadOnlyCollection<RoleResponseDto>> { IsSuccess = true, StatusCode = CustomCodes.DataRetrieved, Data = roles };
         }
         catch (Exception)
         {
-            return new Tuple<int, IReadOnlyCollection<RoleResponseDto>>(CustomCodes.InternalServerError, []);
+            return new ServiceResponse<IReadOnlyCollection<RoleResponseDto>> { IsSuccess = false, StatusCode = CustomCodes.InternalServerError };
             throw;
         }
     }
 
-    public async Task<Tuple<int, RoleResponseDto?>> GetRoleById(Guid id)
+    public async Task<ServiceResponse<RoleResponseDto?>> GetRoleById(Guid id)
     {
         try
         {
@@ -78,16 +92,21 @@ internal sealed class RoleService(AppDbContext context) : IRoleService
                     Name = x.Name
                 }).FirstOrDefaultAsync().ConfigureAwait(false);
 
-            return new Tuple<int, RoleResponseDto?>(role != null ? CustomCodes.DataRetrieved : CustomCodes.RoleNotFound, role);
+            if (role == null)
+            {
+                return new ServiceResponse<RoleResponseDto?> { IsSuccess = false, StatusCode = CustomCodes.RoleNotFound, Data = null };
+            }
+
+            return new ServiceResponse<RoleResponseDto?> { IsSuccess = true, StatusCode = CustomCodes.DataRetrieved, Data = role };
         }
         catch (Exception)
         {
-            return new Tuple<int, RoleResponseDto?>(CustomCodes.InternalServerError, null);
+            return new ServiceResponse<RoleResponseDto?> { IsSuccess = false, StatusCode = CustomCodes.InternalServerError, Data = null };
             throw;
         }
     }
 
-    public async Task<Tuple<int, IReadOnlyCollection<RoleUserResponseDto>>> GetUsersByRole(Guid roleId)
+    public async Task<ServiceResponse<IReadOnlyCollection<RoleUserResponseDto>>> GetUsersByRole(Guid roleId)
     {
         try
         {
@@ -108,11 +127,15 @@ internal sealed class RoleService(AppDbContext context) : IRoleService
                     BranchName = x.Branch != null ? x.Branch.Name : ""
                 }).ToListAsync().ConfigureAwait(false);
 
-            return new Tuple<int, IReadOnlyCollection<RoleUserResponseDto>>(CustomCodes.DataRetrieved, users);
+            if (users.Count == 0)
+            {
+                return new ServiceResponse<IReadOnlyCollection<RoleUserResponseDto>> { IsSuccess = false, StatusCode = CustomCodes.UserNotFound };
+            }
+            return new ServiceResponse<IReadOnlyCollection<RoleUserResponseDto>> { IsSuccess = true, StatusCode = CustomCodes.DataRetrieved, Data = users };
         }
         catch (Exception)
         {
-            return new Tuple<int, IReadOnlyCollection<RoleUserResponseDto>>(CustomCodes.InternalServerError, []);
+            return new ServiceResponse<IReadOnlyCollection<RoleUserResponseDto>> { IsSuccess = false, StatusCode = CustomCodes.InternalServerError };
             throw;
         }
     }

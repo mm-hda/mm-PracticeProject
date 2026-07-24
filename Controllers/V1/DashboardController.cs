@@ -16,24 +16,16 @@ public class DashboardController(IDashboardService dashboardService, ILogger<Das
     public async Task<IActionResult> GetDashboardAsync()
     {
         logger.LogTrace("GetDashboard called.");
-        try
-        {
-            var result = await dashboardService.GetDashboard().ConfigureAwait(false);
 
-            if (result.Item1 == 0)
-            {
-                logger.LogWarning("Failed to retrieve dashboard data.");
-                return BadRequest(ResponseResults<string>.Failure(result.Item1));
-            }
+        var result = await dashboardService.GetDashboard().ConfigureAwait(false);
 
-            logger.LogInformation("Dashboard data retrieved successfully.");
-            return Ok(ResponseResults<DashboardResponseDto>.Success(result.Item1, result.Item2));
-        }
-        catch (Exception ex)
+        if (!result.IsSuccess)
         {
-            logger.LogError(ex, "An error occurred while fetching dashboard data.");
-            return StatusCode(500, ResponseResults<string>.Failure(CustomCodes.InternalServerError));
-            throw;
+            logger.LogWarning("Failed to retrieve dashboard data.");
+            return BadRequest(ResponseResults<string>.Failure(result.StatusCode));
         }
+
+        logger.LogInformation("Dashboard data retrieved successfully.");
+        return Ok(ResponseResults<DashboardResponseDto>.Success(result.StatusCode, result.Data));
     }
 }

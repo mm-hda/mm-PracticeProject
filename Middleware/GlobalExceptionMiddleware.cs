@@ -10,7 +10,6 @@ internal sealed class GlobalExceptionMiddleware(RequestDelegate next, ILogger<Gl
         try
         {
             await next(context).ConfigureAwait(false);
-            logger.LogInformation("Checking database dependency available");
         }
         catch (Exception ex)
         {

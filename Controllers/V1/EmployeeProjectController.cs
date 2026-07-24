@@ -16,86 +16,57 @@ public class EmployeeProjectController(IEmployeeProjectService employeeProjectSe
 {
 
     [HttpPost("CreateEmployeeProject")]
-    public async Task<IActionResult> CreateEmployeeProjectAsync([FromBody] EmployeeProjectDto dto)
+    public async Task<IActionResult> CreateEmployeeProjectAsync([FromBody] EmployeeProjectDto dto, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(dto);
 
         logger.LogTrace("CreateEmployeeProject called. with dto: {@EmployeeProjectDto}", dto);
-        try
+
+        var result = await employeeProjectService.CreateEmployeeProject(dto, cancellationToken).ConfigureAwait(false);
+
+        if (!result.IsSuccess)
         {
-            if (!ModelState.IsValid)
-            {
-                logger.LogWarning("Invalid request body provided.");
-                return BadRequest(ResponseResults<string>.Failure(CustomCodes.InvalidInput));
-            }
-
-            var result = await employeeProjectService.CreateEmployeeProject(dto).ConfigureAwait(false);
-
-            if (result.Item1 == 0)
-            {
-                logger.LogWarning("Failed to create employee project.");
-                return BadRequest(ResponseResults<string>.Failure(result.Item1));
-            }
-
-            logger.LogInformation("Employee project created successfully.");
-            return Ok(ResponseResults<string>.Success(result.Item1));
+            logger.LogWarning("Failed to create employee project.");
+            return BadRequest(ResponseResults<string>.Failure(result.StatusCode));
         }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "An error occurred while creating employee project.");
-            return StatusCode(500, ResponseResults<string>.Failure(CustomCodes.InternalServerError));
-            throw;
-        }
+
+        logger.LogInformation("Employee project created successfully.");
+        return Ok(ResponseResults<string>.Success(result.StatusCode));
+
     }
 
     [HttpDelete("RemoveEmployeeProject/{id}")]
-    public async Task<IActionResult> RemoveEmployeeProjectAsync(Guid id)
+    public async Task<IActionResult> RemoveEmployeeProjectAsync(Guid id, CancellationToken cancellationToken)
     {
         logger.LogTrace("RemoveEmployeeProject called with id: {EmployeeProjectId}", id);
-        try
+
+        if (id == Guid.Empty)
         {
-            if (id == Guid.Empty)
-            {
-                logger.LogWarning("Invalid employee project id provided.");
-                return BadRequest(ResponseResults<string>.Failure(CustomCodes.InvalidInput));
-            }
-
-            var result = await employeeProjectService.RemoveEmployeeProject(id).ConfigureAwait(false);
-
-            if (result.Item1 == 0)
-            {
-                logger.LogWarning("Failed to remove employee project.");
-                return BadRequest(ResponseResults<string>.Failure(result.Item1));
-            }
-
-            logger.LogInformation("Employee project removed successfully.");
-            return Ok(ResponseResults<string>.Success(result.Item1));
+            logger.LogWarning("Invalid employee project id provided.");
+            return BadRequest(ResponseResults<string>.Failure(CustomCodes.InvalidInput));
         }
-        catch (Exception ex)
+
+        var result = await employeeProjectService.RemoveEmployeeProject(id, cancellationToken).ConfigureAwait(false);
+
+        if (!result.IsSuccess)
         {
-            logger.LogError(ex, "An error occurred while removing employee project.");
-            return StatusCode(500, ResponseResults<string>.Failure(CustomCodes.InternalServerError));
-            throw;
+            logger.LogWarning("Failed to remove employee project.");
+            return BadRequest(ResponseResults<string>.Failure(result.StatusCode));
         }
+
+        logger.LogInformation("Employee project removed successfully.");
+        return Ok(ResponseResults<string>.Success(result.StatusCode));
     }
 
     [HttpGet("GetAllEmployeeProjects")]
     public async Task<IActionResult> GetAllEmployeeProjectsAsync()
     {
         logger.LogTrace("GetAllEmployeeProjects called.");
-        try
-        {
-            var result = await employeeProjectService.GetAllEmployeeProjects().ConfigureAwait(false);
 
-            logger.LogInformation("Retrieved all employee projects.");
-            return Ok(ResponseResults<IReadOnlyCollection<EmployeeProjectResponseDto>>.Success(result.Item1, result.Item2));
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "An error occurred while fetching all employee projects.");
-            return StatusCode(500, ResponseResults<string>.Failure(CustomCodes.InternalServerError));
-            throw;
-        }
+        var result = await employeeProjectService.GetAllEmployeeProjects().ConfigureAwait(false);
+
+        logger.LogInformation("Retrieved all employee projects.");
+        return Ok(ResponseResults<IReadOnlyCollection<EmployeeProjectResponseDto>>.Success(result.StatusCode, result.Data));
     }
 
     [HttpGet("GetUserProjectsByUserId/{userId}")]
@@ -103,31 +74,22 @@ public class EmployeeProjectController(IEmployeeProjectService employeeProjectSe
     {
         ArgumentNullException.ThrowIfNull(dto);
         logger.LogTrace("GetUserProjectsByUserId called with id: {UserId}", userId);
-        try
+
+        if (userId == Guid.Empty)
         {
-            if (userId == Guid.Empty)
-            {
-                logger.LogWarning("Invalid user id provided: {UserId}", userId);
-                return BadRequest(ResponseResults<string>.Failure(CustomCodes.InvalidInput));
-            }
-
-            var result = await employeeProjectService.GetUserProjectsByUserId(userId, dto).ConfigureAwait(false);
-
-            if (result.Item1 == 0)
-            {
-                logger.LogWarning("User projects not found for user id: {UserId}", userId);
-                return NotFound(ResponseResults<IReadOnlyCollection<ProjectResponseDto>>.Failure(result.Item1));
-            }
-
-            logger.LogInformation("Retrieved projects for user with id: {UserId}", userId);
-            return Ok(ResponseResults<IReadOnlyCollection<ProjectResponseDto>>.Success(result.Item1, result.Item2, result.Item3));
-
+            logger.LogWarning("Invalid user id provided: {UserId}", userId);
+            return BadRequest(ResponseResults<string>.Failure(CustomCodes.InvalidInput));
         }
-        catch (Exception ex)
+
+        var result = await employeeProjectService.GetUserProjectsByUserId(userId, dto).ConfigureAwait(false);
+
+        if (!result.IsSuccess)
         {
-            logger.LogError(ex, "An error occurred while fetching projects for user with id: {UserId}", userId);
-            return StatusCode(500, ResponseResults<string>.Failure(CustomCodes.InternalServerError));
-            throw;
+            logger.LogWarning("User projects not found for user id: {UserId}", userId);
+            return NotFound(ResponseResults<IReadOnlyCollection<ProjectResponseDto>>.Failure(result.StatusCode));
         }
+
+        logger.LogInformation("Retrieved projects for user with id: {UserId}", userId);
+        return Ok(ResponseResults<IReadOnlyCollection<ProjectResponseDto>>.Success(result.StatusCode, result.Data, result.Meta));
     }
 }

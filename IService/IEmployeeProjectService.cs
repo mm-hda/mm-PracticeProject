@@ -1,16 +1,16 @@
 ﻿using backend.Dto.EmployeeProjectDtos;
 using backend.Dto.ProjectDtos;
 using backend.Dto.CommonDtos;
-
+using backend.GenericResponse;
 namespace backend.IService;
 
 public interface IEmployeeProjectService
 {
-    Task<Tuple<int>> CreateEmployeeProject(EmployeeProjectDto dto);
+    Task<ServiceResponse<object>> CreateEmployeeProject(EmployeeProjectDto dto, CancellationToken cancellationToken);
 
-    Task<Tuple<int>> RemoveEmployeeProject(Guid id);
+    Task<ServiceResponse<object>> RemoveEmployeeProject(Guid id, CancellationToken cancellationToken);
 
-    Task<Tuple<int, IReadOnlyCollection<EmployeeProjectResponseDto>>> GetAllEmployeeProjects();
+    Task<ServiceResponse<IReadOnlyCollection<EmployeeProjectResponseDto>>> GetAllEmployeeProjects();
 
-    Task<Tuple<int, IReadOnlyCollection<ProjectResponseDto>, PaginationMetaDto?>> GetUserProjectsByUserId(Guid userId, PaginationDto dto);
+    Task<ServiceResponse<IReadOnlyCollection<ProjectResponseDto>>> GetUserProjectsByUserId(Guid userId, PaginationDto dto);
 }

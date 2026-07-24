@@ -14,148 +14,106 @@ public class DepartmentController(IDepartmentService departmentService, ILogger<
 {
 
     [HttpPost("CreateDepartment")]
-    public async Task<IActionResult> CreateDepartmentAsync([FromBody] DepartmentDto dto)
+    public async Task<IActionResult> CreateDepartmentAsync([FromBody] DepartmentDto dto, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(dto);
         logger.LogTrace("CreateDepartment called with dto: {@DepartmentName}", dto.Name);
-        try
+
+        var result = await departmentService.CreateDepartment(dto, cancellationToken).ConfigureAwait(false);
+
+        if (!result.IsSuccess)
         {
-            if (!ModelState.IsValid)
-            {
-                logger.LogWarning("Invalid request body for CreateDepartment: {@ModelState}", ModelState);
-                return BadRequest(ResponseResults<string>.Failure(CustomCodes.InvalidInput));
-            }
-
-            var result = await departmentService.CreateDepartment(dto).ConfigureAwait(false);
-
-            if (result.Item1 == 0)
-            {
-                logger.LogWarning("Failed to create department. Reason: {StatusCode}", result.Item1);
-                return BadRequest(ResponseResults<string>.Failure(result.Item1));
-            }
-
-            logger.LogInformation("CreateDepartment called with dto: {@DepartmentDto}", dto);
-            return Ok(ResponseResults<string>.Success(result.Item1));
+            logger.LogWarning("Failed to create department. Reason: {StatusCode}", result.StatusCode);
+            return BadRequest(ResponseResults<string>.Failure(result.StatusCode));
         }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "An error occurred while creating a department.");
-            return StatusCode(500, ResponseResults<string>.Failure(CustomCodes.InternalServerError));
-            throw;
-        }
+
+        logger.LogInformation("CreateDepartment called with dto: {@DepartmentDto}", dto);
+        return Ok(ResponseResults<string>.Success(result.StatusCode));
+
     }
 
     [HttpPut("UpdateDepartment")]
-    public async Task<IActionResult> UpdateDepartmentAsync([FromBody] DepartmentDto dto)
+    public async Task<IActionResult> UpdateDepartmentAsync([FromBody] DepartmentDto dto, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(dto);
         logger.LogTrace("UpdateDepartment called with dto: {@DepartmentName}", dto.Name);
-        try
+
+        var result = await departmentService.UpdateDepartment(dto, cancellationToken).ConfigureAwait(false);
+
+        if (!result.IsSuccess)
         {
-            if (!ModelState.IsValid)
-            {
-                logger.LogWarning("Invalid request body for UpdateDepartment: {@ModelState}", ModelState);
-                return BadRequest(ResponseResults<string>.Failure(CustomCodes.InvalidInput));
-            }
-
-            var result = await departmentService.UpdateDepartment(dto).ConfigureAwait(false);
-
-            if (result.Item1 == 0)
-            {
-                logger.LogWarning("Failed to update department. Reason: {StatusCode}", result.Item1);
-                return BadRequest(ResponseResults<string>.Failure(result.Item1));
-            }
-
-            logger.LogInformation("UpdateDepartment called with dto: {@DepartmentDto}", dto);
-            return Ok(ResponseResults<string>.Success(result.Item1));
+            logger.LogWarning("Failed to update department. Reason: {StatusCode}", result.StatusCode);
+            return BadRequest(ResponseResults<string>.Failure(result.StatusCode));
         }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "An error occurred while updating a department.");
-            return StatusCode(500, ResponseResults<string>.Failure(CustomCodes.InternalServerError));
-            throw;
-        }
+
+        logger.LogInformation("UpdateDepartment called with dto: {@DepartmentDto}", dto);
+        return Ok(ResponseResults<string>.Success(result.StatusCode));
+
     }
 
     [HttpGet("GetAllDepartments")]
     public async Task<IActionResult> GetAllDepartmentsAsync()
     {
         logger.LogTrace("GetAllDepartments called");
-        try
-        {
 
-            var result = await departmentService.GetAllDepartments().ConfigureAwait(false);
+        var result = await departmentService.GetAllDepartments().ConfigureAwait(false);
 
-            logger.LogInformation("Retrieved all departments successfully. Count: {Count}", result.Item2.Count);
-            return Ok(ResponseResults<IReadOnlyCollection<DepartmentResponseDto>>.Success(result.Item1, result.Item2));
-        }
-        catch (Exception ex)
+        if (!result.IsSuccess)
         {
-            logger.LogError(ex, "An error occurred while retrieving all departments.");
-            return StatusCode(500, ResponseResults<string>.Failure(CustomCodes.InternalServerError));
-            throw;
+            logger.LogWarning("Failed to retrieve departments. Status code: {StatusCode}", result.StatusCode);
+            return NotFound(ResponseResults<string>.Failure(result.StatusCode));
         }
+
+        logger.LogInformation("Retrieved all departments successfully. Count: {Count}", result.Data?.Count ?? 0);
+        return Ok(ResponseResults<IReadOnlyCollection<DepartmentResponseDto>>.Success(result.StatusCode, result.Data));
+
     }
 
     [HttpGet("GetDepartmentById/{id}")]
     public async Task<IActionResult> GetDepartmentByIdAsync(Guid id)
     {
         logger.LogTrace("GetDepartmentById called with id: {DepartmentId}", id);
-        try
+
+        if (id == Guid.Empty)
         {
-            if (id == Guid.Empty)
-            {
-                logger.LogWarning("Invalid department id provided: {DepartmentId}", id);
-                return BadRequest(ResponseResults<string>.Failure(CustomCodes.InvalidInput));
-            }
-
-            var result = await departmentService.GetDepartmentById(id).ConfigureAwait(false);
-
-            if (result.Item1 == 0)
-            {
-                logger.LogWarning("Department not found with id: {DepartmentId}", id);
-                return NotFound(ResponseResults<string>.Failure(result.Item1));
-            }
-
-            logger.LogInformation("Retrieved department with id: {DepartmentId}", id);
-            return Ok(ResponseResults<DepartmentResponseDto>.Success(result.Item1, result.Item2));
+            logger.LogWarning("Invalid department id provided: {DepartmentId}", id);
+            return BadRequest(ResponseResults<string>.Failure(CustomCodes.InvalidInput));
         }
-        catch (Exception ex)
+
+        var result = await departmentService.GetDepartmentById(id).ConfigureAwait(false);
+
+        if (!result.IsSuccess)
         {
-            logger.LogError(ex, "An error occurred while retrieving department with id: {DepartmentId}", id);
-            return StatusCode(500, ResponseResults<string>.Failure(CustomCodes.InternalServerError));
-            throw;
+            logger.LogWarning("Department not found with id: {DepartmentId}", id);
+            return NotFound(ResponseResults<string>.Failure(result.StatusCode));
         }
+
+        logger.LogInformation("Retrieved department with id: {DepartmentId}", id);
+        return Ok(ResponseResults<DepartmentResponseDto>.Success(result.StatusCode, result.Data));
+
     }
 
     [HttpGet("GetDepartmentEmployees/{departmentId}")]
     public async Task<IActionResult> GetDepartmentEmployeesAsync(Guid departmentId)
     {
         logger.LogTrace("GetDepartmentEmployees called with id: {DepartmentId}", departmentId);
-        try
+
+        if (departmentId == Guid.Empty)
         {
-            if (departmentId == Guid.Empty)
-            {
-                logger.LogWarning("Invalid department id provided: {DepartmentId}", departmentId);
-                return BadRequest(ResponseResults<string>.Failure(CustomCodes.InvalidInput));
-            }
-
-            var result = await departmentService.GetDepartmentEmployees(departmentId).ConfigureAwait(false);
-
-            if (result.Item1 == 0)
-            {
-                logger.LogWarning("No employees found for department id: {DepartmentId}", departmentId);
-                return NotFound(ResponseResults<IReadOnlyCollection<DepartmentUserResponseDto>>.Failure(result.Item1));
-            }
-
-            logger.LogInformation("Retrieved employees for department id: {DepartmentId}", departmentId);
-            return Ok(ResponseResults<IReadOnlyCollection<DepartmentUserResponseDto>>.Success(result.Item1, result.Item2));
+            logger.LogWarning("Invalid department id provided: {DepartmentId}", departmentId);
+            return BadRequest(ResponseResults<string>.Failure(CustomCodes.InvalidInput));
         }
-        catch (Exception ex)
+
+        var result = await departmentService.GetDepartmentEmployees(departmentId).ConfigureAwait(false);
+
+        if (!result.IsSuccess)
         {
-            logger.LogError(ex, "An error occurred while retrieving employees for department id: {DepartmentId}", departmentId);
-            return StatusCode(500, ResponseResults<string>.Failure(CustomCodes.InternalServerError));
-            throw;
+            logger.LogWarning("Failed to retrieve employees for department id: {DepartmentId}", departmentId);
+            return NotFound(ResponseResults<IReadOnlyCollection<DepartmentUserResponseDto>>.Failure(result.StatusCode));
         }
+
+        logger.LogInformation("Retrieved employees for department id: {DepartmentId}", departmentId);
+        return Ok(ResponseResults<IReadOnlyCollection<DepartmentUserResponseDto>>.Success(result.StatusCode, result.Data));
+
     }
 }

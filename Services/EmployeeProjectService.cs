@@ -11,51 +11,37 @@ namespace backend.Services;
 
 internal sealed class EmployeeProjectService(AppDbContext _context) : IEmployeeProjectService
 {
-    public async Task<Tuple<int>> CreateEmployeeProject(EmployeeProjectDto dto)
+    public async Task<ServiceResponse<object>> CreateEmployeeProject(EmployeeProjectDto dto, CancellationToken cancellationToken)
     {
+        using var transaction = await _context.Database.BeginTransactionAsync(cancellationToken).ConfigureAwait(false);
         try
         {
             ArgumentNullException.ThrowIfNull(dto);
 
-            if (dto == null)
-            {
-                return new Tuple<int>(CustomCodes.InputsNotFound);
-            }
-
-            if (dto.UserId == Guid.Empty)
-            {
-                return new Tuple<int>(CustomCodes.InputsNotFound);
-            }
-
-            if (dto.ProjectId == Guid.Empty)
-            {
-                return new Tuple<int>(CustomCodes.InputsNotFound);
-            }
-
-            var userExists = await _context.Users.AnyAsync(x => x.Id == dto.UserId).ConfigureAwait(false);
+            var userExists = await _context.Users.AnyAsync(x => x.Id == dto.UserId, cancellationToken).ConfigureAwait(false);
 
             if (!userExists)
             {
-                return new Tuple<int>(CustomCodes.UserNotFound);
+                return new ServiceResponse<object> { IsSuccess = false, StatusCode = CustomCodes.UserNotFound };
             }
 
-            var project = await _context.Projects.FirstOrDefaultAsync(x => x.Id == dto.ProjectId).ConfigureAwait(false);
+            var project = await _context.Projects.FirstOrDefaultAsync(x => x.Id == dto.ProjectId, cancellationToken).ConfigureAwait(false);
 
             if (project == null)
             {
-                return new Tuple<int>(CustomCodes.ProjectNotFound);
+                return new ServiceResponse<object> { IsSuccess = false, StatusCode = CustomCodes.ProjectNotFound };
             }
 
             if (project.EndDate != null && project.EndDate < DateTime.UtcNow)
             {
-                return new Tuple<int>(CustomCodes.ProjectEnded);
+                return new ServiceResponse<object> { IsSuccess = false, StatusCode = CustomCodes.ProjectEnded };
             }
 
-            var alreadyAssigned = await _context.EmployeeProjects.AnyAsync(x => x.UserId == dto.UserId && x.ProjectId == dto.ProjectId).ConfigureAwait(false);
+            var alreadyAssigned = await _context.EmployeeProjects.AnyAsync(x => x.UserId == dto.UserId && x.ProjectId == dto.ProjectId, cancellationToken).ConfigureAwait(false);
 
             if (alreadyAssigned)
             {
-                return new Tuple<int>(CustomCodes.UserAlreadyAssignedToProject);
+                return new ServiceResponse<object> { IsSuccess = false, StatusCode = CustomCodes.UserAlreadyAssignedToProject };
             }
 
             EmployeeProject employeeProject = new()
@@ -66,66 +52,81 @@ internal sealed class EmployeeProjectService(AppDbContext _context) : IEmployeeP
                 AssignedDate = DateTime.UtcNow
             };
 
-            await _context.EmployeeProjects.AddAsync(employeeProject).ConfigureAwait(false);
+            await _context.EmployeeProjects.AddAsync(employeeProject, cancellationToken).ConfigureAwait(false);
 
-            await _context.SaveChangesAsync().ConfigureAwait(false);
+            await _context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
-            return new Tuple<int>(CustomCodes.EmployeeProjectCreatedSuccessfully);
+            await transaction.CommitAsync(cancellationToken).ConfigureAwait(false);
+
+            return new ServiceResponse<object> { IsSuccess = true, StatusCode = CustomCodes.EmployeeProjectCreatedSuccessfully };
+        }
+        catch (OperationCanceledException)
+        {
+            await transaction.RollbackAsync(cancellationToken).ConfigureAwait(false);
+            return new ServiceResponse<object> { IsSuccess = false, StatusCode = CustomCodes.OperationCancelled };
         }
         catch (Exception)
         {
-            return new Tuple<int>(CustomCodes.EmployeeProjectCreationFailed);
+            await transaction.RollbackAsync(cancellationToken).ConfigureAwait(false);
+            return new ServiceResponse<object> { IsSuccess = false, StatusCode = CustomCodes.EmployeeProjectCreationFailed };
             throw;
         }
     }
 
-    public async Task<Tuple<int>> RemoveEmployeeProject(Guid id)
+    public async Task<ServiceResponse<object>> RemoveEmployeeProject(Guid id, CancellationToken cancellationToken)
     {
+        using var transaction = await _context.Database.BeginTransactionAsync(cancellationToken).ConfigureAwait(false);
         try
         {
-            if (id == Guid.Empty)
-            {
-                return new Tuple<int>(CustomCodes.InvalidInput);
-            }
-
-            var employeeProject = await _context.EmployeeProjects.FirstOrDefaultAsync(x => x.Id == id).ConfigureAwait(false);
+            var employeeProject = await _context.EmployeeProjects.FirstOrDefaultAsync(x => x.Id == id, cancellationToken).ConfigureAwait(false);
 
             if (employeeProject == null)
             {
-                return new Tuple<int>(CustomCodes.EmployeeProjectNotFound);
+                return new ServiceResponse<object> { IsSuccess = false, StatusCode = CustomCodes.EmployeeProjectNotFound };
             }
 
-            var project = await _context.Projects.FirstOrDefaultAsync(x => x.Id == employeeProject.ProjectId).ConfigureAwait(false);
+            var project = await _context.Projects.FirstOrDefaultAsync(x => x.Id == employeeProject.ProjectId, cancellationToken).ConfigureAwait(false);
 
             if (project == null)
             {
-                return new Tuple<int>(CustomCodes.ProjectNotFound);
+                return new ServiceResponse<object> { IsSuccess = false, StatusCode = CustomCodes.ProjectNotFound };
             }
 
             if (project.EndDate != null && project.EndDate < DateTime.UtcNow)
             {
-                return new Tuple<int>(CustomCodes.ProjectEnded);
+                return new ServiceResponse<object> { IsSuccess = false, StatusCode = CustomCodes.ProjectEnded };
             }
 
             if (employeeProject.AssignedDate < DateTime.UtcNow.AddDays(-30))
             {
-                return new Tuple<int>(CustomCodes.InvalidInput);
+                return new ServiceResponse<object> { IsSuccess = false, StatusCode = CustomCodes.InvalidInput };
             }
 
             _context.EmployeeProjects.Remove(employeeProject);
 
-            await _context.SaveChangesAsync().ConfigureAwait(false);
-
-            return new Tuple<int>(CustomCodes.EmployeeProjectRemovedSuccessfully);
+            await _context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+            await transaction.CommitAsync(cancellationToken).ConfigureAwait(false);
+            return new ServiceResponse<object> { IsSuccess = true, StatusCode = CustomCodes.EmployeeProjectRemovedSuccessfully };
+        }
+        catch (OperationCanceledException)
+        {
+            await transaction.RollbackAsync(cancellationToken).ConfigureAwait(false);
+            return new ServiceResponse<object> { IsSuccess = false, StatusCode = CustomCodes.OperationCancelled };
+        }
+        catch (DbUpdateException)
+        {
+            await transaction.RollbackAsync(cancellationToken).ConfigureAwait(false);
+            return new ServiceResponse<object> { IsSuccess = false, StatusCode = CustomCodes.EmployeeProjectRemovalFailed };
         }
         catch (Exception)
         {
-            return new Tuple<int>(CustomCodes.EmployeeProjectRemovalFailed);
+            await transaction.RollbackAsync(cancellationToken).ConfigureAwait(false);
+            return new ServiceResponse<object> { IsSuccess = false, StatusCode = CustomCodes.EmployeeProjectRemovalFailed };
             throw;
         }
     }
 
-    public async Task<Tuple<int, IReadOnlyCollection<EmployeeProjectResponseDto>>> GetAllEmployeeProjects()
+    public async Task<ServiceResponse<IReadOnlyCollection<EmployeeProjectResponseDto>>> GetAllEmployeeProjects()
     {
         try
         {
@@ -145,16 +146,16 @@ internal sealed class EmployeeProjectService(AppDbContext _context) : IEmployeeP
                     AssignedDate = x.AssignedDate
                 }).ToListAsync().ConfigureAwait(false);
 
-            return new Tuple<int, IReadOnlyCollection<EmployeeProjectResponseDto>>(CustomCodes.DataRetrieved, employeeProjects);
+            return new ServiceResponse<IReadOnlyCollection<EmployeeProjectResponseDto>> { IsSuccess = true, StatusCode = CustomCodes.DataRetrieved, Data = employeeProjects };
         }
         catch (Exception)
         {
-            return new Tuple<int, IReadOnlyCollection<EmployeeProjectResponseDto>>(CustomCodes.InternalServerError, []);
+            return new ServiceResponse<IReadOnlyCollection<EmployeeProjectResponseDto>> { IsSuccess = false, StatusCode = CustomCodes.InternalServerError };
             throw;
         }
     }
 
-    public async Task<Tuple<int, IReadOnlyCollection<ProjectResponseDto>, PaginationMetaDto?>> GetUserProjectsByUserId(Guid userId, PaginationDto dto)
+    public async Task<ServiceResponse<IReadOnlyCollection<ProjectResponseDto>>> GetUserProjectsByUserId(Guid userId, PaginationDto dto)
     {
         try
         {
@@ -163,30 +164,25 @@ internal sealed class EmployeeProjectService(AppDbContext _context) : IEmployeeP
             dto.PageNumber = dto.PageNumber <= 0 ? 1 : dto.PageNumber;
             dto.PageSize = dto.PageSize <= 0 ? 10 : dto.PageSize;
 
-            if (userId == Guid.Empty)
-            {
-                return new Tuple<int, IReadOnlyCollection<ProjectResponseDto>, PaginationMetaDto?>(CustomCodes.InvalidInput, [], null);
-            }
-
             var userExists = await _context.Users.AnyAsync(x => x.Id == userId).ConfigureAwait(false);
 
             if (!userExists)
             {
-                return new Tuple<int, IReadOnlyCollection<ProjectResponseDto>, PaginationMetaDto?>(CustomCodes.UserNotFound, [], null);
+                return new ServiceResponse<IReadOnlyCollection<ProjectResponseDto>> { IsSuccess = false, StatusCode = CustomCodes.UserNotFound };
             }
 
             var query = _context.EmployeeProjects.AsNoTracking().Where(x => x.UserId == userId);
 
             if (query == null)
             {
-                return new Tuple<int, IReadOnlyCollection<ProjectResponseDto>, PaginationMetaDto?>(CustomCodes.EmployeeProjectNotFound, [], null);
+                return new ServiceResponse<IReadOnlyCollection<ProjectResponseDto>> { IsSuccess = false, StatusCode = CustomCodes.EmployeeProjectNotFound };
             }
 
             var totalRecords = await query.CountAsync().ConfigureAwait(false);
 
             if ((int)Math.Ceiling(totalRecords / (double)dto.PageSize) < dto.PageNumber)
             {
-                return new Tuple<int, IReadOnlyCollection<ProjectResponseDto>, PaginationMetaDto?>(CustomCodes.PageNumberExceeds, [], null);
+                return new ServiceResponse<IReadOnlyCollection<ProjectResponseDto>> { IsSuccess = false, StatusCode = CustomCodes.PageNumberExceeds };
             }
 
             var projects = await query
@@ -213,11 +209,11 @@ internal sealed class EmployeeProjectService(AppDbContext _context) : IEmployeeP
                 TotalPages = (int)Math.Ceiling(projects.Count / (double)dto.PageSize)
             };
 
-            return new Tuple<int, IReadOnlyCollection<ProjectResponseDto>, PaginationMetaDto?>(CustomCodes.DataRetrieved, projects, meta);
+            return new ServiceResponse<IReadOnlyCollection<ProjectResponseDto>> { IsSuccess = true, StatusCode = CustomCodes.DataRetrieved, Data = projects, Meta = meta };
         }
         catch (Exception)
         {
-            return new Tuple<int, IReadOnlyCollection<ProjectResponseDto>, PaginationMetaDto?>(CustomCodes.InternalServerError, [], null);
+            return new ServiceResponse<IReadOnlyCollection<ProjectResponseDto>> { IsSuccess = false, StatusCode = CustomCodes.InternalServerError };
             throw;
         }
     }

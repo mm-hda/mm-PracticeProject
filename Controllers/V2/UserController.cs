@@ -1,5 +1,4 @@
 ﻿using backend.Dto.UserDtos;
-using backend.Dto.CommonDtos;
 using backend.GenericResponse;
 using backend.IService;
 using Microsoft.AspNetCore.Authorization;
@@ -30,23 +29,23 @@ public class UserController(IUserService userService, ILogger<UserController> lo
 
             var result = await userService.GetUserById(id).ConfigureAwait(false);
 
-            if (result.Item1 == 0)
+            if (!result.IsSuccess)
             {
-                logger.LogWarning("{Status code} id: {UserId}", result.Item1, id);
-                return NotFound(ResponseResults<string>.Failure(result.Item1));
+                logger.LogWarning("{Status code} id: {UserId}", result.StatusCode, id);
+                return NotFound(ResponseResults<string>.Failure(result.StatusCode));
             }
 
             UserResponseDtoV2 userResponseV2 = new()
             {
-                UserId = result.Item2?.UserId ?? Guid.Empty,
-                Name = result.Item2?.Name,
-                Email = result.Item2?.Email
+                UserId = result.Data?.UserId ?? Guid.Empty,
+                Name = result.Data?.Name,
+                Email = result.Data?.Email
             };
 
             var logs = new { userResponseV2.UserId, userResponseV2.Name, userResponseV2.Email };
             logger.LogInformation("Retrieved user with id: {UserId} and logs: {Logs}", id, logs);
 
-            return Ok(ResponseResults<UserResponseDtoV2>.Success(result.Item1, userResponseV2));
+            return Ok(ResponseResults<UserResponseDtoV2>.Success(result.StatusCode, userResponseV2));
         }
         catch (Exception ex)
         {

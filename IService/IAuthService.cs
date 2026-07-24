@@ -1,10 +1,10 @@
 ﻿using backend.Dto;
-
+using backend.GenericResponse;
 namespace backend.IService;
 
 public interface IAuthService
 {
-    Task<Tuple<int, TokenDto>> LoginUser(LoginDto dto);
+    Task<ServiceResponse<TokenDto>> LoginUser(LoginDto dto, CancellationToken cancellationToken);
 
-    Task<Tuple<int>> RegisterUser(RegisterUserDto dto);
+    Task<ServiceResponse<object>> RegisterUser(RegisterUserDto dto, CancellationToken cancellationToken);
 }

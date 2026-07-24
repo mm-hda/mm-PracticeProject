@@ -10,137 +10,127 @@ namespace backend.Services;
 
 internal sealed class ProjectService(AppDbContext context) : IProjectService
 {
-    public async Task<Tuple<int>> CreateProject(ProjectDto dto)
+    public async Task<ServiceResponse<object>> CreateProject(ProjectDto dto, CancellationToken cancellationToken)
     {
+        using var transaction = await context.Database.BeginTransactionAsync(cancellationToken).ConfigureAwait(false);
         try
         {
             ArgumentNullException.ThrowIfNull(dto);
 
-            if (dto == null)
-            {
-                return new Tuple<int>(CustomCodes.InputsNotFound);
-            }
-            if (dto.EndDate < dto.StartDate)
-            {
-                return new Tuple<int>(CustomCodes.InvalidInput);
-            }
-            if (string.IsNullOrWhiteSpace(dto.Name))
-            {
-                return new Tuple<int>(CustomCodes.InvalidInput);
-            }
-
-            if (dto.ProjectManagerId == Guid.Empty)
-            {
-                return new Tuple<int>(CustomCodes.InvalidInput);
-            }
-
-            var projectExists = await context.Projects.AnyAsync(x => x.Name.Equals(dto.Name, StringComparison.OrdinalIgnoreCase)).ConfigureAwait(false);
+            var projectExists = await context.Projects.AnyAsync(x => x.Name.Equals(dto.Name, StringComparison.OrdinalIgnoreCase), cancellationToken).ConfigureAwait(false);
 
             if (projectExists)
             {
-                return new Tuple<int>(CustomCodes.ProjectAlreadyExists);
+                return new ServiceResponse<object> { IsSuccess = false, StatusCode = CustomCodes.ProjectAlreadyExists };
             }
 
-            var managerExists = await context.Users.AnyAsync(x => x.Id == dto.ProjectManagerId && x.Role != null && x.Role.Name == "Manager").ConfigureAwait(false);
+            var managerExists = await context.Users.AnyAsync(x => x.Id == dto.ProjectManagerId && x.Role != null && x.Role.Name == "Manager", cancellationToken).ConfigureAwait(false);
 
             if (!managerExists)
             {
-                return new Tuple<int>(CustomCodes.ProjectManagerNotFound);
+                return new ServiceResponse<object> { IsSuccess = false, StatusCode = CustomCodes.ProjectManagerNotFound };
             }
 
             Project project = new()
             {
                 Id = Guid.NewGuid(),
-                Name = dto.Name,
+                Name = dto.Name ?? "",
                 Description = dto.Description,
                 StartDate = dto.StartDate,
                 EndDate = dto.EndDate,
                 ProjectManagerId = dto.ProjectManagerId
             };
 
-            await context.Projects.AddAsync(project).ConfigureAwait(false);
+            await context.Projects.AddAsync(project, cancellationToken).ConfigureAwait(false);
 
-            await context.SaveChangesAsync().ConfigureAwait(false);
+            await context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
-            return new Tuple<int>(CustomCodes.ProjectCreatedSuccessfully);
+            await transaction.CommitAsync(cancellationToken).ConfigureAwait(false);
+
+            return new ServiceResponse<object> { IsSuccess = true, StatusCode = CustomCodes.ProjectCreatedSuccessfully };
+        }
+        catch (OperationCanceledException)
+        {
+            await transaction.RollbackAsync(cancellationToken).ConfigureAwait(false);
+            return new ServiceResponse<object> { IsSuccess = false, StatusCode = CustomCodes.OperationCancelled };
+        }
+        catch (DbUpdateException)
+        {
+            await transaction.RollbackAsync(cancellationToken).ConfigureAwait(false);
+            return new ServiceResponse<object> { IsSuccess = false, StatusCode = CustomCodes.ProjectCreationFailed };
         }
         catch (Exception)
         {
-            return new Tuple<int>(CustomCodes.ProjectCreationFailed);
+            await transaction.RollbackAsync(cancellationToken).ConfigureAwait(false);
+            return new ServiceResponse<object> { IsSuccess = false, StatusCode = CustomCodes.ProjectCreationFailed };
             throw;
         }
     }
 
-    public async Task<Tuple<int>> UpdateProject(ProjectDto dto)
+    public async Task<ServiceResponse<object>> UpdateProject(ProjectDto dto, CancellationToken cancellationToken)
     {
+        using var transaction = await context.Database.BeginTransactionAsync(cancellationToken).ConfigureAwait(false);
         try
         {
             ArgumentNullException.ThrowIfNull(dto);
 
-            if (dto == null)
-            {
-                return new Tuple<int>(CustomCodes.InvalidInput);
-            }
-
-            if (dto.Id == Guid.Empty)
-            {
-                return new Tuple<int>(CustomCodes.InvalidInput);
-            }
-
-            if (string.IsNullOrWhiteSpace(dto.Name))
-            {
-                return new Tuple<int>(CustomCodes.InvalidInput);
-            }
-
-            if (dto.ProjectManagerId == Guid.Empty)
-            {
-                return new Tuple<int>(CustomCodes.InvalidInput);
-            }
-
-            var project = await context.Projects.FirstOrDefaultAsync(x => x.Id == dto.Id).ConfigureAwait(false);
+            var project = await context.Projects.FirstOrDefaultAsync(x => x.Id == dto.Id, cancellationToken).ConfigureAwait(false);
 
             if (project == null)
             {
-                return new Tuple<int>(CustomCodes.ProjectNotFound);
+                return new ServiceResponse<object> { IsSuccess = false, StatusCode = CustomCodes.ProjectNotFound };
             }
 
-            var managerExists = await context.Users.AnyAsync(x => x.Id == dto.ProjectManagerId && x.Role != null && x.Role.Name == "Manager").ConfigureAwait(false);
+            var managerExists = await context.Users.AnyAsync(x => x.Id == dto.ProjectManagerId && x.Role != null && x.Role.Name == "Manager", cancellationToken).ConfigureAwait(false);
 
             if (!managerExists)
             {
-                return new Tuple<int>(CustomCodes.ProjectManagerNotFound);
+                return new ServiceResponse<object> { IsSuccess = false, StatusCode = CustomCodes.ProjectManagerNotFound };
             }
 
-            var duplicateProject = await context.Projects.AnyAsync(x => x.Id != dto.Id && x.Name.Equals(dto.Name, StringComparison.OrdinalIgnoreCase)).ConfigureAwait(false);
+            var duplicateProject = await context.Projects.AnyAsync(x => x.Id != dto.Id && x.Name.Equals(dto.Name, StringComparison.OrdinalIgnoreCase), cancellationToken).ConfigureAwait(false);
 
             if (duplicateProject)
             {
-                return new Tuple<int>(CustomCodes.ProjectAlreadyExists);
+                return new ServiceResponse<object> { IsSuccess = false, StatusCode = CustomCodes.ProjectAlreadyExists };
             }
 
             if (dto.EndDate != null && dto.EndDate < dto.StartDate)
             {
-                return new Tuple<int>(CustomCodes.InvalidInput);
+                return new ServiceResponse<object> { IsSuccess = false, StatusCode = CustomCodes.InvalidInput };
             }
 
-            project.Name = dto.Name;
+            project.Name = dto.Name ?? "";
             project.Description = dto.Description;
             project.StartDate = dto.StartDate;
             project.EndDate = dto.EndDate;
             project.ProjectManagerId = dto.ProjectManagerId;
 
-            await context.SaveChangesAsync().ConfigureAwait(false);
+            await context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
-            return new Tuple<int>(CustomCodes.ProjectUpdatedSuccessfully);
+            await transaction.CommitAsync(cancellationToken).ConfigureAwait(false);
+
+            return new ServiceResponse<object> { IsSuccess = true, StatusCode = CustomCodes.ProjectUpdatedSuccessfully };
+        }
+        catch (OperationCanceledException)
+        {
+            await transaction.RollbackAsync(cancellationToken).ConfigureAwait(false);
+            return new ServiceResponse<object> { IsSuccess = false, StatusCode = CustomCodes.OperationCancelled };
+        }
+        catch (DbUpdateException)
+        {
+            await transaction.RollbackAsync(cancellationToken).ConfigureAwait(false);
+            return new ServiceResponse<object> { IsSuccess = false, StatusCode = CustomCodes.ProjectUpdateFailed };
         }
         catch (Exception)
         {
-            return new Tuple<int>(CustomCodes.ProjectUpdateFailed);
+            await transaction.RollbackAsync(cancellationToken).ConfigureAwait(false);
+            return new ServiceResponse<object> { IsSuccess = false, StatusCode = CustomCodes.ProjectUpdateFailed };
             throw;
         }
     }
 
-    public async Task<Tuple<int, IReadOnlyCollection<ProjectResponseDto>>> GetAllProjects()
+    public async Task<ServiceResponse<IReadOnlyCollection<ProjectResponseDto>>> GetAllProjects()
     {
         try
         {
@@ -158,24 +148,24 @@ internal sealed class ProjectService(AppDbContext context) : IProjectService
                     TotalUsers = context.EmployeeProjects.Count(ep => ep.ProjectId == x.Id)
                 }).ToListAsync().ConfigureAwait(false);
 
-            return new Tuple<int, IReadOnlyCollection<ProjectResponseDto>>(CustomCodes.DataRetrieved, projects);
+            if (projects == null || projects.Count == 0)
+            {
+                return new ServiceResponse<IReadOnlyCollection<ProjectResponseDto>> { IsSuccess = false, StatusCode = CustomCodes.ProjectNotFound };
+            }
+
+            return new ServiceResponse<IReadOnlyCollection<ProjectResponseDto>> { IsSuccess = true, StatusCode = CustomCodes.DataRetrieved, Data = projects };
         }
         catch (Exception)
         {
-            return new Tuple<int, IReadOnlyCollection<ProjectResponseDto>>(CustomCodes.InternalServerError, []);
+            return new ServiceResponse<IReadOnlyCollection<ProjectResponseDto>> { IsSuccess = false, StatusCode = CustomCodes.InternalServerError };
             throw;
         }
     }
 
-    public async Task<Tuple<int, ProjectResponseDto?>> GetProjectById(Guid id)
+    public async Task<ServiceResponse<ProjectResponseDto?>> GetProjectById(Guid id)
     {
         try
         {
-            if (id == Guid.Empty)
-            {
-                return new Tuple<int, ProjectResponseDto?>(CustomCodes.InvalidInput, null);
-            }
-
             var project = await context.Projects.AsNoTracking()
                 .Include(x => x.ProjectManager)
                 .Where(x => x.Id == id)
@@ -193,32 +183,28 @@ internal sealed class ProjectService(AppDbContext context) : IProjectService
 
             if (project == null)
             {
-                return new Tuple<int, ProjectResponseDto?>(CustomCodes.ProjectNotFound, null);
+                return new ServiceResponse<ProjectResponseDto?> { IsSuccess = false, StatusCode = CustomCodes.ProjectNotFound };
             }
 
-            return new Tuple<int, ProjectResponseDto?>(CustomCodes.DataRetrieved, project);
+            return new ServiceResponse<ProjectResponseDto?> { IsSuccess = true, StatusCode = CustomCodes.DataRetrieved, Data = project };
         }
         catch (Exception)
         {
-            return new Tuple<int, ProjectResponseDto?>(CustomCodes.InternalServerError, null);
+            return new ServiceResponse<ProjectResponseDto?> { IsSuccess = false, StatusCode = CustomCodes.InternalServerError };
             throw;
         }
     }
 
-    public async Task<Tuple<int, IReadOnlyCollection<ProjectUserResponseDto>>> GetProjectEmployees(Guid projectId)
+    public async Task<ServiceResponse<IReadOnlyCollection<ProjectUserResponseDto>>> GetProjectEmployees(Guid projectId)
     {
         try
         {
-            if (projectId == Guid.Empty)
-            {
-                return new Tuple<int, IReadOnlyCollection<ProjectUserResponseDto>>(CustomCodes.InvalidInput, []);
-            }
 
             var projectExists = await context.Projects.AnyAsync(x => x.Id == projectId).ConfigureAwait(false);
 
             if (!projectExists)
             {
-                return new Tuple<int, IReadOnlyCollection<ProjectUserResponseDto>>(CustomCodes.ProjectNotFound, []);
+                return new ServiceResponse<IReadOnlyCollection<ProjectUserResponseDto>> { IsSuccess = false, StatusCode = CustomCodes.ProjectNotFound };
             }
 
             var users = await context.EmployeeProjects.AsNoTracking()
@@ -243,11 +229,11 @@ internal sealed class ProjectService(AppDbContext context) : IProjectService
                     RoleName = x.User != null && x.User.Role != null ? x.User.Role.Name : ""
                 }).ToListAsync().ConfigureAwait(false);
 
-            return new Tuple<int, IReadOnlyCollection<ProjectUserResponseDto>>(CustomCodes.DataRetrieved, users);
+            return new ServiceResponse<IReadOnlyCollection<ProjectUserResponseDto>> { IsSuccess = true, StatusCode = CustomCodes.DataRetrieved, Data = users };
         }
         catch (Exception)
         {
-            return new Tuple<int, IReadOnlyCollection<ProjectUserResponseDto>>(CustomCodes.InternalServerError, []);
+            return new ServiceResponse<IReadOnlyCollection<ProjectUserResponseDto>> { IsSuccess = false, StatusCode = CustomCodes.InternalServerError };
             throw;
         }
     }

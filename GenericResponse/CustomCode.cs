@@ -39,12 +39,12 @@ internal static class CustomCodes
     public const int EmployeeProjectCreationFailed = 9008;
     public const int BranchCreationFailed = 9004;
     public const int BranchUpdateFailed = 9005;
-    public const int PositionCreationFailed = 9005;
-    public const int ProjectUpdateFailed = 9006;
-    public const int PositionUpdateFailed = 9007;
-    public const int DepartmentCreationFailed = 9010;
-    public const int DepartmentUpdateFailed = 9011;
-    public const int EmployeeProjectRemovalFailed = 9009;
+    public const int PositionCreationFailed = 9006;
+    public const int ProjectUpdateFailed = 9007;
+    public const int PositionUpdateFailed = 9008;
+    public const int DepartmentCreationFailed = 9009;
+    public const int DepartmentUpdateFailed = 9010;
+    public const int EmployeeProjectRemovalFailed = 9011;
 
     public const int RoleCreatedSuccessfully = 700;
     public const int UserCreatedSuccessfully = 701;
@@ -108,4 +108,6 @@ internal static class CustomCodes
     public const int RoleNameTooShort = 942;
     public const int RoleNameTooLong = 943;
     public const int InvalidRoleName = 944;
+
+    public const int OperationCancelled = 9999;
 }

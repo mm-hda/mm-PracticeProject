@@ -16,7 +16,7 @@ namespace backend.Services;
 
 internal sealed class AuthService(AppDbContext context, IConfiguration configuration) : IAuthService
 {
-    public async Task<Tuple<int, TokenDto>> LoginUser(LoginDto dto)
+    public async Task<ServiceResponse<TokenDto>> LoginUser(LoginDto dto, CancellationToken cancellationToken)
     {
         try
         {
@@ -28,13 +28,13 @@ internal sealed class AuthService(AppDbContext context, IConfiguration configura
                 .Include(x => x.Branch)
                 .Include(x => x.Department)
                 .Include(x => x.Position)
-                .FirstOrDefaultAsync(x => x.Email == dto.Email)
+                .FirstOrDefaultAsync(x => x.Email == dto.Email, cancellationToken)
                 .ConfigureAwait(false);
 
             if (existingUser == null)
             {
                 tokenDto.Message = "User not found";
-                return new Tuple<int, TokenDto>(CustomCodes.UserNotFound, tokenDto);
+                return new ServiceResponse<TokenDto> { StatusCode = CustomCodes.UserNotFound, IsSuccess = false };
             }
 
             var passwordHasher = new PasswordHasher<string>();
@@ -44,14 +44,14 @@ internal sealed class AuthService(AppDbContext context, IConfiguration configura
             if (verificationResult == PasswordVerificationResult.Failed)
             {
                 tokenDto.Message = "Invalid credentials";
-                return new Tuple<int, TokenDto>(CustomCodes.InvalidCredentials, tokenDto);
+                return new ServiceResponse<TokenDto> { StatusCode = CustomCodes.InvalidCredentials, IsSuccess = false };
             }
 
             if (verificationResult == PasswordVerificationResult.SuccessRehashNeeded)
             {
                 existingUser.Password = PasswordHashing(existingUser.Email ?? "", dto.Password ?? "");
 
-                await context.SaveChangesAsync().ConfigureAwait(false);
+                await context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
             }
 
             var token = GetJwtToken(existingUser);
@@ -63,64 +63,60 @@ internal sealed class AuthService(AppDbContext context, IConfiguration configura
             tokenDto.Email = existingUser.Email ?? "";
             tokenDto.Role = existingUser.Role != null ? existingUser.Role.Name : "";
 
-            return new Tuple<int, TokenDto>(CustomCodes.LoginSuccessfully, tokenDto);
+            return new ServiceResponse<TokenDto> { StatusCode = CustomCodes.LoginSuccessfully, IsSuccess = true, Data = tokenDto };
         }
-        catch (InvalidOperationException ex)
+        catch (InvalidOperationException)
         {
-            TokenDto tokenDto = new() { Message = ex.Message };
-
-            return new Tuple<int, TokenDto>(CustomCodes.InternalServerError, tokenDto);
+            return new ServiceResponse<TokenDto> { StatusCode = CustomCodes.InternalServerError, IsSuccess = false };
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            TokenDto tokenDto = new() { Message = ex.Message };
-
-            return new Tuple<int, TokenDto>(CustomCodes.InternalServerError, tokenDto);
+            return new ServiceResponse<TokenDto> { StatusCode = CustomCodes.InternalServerError, IsSuccess = false };
             throw;
         }
     }
 
-    public async Task<Tuple<int>> RegisterUser(RegisterUserDto dto)
+    public async Task<ServiceResponse<object>> RegisterUser(RegisterUserDto dto, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(dto);
+
+        using var transaction = await context.Database.BeginTransactionAsync(cancellationToken).ConfigureAwait(false);
         try
         {
-            ArgumentNullException.ThrowIfNull(dto);
 
-            ArgumentNullException.ThrowIfNull(dto);
-
-            var existingUser = await context.Users.FirstOrDefaultAsync(x => x.Email == dto.Email).ConfigureAwait(false);
+            var existingUser = await context.Users.FirstOrDefaultAsync(x => x.Email == dto.Email, cancellationToken).ConfigureAwait(false);
 
             if (existingUser != null)
             {
-                return new Tuple<int>(CustomCodes.UserAlreadyExists);
+                return new ServiceResponse<object> { StatusCode = CustomCodes.UserAlreadyExists, IsSuccess = false };
             }
 
-            var branchExists = await context.Branches.AnyAsync(x => x.Id == dto.BranchId).ConfigureAwait(false);
+            var branchExists = await context.Branches.AnyAsync(x => x.Id == dto.BranchId, cancellationToken).ConfigureAwait(false);
 
             if (!branchExists)
             {
-                return new Tuple<int>(CustomCodes.BranchNotFound);
+                return new ServiceResponse<object> { StatusCode = CustomCodes.BranchNotFound, IsSuccess = false };
             }
 
-            var departmentExists = await context.Departments.AnyAsync(x => x.Id == dto.DepartmentId).ConfigureAwait(false);
+            var departmentExists = await context.Departments.AnyAsync(x => x.Id == dto.DepartmentId, cancellationToken).ConfigureAwait(false);
 
             if (!departmentExists)
             {
-                return new Tuple<int>(CustomCodes.DepartmentNotFound);
+                return new ServiceResponse<object> { StatusCode = CustomCodes.DepartmentNotFound, IsSuccess = false };
             }
 
-            var positionExists = await context.Positions.AnyAsync(x => x.Id == dto.PositionId && x.DepartmentId == dto.DepartmentId).ConfigureAwait(false);
+            var positionExists = await context.Positions.AnyAsync(x => x.Id == dto.PositionId && x.DepartmentId == dto.DepartmentId, cancellationToken).ConfigureAwait(false);
 
             if (!positionExists)
             {
-                return new Tuple<int>(CustomCodes.PositionNotFound);
+                return new ServiceResponse<object> { StatusCode = CustomCodes.PositionNotFound, IsSuccess = false };
             }
 
-            var roleExists = await context.Roles.AnyAsync(x => x.Id == dto.RoleId).ConfigureAwait(false);
+            var roleExists = await context.Roles.AnyAsync(x => x.Id == dto.RoleId, cancellationToken).ConfigureAwait(false);
 
             if (!roleExists)
             {
-                return new Tuple<int>(CustomCodes.RoleNotFound);
+                return new ServiceResponse<object> { StatusCode = CustomCodes.RoleNotFound, IsSuccess = false };
             }
 
             User newUser = new()
@@ -136,19 +132,28 @@ internal sealed class AuthService(AppDbContext context, IConfiguration configura
                 RoleId = dto.RoleId
             };
 
-            await context.Users.AddAsync(newUser).ConfigureAwait(false);
+            await context.Users.AddAsync(newUser, cancellationToken).ConfigureAwait(false);
 
-            await context.SaveChangesAsync().ConfigureAwait(false);
+            await context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
-            return new Tuple<int>(CustomCodes.UserCreatedSuccessfully);
+            await transaction.CommitAsync(cancellationToken).ConfigureAwait(false);
+
+            return new ServiceResponse<object> { StatusCode = CustomCodes.UserCreatedSuccessfully, IsSuccess = true };
+        }
+        catch (OperationCanceledException)
+        {
+            await transaction.RollbackAsync(cancellationToken).ConfigureAwait(false);
+            return new ServiceResponse<object> { StatusCode = CustomCodes.InternalServerError, IsSuccess = false };
         }
         catch (DbUpdateException)
         {
-            return new Tuple<int>(CustomCodes.UserCreationFailed);
+            await transaction.RollbackAsync(cancellationToken).ConfigureAwait(false);
+            return new ServiceResponse<object> { StatusCode = CustomCodes.UserCreationFailed, IsSuccess = false };
         }
         catch (Exception)
         {
-            return new Tuple<int>(CustomCodes.InternalServerError);
+            await transaction.RollbackAsync(cancellationToken).ConfigureAwait(false);
+            return new ServiceResponse<object> { StatusCode = CustomCodes.InternalServerError, IsSuccess = false };
             throw;
         }
     }

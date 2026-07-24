@@ -1,14 +1,15 @@
 ﻿using backend.Dto.RoleDtos;
+using backend.GenericResponse;
 
 namespace backend.IService;
 
 public interface IRoleService
 {
-    Task<Tuple<int>> CreateRole(RoleDto dto);
+    Task<ServiceResponse<object>> CreateRole(RoleDto dto, CancellationToken cancellationToken);
 
-    Task<Tuple<int, IReadOnlyCollection<RoleResponseDto>>> GetAllRoles();
+    Task<ServiceResponse<IReadOnlyCollection<RoleResponseDto>>> GetAllRoles();
 
-    Task<Tuple<int, RoleResponseDto?>> GetRoleById(Guid id);
+    Task<ServiceResponse<RoleResponseDto?>> GetRoleById(Guid id);
 
-    Task<Tuple<int, IReadOnlyCollection<RoleUserResponseDto>>> GetUsersByRole(Guid roleId);
+    Task<ServiceResponse<IReadOnlyCollection<RoleUserResponseDto>>> GetUsersByRole(Guid roleId);
 }
