@@ -2,20 +2,21 @@
 using backend.Dto.RoleDtos;
 using backend.Entities;
 using backend.IRepository;
+using backend.GenericRepositories;
 
 using Microsoft.EntityFrameworkCore;
 
 namespace backend.Repositories;
 
-internal sealed class RoleRepository(AppDbContext context) : IRoleRepository
+internal sealed class RoleRepository(AppDbContext context) : GenericRepository<Role>(context), IRoleRepository
 {
-    public async Task<bool> RoleExistsAsync(string? name, CancellationToken cancellationToken) => await context.Roles.AnyAsync(x => x.Name.Equals(name, StringComparison.OrdinalIgnoreCase), cancellationToken).ConfigureAwait(false);
+    public async Task<bool> RoleExistsAsync(string? name, CancellationToken cancellationToken) => await DbSet.AnyAsync(x => x.Name.Equals(name, StringComparison.OrdinalIgnoreCase), cancellationToken).ConfigureAwait(false);
 
-    public async Task AddAsync(Role role, CancellationToken cancellationToken) => await context.Roles.AddAsync(role, cancellationToken).ConfigureAwait(false);
+    public async Task AddRoleAsync(Role role, CancellationToken cancellationToken) => await DbSet.AddAsync(role, cancellationToken).ConfigureAwait(false);
 
     public async Task<IReadOnlyCollection<RoleResponseDto>> GetAllRolesAsync()
     {
-        return await context.Roles.AsNoTracking()
+        return await DbSet.AsNoTracking()
             .Select(x => new RoleResponseDto
             {
                 Id = x.Id,
@@ -27,7 +28,7 @@ internal sealed class RoleRepository(AppDbContext context) : IRoleRepository
 
     public async Task<RoleResponseDto?> GetRoleByIdAsync(Guid id)
     {
-        return await context.Roles.AsNoTracking()
+        return await DbSet.AsNoTracking()
             .Where(x => x.Id == id)
             .Select(x => new RoleResponseDto
             {

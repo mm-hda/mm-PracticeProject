@@ -8,8 +8,7 @@ using System.Globalization;
 
 namespace backend.Validations.AuthValidators;
 
-public sealed class RegisterUserValidator
-    : AbstractValidator<RegisterUserDto>
+public sealed class RegisterUserValidator : AbstractValidator<RegisterUserDto>
 {
     public RegisterUserValidator()
     {
@@ -56,10 +55,10 @@ public sealed class RegisterUserValidator
             .WithMessage(CustomCodes.PasswordTooShort.ToString(CultureInfo.InvariantCulture))
 
             .MaximumLength(25)
-            .WithMessage(CustomCodes.PasswordTooLong.ToString(CultureInfo.InvariantCulture))
+            .WithMessage(CustomCodes.PasswordTooLong.ToString(CultureInfo.InvariantCulture));
 
-            .StrongPassword()
-            .WithMessage(CustomCodes.InvalidPasswordFormat.ToString(CultureInfo.InvariantCulture));
+        // .StrongPassword()
+        // .WithMessage(CustomCodes.InvalidPasswordFormat.ToString(CultureInfo.InvariantCulture));
 
         RuleFor(x => x.DOB)
             .NotNull()

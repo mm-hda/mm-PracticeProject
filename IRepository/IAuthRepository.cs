@@ -1,8 +1,8 @@
 ﻿using backend.Entities;
-
+using backend.GenericRepositories;
 namespace backend.IRepository;
 
-public interface IAuthRepository
+public interface IAuthRepository : IGenericRepository<User>
 {
     Task<User?> GetUserByEmailWithDetailsAsync(string? email, CancellationToken cancellationToken);
 

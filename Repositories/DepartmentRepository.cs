@@ -2,28 +2,29 @@
 using backend.Dto.DepartmentDtos;
 using backend.Entities;
 using backend.IRepository;
+using backend.GenericRepositories;
 
 using Microsoft.EntityFrameworkCore;
 
 namespace backend.Repositories;
 
-internal sealed class DepartmentRepository(AppDbContext context) : IDepartmentRepository
+internal sealed class DepartmentRepository(AppDbContext context) : GenericRepository<Department>(context), IDepartmentRepository
 {
     public async Task<bool> DepartmentExistsAsync(string? name, CancellationToken cancellationToken)
-        => await context.Departments.AnyAsync(x => x.Name.Equals(name, StringComparison.OrdinalIgnoreCase), cancellationToken).ConfigureAwait(false);
+        => await DbSet.AnyAsync(x => x.Name.Equals(name, StringComparison.OrdinalIgnoreCase), cancellationToken).ConfigureAwait(false);
 
-    public async Task AddAsync(Department department, CancellationToken cancellationToken)
-        => await context.Departments.AddAsync(department, cancellationToken).ConfigureAwait(false);
+    public async Task AddDepartmentAsync(Department department, CancellationToken cancellationToken)
+        => await DbSet.AddAsync(department, cancellationToken).ConfigureAwait(false);
 
     public async Task<Department?> GetByIdAsync(Guid id, CancellationToken cancellationToken)
-        => await context.Departments.FirstOrDefaultAsync(x => x.Id == id, cancellationToken).ConfigureAwait(false);
+        => await DbSet.FirstOrDefaultAsync(x => x.Id == id, cancellationToken).ConfigureAwait(false);
 
     public async Task<bool> DuplicateDepartmentExistsAsync(Guid id, string? name, CancellationToken cancellationToken)
-        => await context.Departments.AnyAsync(x => x.Id != id && x.Name.Equals(name, StringComparison.OrdinalIgnoreCase), cancellationToken).ConfigureAwait(false);
+        => await DbSet.AnyAsync(x => x.Id != id && x.Name.Equals(name, StringComparison.OrdinalIgnoreCase), cancellationToken).ConfigureAwait(false);
 
     public async Task<IReadOnlyCollection<DepartmentResponseDto>> GetAllDepartmentsAsync()
     {
-        return await context.Departments.AsNoTracking()
+        return await DbSet.AsNoTracking()
             .Select(d => new DepartmentResponseDto
             {
                 Id = d.Id,
@@ -37,7 +38,7 @@ internal sealed class DepartmentRepository(AppDbContext context) : IDepartmentRe
 
     public async Task<DepartmentResponseDto?> GetDepartmentByIdAsync(Guid id)
     {
-        return await context.Departments.AsNoTracking()
+        return await DbSet.AsNoTracking()
             .Where(x => x.Id == id)
             .Select(x => new DepartmentResponseDto
             {
@@ -51,7 +52,7 @@ internal sealed class DepartmentRepository(AppDbContext context) : IDepartmentRe
     }
 
     public async Task<bool> DepartmentExistsByIdAsync(Guid departmentId)
-        => await context.Departments.AnyAsync(x => x.Id == departmentId).ConfigureAwait(false);
+        => await DbSet.AnyAsync(x => x.Id == departmentId).ConfigureAwait(false);
 
     public async Task<IReadOnlyCollection<DepartmentUserResponseDto>> GetDepartmentEmployeesAsync(Guid departmentId)
     {

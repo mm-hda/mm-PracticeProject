@@ -53,7 +53,7 @@ internal sealed class EmployeeProjectService(IEmployeeProjectRepository employee
                 AssignedDate = DateTime.UtcNow
             };
 
-            await employeeProjectRepository.AddAsync(employeeProject, cancellationToken).ConfigureAwait(false);
+            await employeeProjectRepository.AddEmployeeProjectAsync(employeeProject, cancellationToken).ConfigureAwait(false);
 
             await unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 

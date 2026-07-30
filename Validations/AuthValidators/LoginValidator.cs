@@ -20,7 +20,7 @@ public class LoginValidator : AbstractValidator<LoginDto>
         RuleFor(x => x.Password)
             .NotEmpty()
             .MinimumLength(6).WithMessage(CustomCodes.PasswordTooShort.ToString(CultureInfo.InvariantCulture))
-            .MaximumLength(25).WithMessage(CustomCodes.PasswordTooLong.ToString(CultureInfo.InvariantCulture))
-            .StrongPassword().WithMessage(CustomCodes.PasswordNotStrong.ToString(CultureInfo.InvariantCulture));
+            .MaximumLength(25).WithMessage(CustomCodes.PasswordTooLong.ToString(CultureInfo.InvariantCulture));
+        // .StrongPassword().WithMessage(CustomCodes.PasswordNotStrong.ToString(CultureInfo.InvariantCulture));
     }
 }

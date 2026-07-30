@@ -6,8 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace backend.Repositories;
 
-internal sealed class DashboardRepository(AppDbContext context)
-    : IDashboardRepository
+internal sealed class DashboardRepository(AppDbContext context) : IDashboardRepository
 {
     public async Task<int> GetTotalUsersAsync()
     {

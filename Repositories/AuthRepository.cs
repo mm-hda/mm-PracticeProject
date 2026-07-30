@@ -1,16 +1,17 @@
 ﻿using backend.Data;
 using backend.Entities;
 using backend.IRepository;
+using backend.GenericRepositories;
 
 using Microsoft.EntityFrameworkCore;
 
 namespace backend.Repositories;
 
-internal sealed class AuthRepository(AppDbContext context) : IAuthRepository
+internal sealed class AuthRepository(AppDbContext context) : GenericRepository<User>(context), IAuthRepository
 {
     public async Task<User?> GetUserByEmailWithDetailsAsync(string? email, CancellationToken cancellationToken)
     {
-        return await context.Users
+        return await DbSet
             .Include(x => x.Role)
             .Include(x => x.Branch)
             .Include(x => x.Department)
@@ -23,7 +24,7 @@ internal sealed class AuthRepository(AppDbContext context) : IAuthRepository
 
     public async Task<bool> EmailExistsAsync(string? email, CancellationToken cancellationToken)
     {
-        return await context.Users
+        return await DbSet
             .AsNoTracking()
             .AnyAsync(
                 x => x.Email == email,
@@ -74,7 +75,7 @@ internal sealed class AuthRepository(AppDbContext context) : IAuthRepository
 
     public async Task AddUserAsync(User user, CancellationToken cancellationToken)
     {
-        await context.Users
+        await DbSet
             .AddAsync(user, cancellationToken)
             .ConfigureAwait(false);
     }

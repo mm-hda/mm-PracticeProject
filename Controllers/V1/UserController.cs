@@ -20,13 +20,13 @@ public class UserController(IUserService userService, ILogger<UserController> lo
 
     [MapToApiVersion("2.0")]
     [HttpGet("GetAllUsers")]
-    public async Task<IActionResult> GetAllUsersAsync([FromQuery] PaginationDto dto, CancellationToken cancellationToken)
+    public async Task<IActionResult> GetAllUsersAsync([FromQuery] PaginationDto dto)
     {
         ArgumentNullException.ThrowIfNull(dto);
 
         logger.LogTrace("GetAllUsers called. Page:{PageNumber}, PageSize:{PageSize}", dto.PageNumber, dto.PageSize);
 
-        var result = await userService.GetAllUsers(dto, cancellationToken).ConfigureAwait(false);
+        var result = await userService.GetAllUsers(dto).ConfigureAwait(false);
         if (!result.IsSuccess)
         {
             logger.LogWarning("{Status code}", result.StatusCode);

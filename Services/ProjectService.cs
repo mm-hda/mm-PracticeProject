@@ -17,14 +17,14 @@ internal sealed class ProjectService(IProjectRepository projectRepository, IUnit
         {
             ArgumentNullException.ThrowIfNull(dto);
 
-            var projectExists = await projectRepository.ProjectExistsAsync(dto.Name, cancellationToken).ConfigureAwait(false);
+            var projectExists = await projectRepository.ProjectExistsAsync(dto.Name).ConfigureAwait(false);
 
             if (projectExists)
             {
                 return new ServiceResponse<object> { IsSuccess = false, StatusCode = CustomCodes.ProjectAlreadyExists };
             }
 
-            var managerExists = await projectRepository.ManagerExistsAsync(dto.ProjectManagerId, cancellationToken).ConfigureAwait(false);
+            var managerExists = await projectRepository.ManagerExistsAsync(dto.ProjectManagerId).ConfigureAwait(false);
 
             if (!managerExists)
             {
@@ -74,21 +74,21 @@ internal sealed class ProjectService(IProjectRepository projectRepository, IUnit
         {
             ArgumentNullException.ThrowIfNull(dto);
 
-            var project = await projectRepository.GetByIdAsync(dto.Id, cancellationToken).ConfigureAwait(false);
+            var project = await projectRepository.GetByIdAsync(dto.Id).ConfigureAwait(false);
 
             if (project == null)
             {
                 return new ServiceResponse<object> { IsSuccess = false, StatusCode = CustomCodes.ProjectNotFound };
             }
 
-            var managerExists = await projectRepository.ManagerExistsAsync(dto.ProjectManagerId, cancellationToken).ConfigureAwait(false);
+            var managerExists = await projectRepository.ManagerExistsAsync(dto.ProjectManagerId).ConfigureAwait(false);
 
             if (!managerExists)
             {
                 return new ServiceResponse<object> { IsSuccess = false, StatusCode = CustomCodes.ProjectManagerNotFound };
             }
 
-            var duplicateProject = await projectRepository.DuplicateProjectExistsAsync(dto.Id, dto.Name, cancellationToken).ConfigureAwait(false);
+            var duplicateProject = await projectRepository.DuplicateProjectExistsAsync(dto.Id, dto.Name).ConfigureAwait(false);
 
             if (duplicateProject)
             {

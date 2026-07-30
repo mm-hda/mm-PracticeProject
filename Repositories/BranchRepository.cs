@@ -2,16 +2,17 @@
 using backend.Dto.BranchDtos;
 using backend.Entities;
 using backend.IRepository;
+using backend.GenericRepositories;
 
 using Microsoft.EntityFrameworkCore;
 
 namespace backend.Repositories;
 
-internal sealed class BranchRepository(AppDbContext context) : IBranchRepository
+internal sealed class BranchRepository(AppDbContext context) : GenericRepository<Branch>(context), IBranchRepository
 {
     public async Task<bool> BranchExistsAsync(string? name, CancellationToken cancellationToken)
     {
-        return await context.Branches
+        return await DbSet
             .AsNoTracking()
             .AnyAsync(
                 x => string.Equals(
@@ -22,18 +23,18 @@ internal sealed class BranchRepository(AppDbContext context) : IBranchRepository
             .ConfigureAwait(false);
     }
 
-    public async Task<Branch?> GetByIdAsync(Guid id, CancellationToken cancellationToken) => await context.Branches.FirstOrDefaultAsync(x => x.Id == id, cancellationToken).ConfigureAwait(false);
+    public async Task<Branch?> GetByIdAsync(Guid id, CancellationToken cancellationToken) => await DbSet.FirstOrDefaultAsync(x => x.Id == id, cancellationToken).ConfigureAwait(false);
 
-    public async Task AddAsync(Branch branch, CancellationToken cancellationToken)
+    public async Task AddBranchAsync(Branch branch, CancellationToken cancellationToken)
     {
-        await context.Branches
+        await DbSet
             .AddAsync(branch, cancellationToken)
             .ConfigureAwait(false);
     }
 
     public async Task<IReadOnlyCollection<BranchResponseDto>> GetAllBranchesAsync()
     {
-        return await context.Branches
+        return await DbSet
             .AsNoTracking()
             .Select(x => new BranchResponseDto
             {
@@ -47,7 +48,7 @@ internal sealed class BranchRepository(AppDbContext context) : IBranchRepository
 
     public async Task<BranchResponseDto?> GetBranchByIdAsync(Guid id)
     {
-        return await context.Branches
+        return await DbSet
             .AsNoTracking()
             .Where(x => x.Id == id)
             .Select(x => new BranchResponseDto

@@ -19,7 +19,7 @@ internal sealed class PositionService(IPositionRepository positionRepository, IU
             ArgumentNullException.ThrowIfNull(dto);
 
             var departmentExists = await positionRepository
-                .DepartmentExistsAsync(dto.DepartmentId, cancellationToken)
+                .DepartmentExistsAsync(dto.DepartmentId)
                 .ConfigureAwait(false);
 
             if (!departmentExists)
@@ -28,7 +28,7 @@ internal sealed class PositionService(IPositionRepository positionRepository, IU
             }
 
             var exists = await positionRepository
-                .PositionExistsAsync(dto.Name, dto.DepartmentId, cancellationToken)
+                .PositionExistsAsync(dto.Name)
                 .ConfigureAwait(false);
 
             if (exists)
@@ -81,7 +81,7 @@ internal sealed class PositionService(IPositionRepository positionRepository, IU
             ArgumentNullException.ThrowIfNull(dto);
 
             var position = await positionRepository
-                .GetByIdAsync(dto.Id, cancellationToken)
+                .GetByIdAsync(dto.Id)
                 .ConfigureAwait(false);
 
             if (position == null)
@@ -90,7 +90,7 @@ internal sealed class PositionService(IPositionRepository positionRepository, IU
             }
 
             var departmentExists = await positionRepository
-                .DepartmentExistsAsync(dto.DepartmentId, cancellationToken)
+                .DepartmentExistsAsync(dto.DepartmentId)
                 .ConfigureAwait(false);
 
             if (!departmentExists)
@@ -99,7 +99,7 @@ internal sealed class PositionService(IPositionRepository positionRepository, IU
             }
 
             var duplicate = await positionRepository
-                .DuplicatePositionExistsAsync(dto.Id, dto.Name, dto.DepartmentId, cancellationToken)
+                .DuplicatePositionExistsAsync(dto.Id, dto.Name, dto.DepartmentId)
                 .ConfigureAwait(false);
 
             if (duplicate)
@@ -203,7 +203,7 @@ internal sealed class PositionService(IPositionRepository positionRepository, IU
         try
         {
             var departmentExists = await positionRepository
-                .DepartmentExistsAsync(departmentId, CancellationToken.None)
+                .DepartmentExistsAsync(departmentId)
                 .ConfigureAwait(false);
 
             if (!departmentExists)

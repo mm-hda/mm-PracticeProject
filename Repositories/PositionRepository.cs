@@ -2,50 +2,48 @@
 using backend.Dto.PositionDtos;
 using backend.Entities;
 using backend.IRepository;
+using backend.GenericRepositories;
 
 using Microsoft.EntityFrameworkCore;
 
 namespace backend.Repositories;
 
-internal sealed class PositionRepository(AppDbContext context) : IPositionRepository
+internal sealed class PositionRepository(AppDbContext context) : GenericRepository<Position>(context), IPositionRepository
 {
-    public async Task<bool> DepartmentExistsAsync(Guid departmentId, CancellationToken cancellationToken)
+    public async Task<bool> DepartmentExistsAsync(Guid departmentId)
     {
         return await context.Departments
-            .AnyAsync(x => x.Id == departmentId, cancellationToken)
+            .AnyAsync(x => x.Id == departmentId)
             .ConfigureAwait(false);
     }
 
-    public async Task<bool> PositionExistsAsync(string? name, Guid departmentId, CancellationToken cancellationToken)
+    public async Task<bool> PositionExistsAsync(string? name)
     {
         return await context.Positions
-            .AnyAsync(x => x.Name.Equals(name, StringComparison.OrdinalIgnoreCase) &&
-                           x.DepartmentId == departmentId,
-                      cancellationToken)
+            .AnyAsync(x => x.Name.Equals(name, StringComparison.OrdinalIgnoreCase))
             .ConfigureAwait(false);
     }
 
-    public async Task AddAsync(Position position, CancellationToken cancellationToken)
+    public async Task AddPositionAsync(Position position, CancellationToken cancellationToken)
     {
         await context.Positions
             .AddAsync(position, cancellationToken)
             .ConfigureAwait(false);
     }
 
-    public async Task<Position?> GetByIdAsync(Guid id, CancellationToken cancellationToken)
+    public async Task<Position?> PositionByIdAsync(Guid id)
     {
         return await context.Positions
-            .FirstOrDefaultAsync(x => x.Id == id, cancellationToken)
+            .FirstOrDefaultAsync(x => x.Id == id)
             .ConfigureAwait(false);
     }
 
-    public async Task<bool> DuplicatePositionExistsAsync(Guid positionId, string? name, Guid departmentId, CancellationToken cancellationToken)
+    public async Task<bool> DuplicatePositionExistsAsync(Guid positionId, string? name, Guid departmentId)
     {
         return await context.Positions
             .AnyAsync(x => x.Id != positionId &&
                            x.Name.Equals(name, StringComparison.OrdinalIgnoreCase) &&
-                           x.DepartmentId == departmentId,
-                      cancellationToken)
+                           x.DepartmentId == departmentId)
             .ConfigureAwait(false);
     }
 

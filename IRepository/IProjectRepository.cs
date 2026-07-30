@@ -1,15 +1,16 @@
 ﻿using backend.Dto.ProjectDtos;
 using backend.Entities;
+using backend.GenericRepositories;
 
 namespace backend.IRepository;
 
-public interface IProjectRepository
+public interface IProjectRepository : IGenericRepository<Project>
 {
-    Task<bool> ProjectExistsAsync(string? name, CancellationToken cancellationToken);
-    Task<bool> ManagerExistsAsync(Guid managerId, CancellationToken cancellationToken);
-    Task AddAsync(Project project, CancellationToken cancellationToken);
-    Task<Project?> GetByIdAsync(Guid id, CancellationToken cancellationToken);
-    Task<bool> DuplicateProjectExistsAsync(Guid projectId, string? name, CancellationToken cancellationToken);
+    Task<bool> ProjectExistsAsync(string? name);
+    Task<bool> ManagerExistsAsync(Guid managerId);
+    Task AddProjectAsync(Project project, CancellationToken cancellationToken);
+    Task<Project?> GetProByIdAsync(Guid id);
+    Task<bool> DuplicateProjectExistsAsync(Guid projectId, string? name);
     Task<IReadOnlyCollection<ProjectResponseDto>> GetAllProjectsAsync();
     Task<ProjectResponseDto?> GetProjectByIdAsync(Guid id);
     Task<bool> ProjectExistsByIdAsync(Guid projectId);

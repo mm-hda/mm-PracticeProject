@@ -8,7 +8,7 @@ namespace backend.Services;
 
 internal sealed class UserService(IUserRepository userRepository) : IUserService
 {
-    public async Task<ServiceResponse<IReadOnlyCollection<UserResponseDto>>> GetAllUsers(PaginationDto dto, CancellationToken cancellationToken)
+    public async Task<ServiceResponse<IReadOnlyCollection<UserResponseDto>>> GetAllUsers(PaginationDto dto)
     {
         try
         {
@@ -17,7 +17,7 @@ internal sealed class UserService(IUserRepository userRepository) : IUserService
             dto.PageNumber = dto.PageNumber <= 0 ? 1 : dto.PageNumber;
             dto.PageSize = dto.PageSize <= 0 ? 10 : dto.PageSize;
 
-            var totalRecords = await userRepository.GetUsersCountAsync(cancellationToken).ConfigureAwait(false);
+            var totalRecords = await userRepository.GetUsersCountAsync().ConfigureAwait(false);
 
             if (totalRecords == 0)
             {
@@ -29,7 +29,7 @@ internal sealed class UserService(IUserRepository userRepository) : IUserService
                 return new ServiceResponse<IReadOnlyCollection<UserResponseDto>> { IsSuccess = false, StatusCode = CustomCodes.UserNotFound };
             }
 
-            var users = await userRepository.GetAllUsersAsync(dto.PageNumber, dto.PageSize, cancellationToken).ConfigureAwait(false);
+            var users = await userRepository.GetAllUsersAsync(dto.PageNumber, dto.PageSize).ConfigureAwait(false);
 
             var meta = new PaginationMetaDto
             {
