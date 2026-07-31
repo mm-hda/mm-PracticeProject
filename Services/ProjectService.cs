@@ -17,14 +17,14 @@ internal sealed class ProjectService(IProjectRepository projectRepository, IUnit
         {
             ArgumentNullException.ThrowIfNull(dto);
 
-            var projectExists = await projectRepository.ProjectExistsAsync(dto.Name).ConfigureAwait(false);
+            var projectExists = await projectRepository.ProjectExistsAsync(dto.Name, cancellationToken).ConfigureAwait(false);
 
             if (projectExists)
             {
                 return new ServiceResponse<object> { IsSuccess = false, StatusCode = CustomCodes.ProjectAlreadyExists };
             }
 
-            var managerExists = await projectRepository.ManagerExistsAsync(dto.ProjectManagerId).ConfigureAwait(false);
+            var managerExists = await projectRepository.ManagerExistsAsync(dto.ProjectManagerId, cancellationToken).ConfigureAwait(false);
 
             if (!managerExists)
             {
@@ -74,21 +74,21 @@ internal sealed class ProjectService(IProjectRepository projectRepository, IUnit
         {
             ArgumentNullException.ThrowIfNull(dto);
 
-            var project = await projectRepository.GetByIdAsync(dto.Id).ConfigureAwait(false);
+            var project = await projectRepository.GetByIdAsync(dto.Id, cancellationToken).ConfigureAwait(false);
 
             if (project == null)
             {
                 return new ServiceResponse<object> { IsSuccess = false, StatusCode = CustomCodes.ProjectNotFound };
             }
 
-            var managerExists = await projectRepository.ManagerExistsAsync(dto.ProjectManagerId).ConfigureAwait(false);
+            var managerExists = await projectRepository.ManagerExistsAsync(dto.ProjectManagerId, cancellationToken).ConfigureAwait(false);
 
             if (!managerExists)
             {
                 return new ServiceResponse<object> { IsSuccess = false, StatusCode = CustomCodes.ProjectManagerNotFound };
             }
 
-            var duplicateProject = await projectRepository.DuplicateProjectExistsAsync(dto.Id, dto.Name).ConfigureAwait(false);
+            var duplicateProject = await projectRepository.DuplicateProjectExistsAsync(dto.Id, dto.Name, cancellationToken).ConfigureAwait(false);
 
             if (duplicateProject)
             {
@@ -130,11 +130,11 @@ internal sealed class ProjectService(IProjectRepository projectRepository, IUnit
         }
     }
 
-    public async Task<ServiceResponse<IReadOnlyCollection<ProjectResponseDto>>> GetAllProjects()
+    public async Task<ServiceResponse<IReadOnlyCollection<ProjectResponseDto>>> GetAllProjects(CancellationToken cancellationToken)
     {
         try
         {
-            var projects = await projectRepository.GetAllProjectsAsync().ConfigureAwait(false);
+            var projects = await projectRepository.GetAllProjectsAsync(cancellationToken).ConfigureAwait(false);
 
             if (projects == null || projects.Count == 0)
             {
@@ -150,11 +150,11 @@ internal sealed class ProjectService(IProjectRepository projectRepository, IUnit
         }
     }
 
-    public async Task<ServiceResponse<ProjectResponseDto?>> GetProjectById(Guid id)
+    public async Task<ServiceResponse<ProjectResponseDto?>> GetProjectById(Guid id, CancellationToken cancellationToken)
     {
         try
         {
-            var project = await projectRepository.GetProjectByIdAsync(id).ConfigureAwait(false);
+            var project = await projectRepository.GetProjectByIdAsync(id, cancellationToken).ConfigureAwait(false);
 
             if (project == null)
             {
@@ -170,18 +170,18 @@ internal sealed class ProjectService(IProjectRepository projectRepository, IUnit
         }
     }
 
-    public async Task<ServiceResponse<IReadOnlyCollection<ProjectUserResponseDto>>> GetProjectEmployees(Guid projectId)
+    public async Task<ServiceResponse<IReadOnlyCollection<ProjectUserResponseDto>>> GetProjectEmployees(Guid projectId, CancellationToken cancellationToken)
     {
         try
         {
-            var projectExists = await projectRepository.ProjectExistsByIdAsync(projectId).ConfigureAwait(false);
+            var projectExists = await projectRepository.ProjectExistsByIdAsync(projectId, cancellationToken).ConfigureAwait(false);
 
             if (!projectExists)
             {
                 return new ServiceResponse<IReadOnlyCollection<ProjectUserResponseDto>> { IsSuccess = false, StatusCode = CustomCodes.ProjectNotFound };
             }
 
-            var users = await projectRepository.GetProjectEmployeesAsync(projectId).ConfigureAwait(false);
+            var users = await projectRepository.GetProjectEmployeesAsync(projectId, cancellationToken).ConfigureAwait(false);
 
             return new ServiceResponse<IReadOnlyCollection<ProjectUserResponseDto>> { IsSuccess = true, StatusCode = CustomCodes.DataRetrieved, Data = users };
         }

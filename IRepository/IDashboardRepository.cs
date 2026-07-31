@@ -4,21 +4,21 @@ namespace backend.IRepository;
 
 public interface IDashboardRepository
 {
-    Task<int> GetTotalUsersAsync();
+    Task<int> GetTotalUsersAsync(CancellationToken cancellationToken);
 
-    Task<int> GetTotalBranchesAsync();
+    Task<int> GetTotalBranchesAsync(CancellationToken cancellationToken);
 
-    Task<int> GetTotalDepartmentsAsync();
+    Task<int> GetTotalDepartmentsAsync(CancellationToken cancellationToken);
 
-    Task<int> GetTotalProjectsAsync();
+    Task<int> GetTotalProjectsAsync(CancellationToken cancellationToken);
 
-    Task<int> GetTotalRunningProjectsAsync();
+    Task<int> GetTotalRunningProjectsAsync(CancellationToken cancellationToken);
 
-    Task<IReadOnlyCollection<RoleUserCountDto>> GetRoleWiseUserCountsAsync();
+    Task<IReadOnlyCollection<RoleUserCountDto>> GetRoleWiseUserCountsAsync(CancellationToken cancellationToken);
 
-    Task<IReadOnlyCollection<BranchDashboardDto>> GetBranchesAsync();
+    Task<IReadOnlyCollection<BranchDashboardDto>> GetBranchesAsync(CancellationToken cancellationToken);
 
-    Task<IReadOnlyCollection<DepartmentDashboardDto>> GetDepartmentsAsync();
+    Task<IReadOnlyCollection<DepartmentDashboardDto>> GetDepartmentsAsync(CancellationToken cancellationToken);
 
-    Task<IReadOnlyCollection<ProjectDashboardDto>> GetRunningProjectsAsync();
+    Task<IReadOnlyCollection<ProjectDashboardDto>> GetRunningProjectsAsync(CancellationToken cancellationToken);
 }

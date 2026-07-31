@@ -10,7 +10,7 @@ public interface IEmployeeProjectService
 
     Task<ServiceResponse<object>> RemoveEmployeeProject(Guid id, CancellationToken cancellationToken);
 
-    Task<ServiceResponse<IReadOnlyCollection<EmployeeProjectResponseDto>>> GetAllEmployeeProjects();
+    Task<ServiceResponse<IReadOnlyCollection<EmployeeProjectResponseDto>>> GetAllEmployeeProjects(CancellationToken cancellationToken);
 
-    Task<ServiceResponse<IReadOnlyCollection<ProjectResponseDto>>> GetUserProjectsByUserId(Guid userId, PaginationDto dto);
+    Task<ServiceResponse<IReadOnlyCollection<ProjectResponseDto>>> GetUserProjectsByUserId(Guid userId, PaginationDto dto, CancellationToken cancellationToken);
 }

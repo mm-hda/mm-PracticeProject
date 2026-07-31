@@ -25,12 +25,6 @@ public class AuthController(IAuthService authService, ILogger<AuthController> lo
 
         try
         {
-            if (!ModelState.IsValid)
-            {
-                logger.LogWarning("Invalid request body provided for user registration.");
-                return BadRequest(ResponseResults<string>.Failure(CustomCodes.InvalidInput));
-            }
-
             RegisterUserDto dto = new()
             {
                 Name = registerDto.FirstName + " " + registerDto.LastName,

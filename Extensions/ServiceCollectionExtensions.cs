@@ -2,6 +2,7 @@
 using backend.Services;
 using backend.IRepository;
 using backend.Repositories;
+using backend.GenericRepositories;
 namespace backend.Extensions;
 
 internal static class ServiceCollectionExtensions
@@ -9,6 +10,7 @@ internal static class ServiceCollectionExtensions
     public static IServiceCollection AddApplicationServices(
         this IServiceCollection services)
     {
+        services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<IRoleService, RoleService>();
         services.AddScoped<IDepartmentService, DepartmentService>();
@@ -27,6 +29,7 @@ internal static class ServiceCollectionExtensions
         services.AddScoped<IEmployeeProjectRepository, EmployeeProjectRepository>();
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IDashboardRepository, DashboardRepository>();
+
 
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 

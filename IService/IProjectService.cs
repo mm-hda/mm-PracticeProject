@@ -9,9 +9,9 @@ public interface IProjectService
 
     Task<ServiceResponse<object>> UpdateProject(ProjectDto dto, CancellationToken cancellationToken);
 
-    Task<ServiceResponse<IReadOnlyCollection<ProjectResponseDto>>> GetAllProjects();
+    Task<ServiceResponse<IReadOnlyCollection<ProjectResponseDto>>> GetAllProjects(CancellationToken cancellationToken);
 
-    Task<ServiceResponse<ProjectResponseDto?>> GetProjectById(Guid id);
+    Task<ServiceResponse<ProjectResponseDto?>> GetProjectById(Guid id, CancellationToken cancellationToken);
 
-    Task<ServiceResponse<IReadOnlyCollection<ProjectUserResponseDto>>> GetProjectEmployees(Guid projectId);
+    Task<ServiceResponse<IReadOnlyCollection<ProjectUserResponseDto>>> GetProjectEmployees(Guid projectId, CancellationToken cancellationToken);
 }

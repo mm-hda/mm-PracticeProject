@@ -14,7 +14,7 @@ internal sealed class BranchService(IBranchRepository branchRepository, IUnitOfW
     {
         ArgumentNullException.ThrowIfNull(dto);
 
-        using var transaction = await unitOfWork.BeginTransactionAsync(cancellationToken).ConfigureAwait(false);
+        // using var transaction = await unitOfWork.BeginTransactionAsync(cancellationToken).ConfigureAwait(false);
 
         try
         {
@@ -40,7 +40,7 @@ internal sealed class BranchService(IBranchRepository branchRepository, IUnitOfW
 
             await unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
-            await transaction.CommitAsync(cancellationToken).ConfigureAwait(false);
+            // await transaction.CommitAsync(cancellationToken).ConfigureAwait(false);
 
             return new()
             {
@@ -50,7 +50,7 @@ internal sealed class BranchService(IBranchRepository branchRepository, IUnitOfW
         }
         catch (OperationCanceledException)
         {
-            await transaction.RollbackAsync(CancellationToken.None).ConfigureAwait(false);
+            // await transaction.RollbackAsync(CancellationToken.None).ConfigureAwait(false);
 
             return new()
             {
@@ -60,7 +60,7 @@ internal sealed class BranchService(IBranchRepository branchRepository, IUnitOfW
         }
         catch (DbUpdateException)
         {
-            await transaction.RollbackAsync(CancellationToken.None).ConfigureAwait(false);
+            // await transaction.RollbackAsync(CancellationToken.None).ConfigureAwait(false);
 
             return new()
             {
@@ -70,7 +70,7 @@ internal sealed class BranchService(IBranchRepository branchRepository, IUnitOfW
         }
         catch (Exception)
         {
-            await transaction.RollbackAsync(CancellationToken.None).ConfigureAwait(false);
+            // await transaction.RollbackAsync(CancellationToken.None).ConfigureAwait(false);
 
             return new()
             {
@@ -146,11 +146,11 @@ internal sealed class BranchService(IBranchRepository branchRepository, IUnitOfW
         }
     }
 
-    public async Task<ServiceResponse<IReadOnlyCollection<BranchResponseDto>>> GetAllBranches()
+    public async Task<ServiceResponse<IReadOnlyCollection<BranchResponseDto>>> GetAllBranches(CancellationToken cancellationToken)
     {
         try
         {
-            var branches = await branchRepository.GetAllBranchesAsync().ConfigureAwait(false);
+            var branches = await branchRepository.GetAllBranchesAsync(cancellationToken).ConfigureAwait(false);
 
             return new()
             {
@@ -170,11 +170,11 @@ internal sealed class BranchService(IBranchRepository branchRepository, IUnitOfW
         }
     }
 
-    public async Task<ServiceResponse<BranchResponseDto?>> GetBranchById(Guid id)
+    public async Task<ServiceResponse<BranchResponseDto?>> GetBranchById(Guid id, CancellationToken cancellationToken)
     {
         try
         {
-            var branch = await branchRepository.GetBranchByIdAsync(id).ConfigureAwait(false);
+            var branch = await branchRepository.GetBranchByIdAsync(id, cancellationToken).ConfigureAwait(false);
 
             if (branch == null)
             {
@@ -203,11 +203,11 @@ internal sealed class BranchService(IBranchRepository branchRepository, IUnitOfW
         }
     }
 
-    public async Task<ServiceResponse<IReadOnlyCollection<BranchUserResponseDto>>> GetBranchUsers(Guid branchId)
+    public async Task<ServiceResponse<IReadOnlyCollection<BranchUserResponseDto>>> GetBranchUsers(Guid branchId, CancellationToken cancellationToken)
     {
         try
         {
-            var users = await branchRepository.GetBranchUsersAsync(branchId).ConfigureAwait(false);
+            var users = await branchRepository.GetBranchUsersAsync(branchId, cancellationToken).ConfigureAwait(false);
 
             if (users.Count == 0)
             {

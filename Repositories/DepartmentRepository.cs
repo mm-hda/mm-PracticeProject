@@ -1,79 +1,96 @@
 ﻿using backend.Data;
 using backend.Dto.DepartmentDtos;
 using backend.Entities;
-using backend.IRepository;
 using backend.GenericRepositories;
-
-using Microsoft.EntityFrameworkCore;
+using backend.IRepository;
 
 namespace backend.Repositories;
 
-internal sealed class DepartmentRepository(AppDbContext context) : GenericRepository<Department>(context), IDepartmentRepository
+internal sealed class DepartmentRepository(
+    AppDbContext context,
+    IGenericRepository<User> userRepository,
+    IGenericRepository<Position> positionRepository,
+    IGenericRepository<Role> roleRepository,
+    IGenericRepository<Branch> branchRepository)
+    : GenericRepository<Department>(context), IDepartmentRepository
 {
     public async Task<bool> DepartmentExistsAsync(string? name, CancellationToken cancellationToken)
-        => await DbSet.AnyAsync(x => x.Name.Equals(name, StringComparison.OrdinalIgnoreCase), cancellationToken).ConfigureAwait(false);
+        => !string.IsNullOrWhiteSpace(name) &&
+           await AnyAsync(x => x.Name.Equals(name, StringComparison.OrdinalIgnoreCase), cancellationToken).ConfigureAwait(false);
 
     public async Task AddDepartmentAsync(Department department, CancellationToken cancellationToken)
-        => await DbSet.AddAsync(department, cancellationToken).ConfigureAwait(false);
+        => await AddAsync(department, cancellationToken).ConfigureAwait(false);
 
-    public async Task<Department?> GetByIdAsync(Guid id, CancellationToken cancellationToken)
-        => await DbSet.FirstOrDefaultAsync(x => x.Id == id, cancellationToken).ConfigureAwait(false);
+    public async Task<Department?> DepartmentByIdAsync(Guid id, CancellationToken cancellationToken)
+        => await FirstOrDefaultAsync(x => x.Id == id, cancellationToken).ConfigureAwait(false);
 
     public async Task<bool> DuplicateDepartmentExistsAsync(Guid id, string? name, CancellationToken cancellationToken)
-        => await DbSet.AnyAsync(x => x.Id != id && x.Name.Equals(name, StringComparison.OrdinalIgnoreCase), cancellationToken).ConfigureAwait(false);
+        => !string.IsNullOrWhiteSpace(name) &&
+           await AnyAsync(x => x.Id != id && x.Name.Equals(name, StringComparison.OrdinalIgnoreCase), cancellationToken).ConfigureAwait(false);
 
-    public async Task<IReadOnlyCollection<DepartmentResponseDto>> GetAllDepartmentsAsync()
+    public async Task<IReadOnlyCollection<DepartmentResponseDto>> GetAllDepartmentsAsync(CancellationToken cancellationToken)
     {
-        return await DbSet.AsNoTracking()
-            .Select(d => new DepartmentResponseDto
-            {
-                Id = d.Id,
-                Name = d.Name,
-                TotalPositions = context.Positions.Count(p => p.DepartmentId == d.Id),
-                TotalUsers = context.Users.Count(u => u.DepartmentId == d.Id)
-            })
-            .ToListAsync()
-            .ConfigureAwait(false);
+        var departments = await GetAllAsync(cancellationToken).ConfigureAwait(false);
+        var positions = await positionRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
+        var users = await userRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
+
+        return departments.Select(department => new DepartmentResponseDto
+        {
+            Id = department.Id,
+            Name = department.Name,
+            TotalPositions = positions.Count(x => x.DepartmentId == department.Id),
+            TotalUsers = users.Count(x => x.DepartmentId == department.Id)
+        }).ToList();
     }
 
-    public async Task<DepartmentResponseDto?> GetDepartmentByIdAsync(Guid id)
+    public async Task<DepartmentResponseDto?> GetDepartmentByIdAsync(Guid id, CancellationToken cancellationToken)
     {
-        return await DbSet.AsNoTracking()
-            .Where(x => x.Id == id)
-            .Select(x => new DepartmentResponseDto
-            {
-                Id = x.Id,
-                Name = x.Name,
-                TotalPositions = context.Positions.Count(p => p.DepartmentId == x.Id),
-                TotalUsers = context.Users.Count(u => u.DepartmentId == x.Id)
-            })
-            .FirstOrDefaultAsync()
-            .ConfigureAwait(false);
+        var department = await FirstOrDefaultAsync(x => x.Id == id, cancellationToken).ConfigureAwait(false);
+
+        if (department is null)
+        {
+            return null;
+        }
+
+        var positions = await positionRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
+        var users = await userRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
+
+        return new DepartmentResponseDto
+        {
+            Id = department.Id,
+            Name = department.Name,
+            TotalPositions = positions.Count(x => x.DepartmentId == department.Id),
+            TotalUsers = users.Count(x => x.DepartmentId == department.Id)
+        };
     }
 
-    public async Task<bool> DepartmentExistsByIdAsync(Guid departmentId)
-        => await DbSet.AnyAsync(x => x.Id == departmentId).ConfigureAwait(false);
+    public async Task<bool> DepartmentExistsByIdAsync(Guid departmentId, CancellationToken cancellationToken)
+        => await AnyAsync(x => x.Id == departmentId, cancellationToken).ConfigureAwait(false);
 
-    public async Task<IReadOnlyCollection<DepartmentUserResponseDto>> GetDepartmentEmployeesAsync(Guid departmentId)
+    public async Task<IReadOnlyCollection<DepartmentUserResponseDto>> GetDepartmentEmployeesAsync(Guid departmentId, CancellationToken cancellationToken)
     {
-        return await context.Users.AsNoTracking()
-            .Include(x => x.Branch)
-            .Include(x => x.Department)
-            .Include(x => x.Position)
-            .Include(x => x.Role)
-            .Where(x => x.DepartmentId == departmentId)
-            .Select(x => new DepartmentUserResponseDto
-            {
-                UserId = x.Id,
-                Name = x.Name ?? "",
-                Email = x.Email ?? "",
-                DOB = x.DOB,
-                BranchName = x.Branch != null ? x.Branch.Name : "",
-                DepartmentName = x.Department != null ? x.Department.Name : "",
-                PositionName = x.Position != null ? x.Position.Name : "",
-                RoleName = x.Role != null ? x.Role.Name : ""
-            })
-            .ToListAsync()
-            .ConfigureAwait(false);
+        var users = await userRepository.FindAsync(x => x.DepartmentId == departmentId, cancellationToken).ConfigureAwait(false);
+
+        var departments = await GetAllAsync(cancellationToken).ConfigureAwait(false);
+        var positions = await positionRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
+        var roles = await roleRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
+        var branches = await branchRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
+
+        var departmentDictionary = departments.ToDictionary(x => x.Id, x => x.Name);
+        var positionDictionary = positions.ToDictionary(x => x.Id, x => x.Name);
+        var roleDictionary = roles.ToDictionary(x => x.Id, x => x.Name);
+        var branchDictionary = branches.ToDictionary(x => x.Id, x => x.Name);
+
+        return users.Select(user => new DepartmentUserResponseDto
+        {
+            UserId = user.Id,
+            Name = user.Name,
+            Email = user.Email,
+            DOB = user.DOB,
+            BranchName = branchDictionary.TryGetValue(user.BranchId, out var branchName) ? branchName : string.Empty,
+            DepartmentName = departmentDictionary.TryGetValue(user.DepartmentId, out var departmentName) ? departmentName : string.Empty,
+            PositionName = positionDictionary.TryGetValue(user.PositionId, out var positionName) ? positionName : string.Empty,
+            RoleName = roleDictionary.TryGetValue(user.RoleId, out var roleName) ? roleName : string.Empty
+        }).ToList();
     }
 }

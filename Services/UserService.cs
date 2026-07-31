@@ -8,7 +8,7 @@ namespace backend.Services;
 
 internal sealed class UserService(IUserRepository userRepository) : IUserService
 {
-    public async Task<ServiceResponse<IReadOnlyCollection<UserResponseDto>>> GetAllUsers(PaginationDto dto)
+    public async Task<ServiceResponse<IReadOnlyCollection<UserResponseDto>>> GetAllUsers(PaginationDto dto, CancellationToken cancellationToken)
     {
         try
         {
@@ -17,7 +17,7 @@ internal sealed class UserService(IUserRepository userRepository) : IUserService
             dto.PageNumber = dto.PageNumber <= 0 ? 1 : dto.PageNumber;
             dto.PageSize = dto.PageSize <= 0 ? 10 : dto.PageSize;
 
-            var totalRecords = await userRepository.GetUsersCountAsync().ConfigureAwait(false);
+            var totalRecords = await userRepository.GetUsersCountAsync(cancellationToken).ConfigureAwait(false);
 
             if (totalRecords == 0)
             {
@@ -29,7 +29,7 @@ internal sealed class UserService(IUserRepository userRepository) : IUserService
                 return new ServiceResponse<IReadOnlyCollection<UserResponseDto>> { IsSuccess = false, StatusCode = CustomCodes.UserNotFound };
             }
 
-            var users = await userRepository.GetAllUsersAsync(dto.PageNumber, dto.PageSize).ConfigureAwait(false);
+            var users = await userRepository.GetAllUsersAsync(dto.PageNumber, dto.PageSize, cancellationToken).ConfigureAwait(false);
 
             var meta = new PaginationMetaDto
             {
@@ -52,11 +52,11 @@ internal sealed class UserService(IUserRepository userRepository) : IUserService
         }
     }
 
-    public async Task<ServiceResponse<IReadOnlyCollection<UserResponseDto>>> GetUserBySearch(string searchTerm)
+    public async Task<ServiceResponse<IReadOnlyCollection<UserResponseDto>>> GetUserBySearch(string searchTerm, CancellationToken cancellationToken)
     {
         try
         {
-            var users = await userRepository.GetUserBySearchAsync(searchTerm).ConfigureAwait(false);
+            var users = await userRepository.GetUserBySearchAsync(searchTerm, cancellationToken).ConfigureAwait(false);
 
             if (users == null)
             {
@@ -72,11 +72,11 @@ internal sealed class UserService(IUserRepository userRepository) : IUserService
         }
     }
 
-    public async Task<ServiceResponse<UserResponseDto?>> GetUserById(Guid id)
+    public async Task<ServiceResponse<UserResponseDto?>> GetUserById(Guid id, CancellationToken cancellationToken)
     {
         try
         {
-            var user = await userRepository.GetUserByIdAsync(id).ConfigureAwait(false);
+            var user = await userRepository.GetUserByIdAsync(id, cancellationToken).ConfigureAwait(false);
 
             if (user == null)
             {
@@ -92,13 +92,13 @@ internal sealed class UserService(IUserRepository userRepository) : IUserService
         }
     }
 
-    public async Task<ServiceResponse<IReadOnlyCollection<UserResponseDto>>> GetUsersByFilter(UserFilterDto dto)
+    public async Task<ServiceResponse<IReadOnlyCollection<UserResponseDto>>> GetUsersByFilter(UserFilterDto dto, CancellationToken cancellationToken)
     {
         try
         {
             ArgumentNullException.ThrowIfNull(dto);
 
-            var users = await userRepository.GetUsersByFilterAsync(dto).ConfigureAwait(false);
+            var users = await userRepository.GetUsersByFilterAsync(dto, cancellationToken).ConfigureAwait(false);
 
             if (users == null || users.Count == 0)
             {

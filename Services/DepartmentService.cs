@@ -101,11 +101,11 @@ internal sealed class DepartmentService(IDepartmentRepository departmentReposito
         }
     }
 
-    public async Task<ServiceResponse<IReadOnlyCollection<DepartmentResponseDto>>> GetAllDepartments()
+    public async Task<ServiceResponse<IReadOnlyCollection<DepartmentResponseDto>>> GetAllDepartments(CancellationToken cancellationToken)
     {
         try
         {
-            var departments = await departmentRepository.GetAllDepartmentsAsync().ConfigureAwait(false);
+            var departments = await departmentRepository.GetAllDepartmentsAsync(cancellationToken).ConfigureAwait(false);
 
             return new ServiceResponse<IReadOnlyCollection<DepartmentResponseDto>> { IsSuccess = true, StatusCode = CustomCodes.DataRetrieved, Data = departments };
         }
@@ -116,11 +116,11 @@ internal sealed class DepartmentService(IDepartmentRepository departmentReposito
         }
     }
 
-    public async Task<ServiceResponse<DepartmentResponseDto?>> GetDepartmentById(Guid id)
+    public async Task<ServiceResponse<DepartmentResponseDto?>> GetDepartmentById(Guid id, CancellationToken cancellationToken)
     {
         try
         {
-            var department = await departmentRepository.GetDepartmentByIdAsync(id).ConfigureAwait(false);
+            var department = await departmentRepository.GetDepartmentByIdAsync(id, cancellationToken).ConfigureAwait(false);
 
             if (department == null)
             {
@@ -136,18 +136,18 @@ internal sealed class DepartmentService(IDepartmentRepository departmentReposito
         }
     }
 
-    public async Task<ServiceResponse<IReadOnlyCollection<DepartmentUserResponseDto>>> GetDepartmentEmployees(Guid departmentId)
+    public async Task<ServiceResponse<IReadOnlyCollection<DepartmentUserResponseDto>>> GetDepartmentEmployees(Guid departmentId, CancellationToken cancellationToken)
     {
         try
         {
-            var departmentExists = await departmentRepository.DepartmentExistsByIdAsync(departmentId).ConfigureAwait(false);
+            var departmentExists = await departmentRepository.DepartmentExistsByIdAsync(departmentId, cancellationToken).ConfigureAwait(false);
 
             if (!departmentExists)
             {
                 return new ServiceResponse<IReadOnlyCollection<DepartmentUserResponseDto>> { IsSuccess = false, StatusCode = CustomCodes.DepartmentNotFound };
             }
 
-            var users = await departmentRepository.GetDepartmentEmployeesAsync(departmentId).ConfigureAwait(false);
+            var users = await departmentRepository.GetDepartmentEmployeesAsync(departmentId, cancellationToken).ConfigureAwait(false);
 
             return new ServiceResponse<IReadOnlyCollection<DepartmentUserResponseDto>> { IsSuccess = true, StatusCode = CustomCodes.DataRetrieved, Data = users };
         }

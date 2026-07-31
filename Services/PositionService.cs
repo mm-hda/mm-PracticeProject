@@ -19,7 +19,7 @@ internal sealed class PositionService(IPositionRepository positionRepository, IU
             ArgumentNullException.ThrowIfNull(dto);
 
             var departmentExists = await positionRepository
-                .DepartmentExistsAsync(dto.DepartmentId)
+                .DepartmentExistsAsync(dto.DepartmentId, cancellationToken)
                 .ConfigureAwait(false);
 
             if (!departmentExists)
@@ -28,7 +28,7 @@ internal sealed class PositionService(IPositionRepository positionRepository, IU
             }
 
             var exists = await positionRepository
-                .PositionExistsAsync(dto.Name)
+                .PositionExistsAsync(dto.Name, cancellationToken)
                 .ConfigureAwait(false);
 
             if (exists)
@@ -81,7 +81,7 @@ internal sealed class PositionService(IPositionRepository positionRepository, IU
             ArgumentNullException.ThrowIfNull(dto);
 
             var position = await positionRepository
-                .GetByIdAsync(dto.Id)
+                .GetByIdAsync(dto.Id, cancellationToken)
                 .ConfigureAwait(false);
 
             if (position == null)
@@ -90,7 +90,7 @@ internal sealed class PositionService(IPositionRepository positionRepository, IU
             }
 
             var departmentExists = await positionRepository
-                .DepartmentExistsAsync(dto.DepartmentId)
+                .DepartmentExistsAsync(dto.DepartmentId, cancellationToken)
                 .ConfigureAwait(false);
 
             if (!departmentExists)
@@ -99,7 +99,7 @@ internal sealed class PositionService(IPositionRepository positionRepository, IU
             }
 
             var duplicate = await positionRepository
-                .DuplicatePositionExistsAsync(dto.Id, dto.Name, dto.DepartmentId)
+                .DuplicatePositionExistsAsync(dto.Id, dto.Name, dto.DepartmentId, cancellationToken)
                 .ConfigureAwait(false);
 
             if (duplicate)
@@ -137,12 +137,12 @@ internal sealed class PositionService(IPositionRepository positionRepository, IU
         }
     }
 
-    public async Task<ServiceResponse<IReadOnlyCollection<PositionResponseDto>>> GetAllPositions()
+    public async Task<ServiceResponse<IReadOnlyCollection<PositionResponseDto>>> GetAllPositions(CancellationToken cancellationToken)
     {
         try
         {
             var positions = await positionRepository
-                .GetAllPositionsAsync()
+                .GetAllPositionsAsync(cancellationToken)
                 .ConfigureAwait(false);
 
             return new ServiceResponse<IReadOnlyCollection<PositionResponseDto>>
@@ -163,12 +163,12 @@ internal sealed class PositionService(IPositionRepository positionRepository, IU
         }
     }
 
-    public async Task<ServiceResponse<PositionResponseDto?>> GetPositionById(Guid id)
+    public async Task<ServiceResponse<PositionResponseDto?>> GetPositionById(Guid id, CancellationToken cancellationToken)
     {
         try
         {
             var position = await positionRepository
-                .GetPositionByIdAsync(id)
+                .GetPositionByIdAsync(id, cancellationToken)
                 .ConfigureAwait(false);
 
             if (position == null)
@@ -198,12 +198,12 @@ internal sealed class PositionService(IPositionRepository positionRepository, IU
         }
     }
 
-    public async Task<ServiceResponse<IReadOnlyCollection<PositionResponseDto>>> GetPositionsByDepartment(Guid departmentId)
+    public async Task<ServiceResponse<IReadOnlyCollection<PositionResponseDto>>> GetPositionsByDepartment(Guid departmentId, CancellationToken cancellationToken)
     {
         try
         {
             var departmentExists = await positionRepository
-                .DepartmentExistsAsync(departmentId)
+                .DepartmentExistsAsync(departmentId, cancellationToken)
                 .ConfigureAwait(false);
 
             if (!departmentExists)
@@ -216,7 +216,7 @@ internal sealed class PositionService(IPositionRepository positionRepository, IU
             }
 
             var positions = await positionRepository
-                .GetPositionsByDepartmentAsync(departmentId)
+                .GetPositionsByDepartmentAsync(departmentId, cancellationToken)
                 .ConfigureAwait(false);
 
             return new ServiceResponse<IReadOnlyCollection<PositionResponseDto>>
@@ -237,12 +237,12 @@ internal sealed class PositionService(IPositionRepository positionRepository, IU
         }
     }
 
-    public async Task<ServiceResponse<IReadOnlyCollection<PositionUserResponseDto>>> GetPositionUsers(Guid positionId)
+    public async Task<ServiceResponse<IReadOnlyCollection<PositionUserResponseDto>>> GetPositionUsers(Guid positionId, CancellationToken cancellationToken)
     {
         try
         {
             var positionExists = await positionRepository
-                .PositionExistsAsync(positionId)
+                .PositionExistsAsync(positionId, cancellationToken)
                 .ConfigureAwait(false);
 
             if (!positionExists)
@@ -255,7 +255,7 @@ internal sealed class PositionService(IPositionRepository positionRepository, IU
             }
 
             var users = await positionRepository
-                .GetPositionUsersAsync(positionId)
+                .GetPositionUsersAsync(positionId, cancellationToken)
                 .ConfigureAwait(false);
 
             return new ServiceResponse<IReadOnlyCollection<PositionUserResponseDto>>

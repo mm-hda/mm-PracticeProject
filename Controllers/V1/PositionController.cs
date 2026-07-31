@@ -53,11 +53,11 @@ public class PositionController(IPositionService positionService, ILogger<Positi
     }
 
     [HttpGet("GetAllPositions")]
-    public async Task<IActionResult> GetAllPositionsAsync()
+    public async Task<IActionResult> GetAllPositionsAsync(CancellationToken cancellationToken)
     {
         logger.LogTrace("GetAllPositions called.");
 
-        var result = await positionService.GetAllPositions().ConfigureAwait(false);
+        var result = await positionService.GetAllPositions(cancellationToken).ConfigureAwait(false);
 
         if (!result.IsSuccess)
         {
@@ -70,7 +70,7 @@ public class PositionController(IPositionService positionService, ILogger<Positi
     }
 
     [HttpGet("GetPositionById/{id}")]
-    public async Task<IActionResult> GetPositionByIdAsync(Guid id)
+    public async Task<IActionResult> GetPositionByIdAsync(Guid id, CancellationToken cancellationToken)
     {
         logger.LogTrace("GetPositionById called with id: {PositionId}", id);
 
@@ -80,7 +80,7 @@ public class PositionController(IPositionService positionService, ILogger<Positi
             return BadRequest(ResponseResults<string>.Failure(CustomCodes.InvalidInput));
         }
 
-        var result = await positionService.GetPositionById(id).ConfigureAwait(false);
+        var result = await positionService.GetPositionById(id, cancellationToken).ConfigureAwait(false);
 
         if (!result.IsSuccess)
         {
@@ -93,7 +93,7 @@ public class PositionController(IPositionService positionService, ILogger<Positi
     }
 
     [HttpGet("GetPositionsByDepartment/{departmentId}")]
-    public async Task<IActionResult> GetPositionsByDepartmentAsync(Guid departmentId)
+    public async Task<IActionResult> GetPositionsByDepartmentAsync(Guid departmentId, CancellationToken cancellationToken)
     {
         logger.LogTrace("GetPositionsByDepartment called with id: {DepartmentId}", departmentId);
 
@@ -103,7 +103,7 @@ public class PositionController(IPositionService positionService, ILogger<Positi
             return BadRequest(ResponseResults<string>.Failure(CustomCodes.InvalidInput));
         }
 
-        var result = await positionService.GetPositionsByDepartment(departmentId).ConfigureAwait(false);
+        var result = await positionService.GetPositionsByDepartment(departmentId, cancellationToken).ConfigureAwait(false);
 
         if (!result.IsSuccess)
         {
@@ -117,7 +117,7 @@ public class PositionController(IPositionService positionService, ILogger<Positi
     }
 
     [HttpGet("GetPositionUsers/{positionId}")]
-    public async Task<IActionResult> GetPositionUsersAsync(Guid positionId)
+    public async Task<IActionResult> GetPositionUsersAsync(Guid positionId, CancellationToken cancellationToken)
     {
         logger.LogTrace("GetPositionUsers called with id: {PositionId}", positionId);
 
@@ -127,7 +127,7 @@ public class PositionController(IPositionService positionService, ILogger<Positi
             return BadRequest(ResponseResults<string>.Failure(CustomCodes.InvalidInput));
         }
 
-        var result = await positionService.GetPositionUsers(positionId).ConfigureAwait(false);
+        var result = await positionService.GetPositionUsers(positionId, cancellationToken).ConfigureAwait(false);
 
         if (!result.IsSuccess)
         {

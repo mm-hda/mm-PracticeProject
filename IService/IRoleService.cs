@@ -7,9 +7,9 @@ public interface IRoleService
 {
     Task<ServiceResponse<object>> CreateRole(RoleDto dto, CancellationToken cancellationToken);
 
-    Task<ServiceResponse<IReadOnlyCollection<RoleResponseDto>>> GetAllRoles();
+    Task<ServiceResponse<IReadOnlyCollection<RoleResponseDto>>> GetAllRoles(CancellationToken cancellationToken);
 
-    Task<ServiceResponse<RoleResponseDto?>> GetRoleById(Guid id);
+    Task<ServiceResponse<RoleResponseDto?>> GetRoleById(Guid id, CancellationToken cancellationToken);
 
-    Task<ServiceResponse<IReadOnlyCollection<RoleUserResponseDto>>> GetUsersByRole(Guid roleId);
+    Task<ServiceResponse<IReadOnlyCollection<RoleUserResponseDto>>> GetUsersByRole(Guid roleId, CancellationToken cancellationToken);
 }

@@ -4,124 +4,142 @@ using backend.Entities;
 using backend.GenericRepositories;
 using backend.IRepository;
 
-using Microsoft.EntityFrameworkCore;
 namespace backend.Repositories;
 
-internal sealed class UserRepository(AppDbContext context) : GenericRepository<User>(context), IUserRepository
+internal sealed class UserRepository(
+    AppDbContext context,
+    IGenericRepository<Role> roleRepository,
+    IGenericRepository<Branch> branchRepository,
+    IGenericRepository<Department> departmentRepository,
+    IGenericRepository<Position> positionRepository)
+    : GenericRepository<User>(context), IUserRepository
 {
-    public async Task<int> GetUsersCountAsync()
+    public async Task<int> GetUsersCountAsync(CancellationToken cancellationToken)
     {
-        return await QueryAsNoTracking()
-            .Where(x => x.Role != null && x.Role.Name != "Admin")
-            .CountAsync()
-            .ConfigureAwait(false);
+        var roles = await roleRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
+
+        var adminRole = roles.FirstOrDefault(x =>
+            string.Equals(x.Name, "Admin", StringComparison.OrdinalIgnoreCase));
+
+        if (adminRole is null)
+        {
+            return await CountAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
+        }
+
+        var users = await FindAsync(x => x.RoleId != adminRole.Id, cancellationToken).ConfigureAwait(false);
+
+        return users.Count;
     }
-    public async Task<IReadOnlyCollection<UserResponseDto>> GetAllUsersAsync(int pageNumber, int pageSize)
+
+    public async Task<IReadOnlyCollection<UserResponseDto>> GetAllUsersAsync(int pageNumber, int pageSize, CancellationToken cancellationToken)
     {
-        return await QueryAsNoTracking()
-            .Include(x => x.Role)
-            .Include(x => x.Branch)
-            .Include(x => x.Department)
-            .Include(x => x.Position)
-            .Where(x => x.Role != null && x.Role.Name != "Admin")
-            .OrderBy(x => x.Name)
+        var roles = await roleRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
+
+        var adminRole = roles.FirstOrDefault(x =>
+            string.Equals(x.Name, "Admin", StringComparison.OrdinalIgnoreCase));
+
+        var users = await GetAllAsync(cancellationToken).ConfigureAwait(false);
+
+        if (adminRole is not null)
+        {
+            users = users.Where(x => x.RoleId != adminRole.Id).ToList();
+        }
+
+        users = users.OrderBy(x => x.Name)
             .Skip((pageNumber - 1) * pageSize)
             .Take(pageSize)
-            .Select(x => new UserResponseDto
-            {
-                UserId = x.Id,
-                Name = x.Name,
-                Email = x.Email,
-                DOB = x.DOB,
-                RoleName = x.Role != null ? x.Role.Name : string.Empty,
-                BranchName = x.Branch != null ? x.Branch.Name : string.Empty,
-                DepartmentName = x.Department != null ? x.Department.Name : string.Empty,
-                PositionName = x.Position != null ? x.Position.Name : string.Empty
-            })
-            .ToListAsync()
-            .ConfigureAwait(false);
+            .ToList();
+
+        return await MapUsersAsync(users, cancellationToken).ConfigureAwait(false);
     }
-    public async Task<IReadOnlyCollection<UserResponseDto>> GetUserBySearchAsync(string searchTerm)
+
+    public async Task<IReadOnlyCollection<UserResponseDto>> GetUserBySearchAsync(string searchTerm, CancellationToken cancellationToken)
     {
-        return await QueryAsNoTracking()
-            .Include(x => x.Role)
-            .Include(x => x.Branch)
-            .Include(x => x.Department)
-            .Include(x => x.Position)
-            .Where(x => EF.Functions.Like(x.Name, $"%{searchTerm}%") || EF.Functions.Like(x.Email, $"%{searchTerm}%"))
-            .Select(x => new UserResponseDto
-            {
-                UserId = x.Id,
-                Name = x.Name,
-                Email = x.Email,
-                DOB = x.DOB,
-                RoleName = x.Role != null ? x.Role.Name : string.Empty,
-                BranchName = x.Branch != null ? x.Branch.Name : string.Empty,
-                DepartmentName = x.Department != null ? x.Department.Name : string.Empty,
-                PositionName = x.Position != null ? x.Position.Name : string.Empty
-            })
-            .ToListAsync()
-            .ConfigureAwait(false);
+        var users = await GetAllAsync(cancellationToken).ConfigureAwait(false);
+
+        var filteredUsers = users
+            .Where(x =>
+                x.Name.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                x.Email.Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
+            .OrderBy(x => x.Name)
+            .ToList();
+
+        return await MapUsersAsync(filteredUsers, cancellationToken).ConfigureAwait(false);
     }
-    public async Task<UserResponseDto?> GetUserByIdAsync(Guid id)
+
+    public async Task<UserResponseDto?> GetUserByIdAsync(Guid id, CancellationToken cancellationToken)
     {
-        return await QueryAsNoTracking()
-            .Include(x => x.Role)
-            .Include(x => x.Branch)
-            .Include(x => x.Department)
-            .Include(x => x.Position)
-            .Where(x => x.Id == id)
-            .Select(x => new UserResponseDto
-            {
-                UserId = x.Id,
-                Name = x.Name,
-                Email = x.Email,
-                DOB = x.DOB,
-                RoleName = x.Role != null ? x.Role.Name : string.Empty,
-                BranchName = x.Branch != null ? x.Branch.Name : string.Empty,
-                DepartmentName = x.Department != null ? x.Department.Name : string.Empty,
-                PositionName = x.Position != null ? x.Position.Name : string.Empty
-            })
-            .FirstOrDefaultAsync()
-            .ConfigureAwait(false);
+        var user = await FirstOrDefaultAsync(x => x.Id == id, cancellationToken).ConfigureAwait(false);
+
+        if (user is null)
+        {
+            return null;
+        }
+
+        return (await MapUsersAsync([user], cancellationToken).ConfigureAwait(false)).FirstOrDefault();
     }
-    public async Task<IReadOnlyCollection<UserResponseDto>> GetUsersByFilterAsync(UserFilterDto dto)
+
+    public async Task<IReadOnlyCollection<UserResponseDto>> GetUsersByFilterAsync(UserFilterDto dto, CancellationToken cancellationToken)
     {
-        var query = QueryAsNoTracking()
-            .Include(x => x.Role)
-            .Include(x => x.Branch)
-            .Include(x => x.Department)
-            .Include(x => x.Position)
-            .Where(x => x.Role != null && x.Role.Name != "Admin");
+        var roles = await roleRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
+
+        var adminRole = roles.FirstOrDefault(x =>
+            string.Equals(x.Name, "Admin", StringComparison.OrdinalIgnoreCase));
+
+        IEnumerable<User> users = await GetAllAsync(cancellationToken).ConfigureAwait(false);
+
+        if (adminRole is not null)
+        {
+            users = users.Where(x => x.RoleId != adminRole.Id);
+        }
+
         if (dto.RoleId.HasValue)
         {
-            query = query.Where(x => x.RoleId == dto.RoleId.Value);
+            users = users.Where(x => x.RoleId == dto.RoleId.Value);
         }
+
         if (dto.BranchId.HasValue)
         {
-            query = query.Where(x => x.BranchId == dto.BranchId.Value);
+            users = users.Where(x => x.BranchId == dto.BranchId.Value);
         }
+
         if (dto.DepartmentId.HasValue)
         {
-            query = query.Where(x => x.DepartmentId == dto.DepartmentId.Value);
+            users = users.Where(x => x.DepartmentId == dto.DepartmentId.Value);
         }
+
         if (dto.PositionId.HasValue)
         {
-            query = query.Where(x => x.PositionId == dto.PositionId.Value);
+            users = users.Where(x => x.PositionId == dto.PositionId.Value);
         }
-        return await query
-            .Select(x => new UserResponseDto
-            {
-                UserId = x.Id,
-                Name = x.Name,
-                Email = x.Email,
-                DOB = x.DOB,
-                RoleName = x.Role != null ? x.Role.Name : string.Empty,
-                BranchName = x.Branch != null ? x.Branch.Name : string.Empty,
-                DepartmentName = x.Department != null ? x.Department.Name : string.Empty,
-                PositionName = x.Position != null ? x.Position.Name : string.Empty
-            })
-            .ToListAsync()
-            .ConfigureAwait(false);
+
+        return await MapUsersAsync(users.OrderBy(x => x.Name).ToList(), cancellationToken).ConfigureAwait(false);
+    }
+
+    private async Task<IReadOnlyCollection<UserResponseDto>> MapUsersAsync(IReadOnlyCollection<User> users, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(users);
+
+        var roles = await roleRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
+        var branches = await branchRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
+        var departments = await departmentRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
+        var positions = await positionRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
+
+        var roleDictionary = roles.ToDictionary(x => x.Id, x => x.Name);
+        var branchDictionary = branches.ToDictionary(x => x.Id, x => x.Name);
+        var departmentDictionary = departments.ToDictionary(x => x.Id, x => x.Name);
+        var positionDictionary = positions.ToDictionary(x => x.Id, x => x.Name);
+
+        return users.Select(user => new UserResponseDto
+        {
+            UserId = user.Id,
+            Name = user.Name,
+            Email = user.Email,
+            DOB = user.DOB,
+            RoleName = roleDictionary.TryGetValue(user.RoleId, out var roleName) ? roleName : string.Empty,
+            BranchName = branchDictionary.TryGetValue(user.BranchId, out var branchName) ? branchName : string.Empty,
+            DepartmentName = departmentDictionary.TryGetValue(user.DepartmentId, out var departmentName) ? departmentName : string.Empty,
+            PositionName = positionDictionary.TryGetValue(user.PositionId, out var positionName) ? positionName : string.Empty
+        }).ToList();
     }
 }

@@ -8,13 +8,13 @@ public interface IBranchRepository : IGenericRepository<Branch>
 {
     Task<bool> BranchExistsAsync(string? name, CancellationToken cancellationToken);
 
-    Task<Branch?> GetByIdAsync(Guid id, CancellationToken cancellationToken);
+    Task<Branch?> BranchByIdAsync(Guid id, CancellationToken cancellationToken);
 
     Task AddBranchAsync(Branch branch, CancellationToken cancellationToken);
 
-    Task<IReadOnlyCollection<BranchResponseDto>> GetAllBranchesAsync();
+    Task<IReadOnlyCollection<BranchResponseDto>> GetAllBranchesAsync(CancellationToken cancellationToken);
 
-    Task<BranchResponseDto?> GetBranchByIdAsync(Guid id);
+    Task<BranchResponseDto?> GetBranchByIdAsync(Guid id, CancellationToken cancellationToken);
 
-    Task<IReadOnlyCollection<BranchUserResponseDto>> GetBranchUsersAsync(Guid branchId);
+    Task<IReadOnlyCollection<BranchUserResponseDto>> GetBranchUsersAsync(Guid branchId, CancellationToken cancellationToken);
 }

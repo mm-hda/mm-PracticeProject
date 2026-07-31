@@ -34,11 +34,11 @@ public class RoleController(IRoleService roleService, ILogger<RoleController> lo
     }
 
     [HttpGet("GetAllRoles")]
-    public async Task<IActionResult> GetAllRolesAsync()
+    public async Task<IActionResult> GetAllRolesAsync(CancellationToken cancellationToken)
     {
         logger.LogTrace("GetAllRoles called.");
 
-        var result = await roleService.GetAllRoles().ConfigureAwait(false);
+        var result = await roleService.GetAllRoles(cancellationToken).ConfigureAwait(false);
 
         if (!result.IsSuccess)
         {
@@ -52,11 +52,11 @@ public class RoleController(IRoleService roleService, ILogger<RoleController> lo
     }
 
     [HttpGet("GetRoleById/{id}")]
-    public async Task<IActionResult> GetRoleByIdAsync(Guid id)
+    public async Task<IActionResult> GetRoleByIdAsync(Guid id, CancellationToken cancellationToken)
     {
         logger.LogTrace("GetRoleById called with id: {RoleId}", id);
 
-        var result = await roleService.GetRoleById(id).ConfigureAwait(false);
+        var result = await roleService.GetRoleById(id, cancellationToken).ConfigureAwait(false);
 
         if (!result.IsSuccess)
         {
@@ -70,11 +70,11 @@ public class RoleController(IRoleService roleService, ILogger<RoleController> lo
     }
 
     [HttpGet("GetUsersByRole/{roleId}")]
-    public async Task<IActionResult> GetUsersByRoleAsync(Guid roleId)
+    public async Task<IActionResult> GetUsersByRoleAsync(Guid roleId, CancellationToken cancellationToken)
     {
         logger.LogTrace("GetUsersByRole called with id: {RoleId}", roleId);
 
-        var result = await roleService.GetUsersByRole(roleId).ConfigureAwait(false);
+        var result = await roleService.GetUsersByRole(roleId, cancellationToken).ConfigureAwait(false);
         if (!result.IsSuccess)
         {
             logger.LogWarning("{Status code} id: {RoleId}", result.StatusCode, roleId);

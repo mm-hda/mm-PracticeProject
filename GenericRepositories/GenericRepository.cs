@@ -10,39 +10,40 @@ internal class GenericRepository<TEntity>(AppDbContext context) : IGenericReposi
 {
     protected AppDbContext Context { get; } = context;
     protected DbSet<TEntity> DbSet { get; } = context.Set<TEntity>();
-    public async Task<TEntity?> GetByIdAsync(Guid id) => await DbSet.FindAsync([id]).ConfigureAwait(false);
-    public async Task<IReadOnlyCollection<TEntity>> GetAllAsync()
+    public async Task<TEntity?> GetByIdAsync(Guid id, CancellationToken cancellationToken)
+        => await DbSet.FindAsync([id], cancellationToken).ConfigureAwait(false);
+    public async Task<IReadOnlyCollection<TEntity>> GetAllAsync(CancellationToken cancellationToken)
     {
         return await DbSet
             .AsNoTracking()
-            .ToListAsync()
+            .ToListAsync(cancellationToken)
             .ConfigureAwait(false);
     }
-    public async Task<IReadOnlyCollection<TEntity>> FindAsync(Expression<Func<TEntity, bool>> predicate)
+    public async Task<IReadOnlyCollection<TEntity>> FindAsync(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken)
     {
         return await DbSet
             .AsNoTracking()
             .Where(predicate)
-            .ToListAsync()
+            .ToListAsync(cancellationToken)
             .ConfigureAwait(false);
     }
-    public async Task<TEntity?> FirstOrDefaultAsync(Expression<Func<TEntity, bool>> predicate)
+    public async Task<TEntity?> FirstOrDefaultAsync(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken)
     {
         return await DbSet
             .AsNoTracking()
-            .FirstOrDefaultAsync(predicate)
+            .FirstOrDefaultAsync(predicate, cancellationToken)
             .ConfigureAwait(false);
     }
-    public async Task<int> CountAsync(Expression<Func<TEntity, bool>>? predicate = null)
+    public async Task<int> CountAsync(Expression<Func<TEntity, bool>>? predicate = null, CancellationToken cancellationToken = default)
     {
         if (predicate is null)
         {
             return await DbSet
-                .CountAsync()
+                .CountAsync(cancellationToken)
                 .ConfigureAwait(false);
         }
         return await DbSet
-            .CountAsync(predicate)
+            .CountAsync(predicate, cancellationToken)
             .ConfigureAwait(false);
     }
     public async Task<bool> AnyAsync(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken = default)
@@ -63,11 +64,11 @@ internal class GenericRepository<TEntity>(AppDbContext context) : IGenericReposi
             .AddRangeAsync(entities, cancellationToken)
             .ConfigureAwait(false);
     }
-    public void Update(TEntity entity) => DbSet.Update(entity);
+    public void Update(TEntity entity, CancellationToken cancellationToken = default) => DbSet.Update(entity);
 
-    public void Delete(TEntity entity) => DbSet.Remove(entity);
+    public void Delete(TEntity entity, CancellationToken cancellationToken = default) => DbSet.Remove(entity);
 
-    public void DeleteRange(IEnumerable<TEntity> entities) => DbSet.RemoveRange(entities);
+    public void DeleteRange(IEnumerable<TEntity> entities, CancellationToken cancellationToken = default) => DbSet.RemoveRange(entities);
 
     protected IQueryable<TEntity> Query() => DbSet.AsQueryable();
     protected IQueryable<TEntity> QueryAsNoTracking() => DbSet.AsNoTracking();

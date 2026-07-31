@@ -8,9 +8,9 @@ public interface IDepartmentService
 
     Task<ServiceResponse<object>> UpdateDepartment(DepartmentDto dto, CancellationToken cancellationToken);
 
-    Task<ServiceResponse<IReadOnlyCollection<DepartmentResponseDto>>> GetAllDepartments();
+    Task<ServiceResponse<IReadOnlyCollection<DepartmentResponseDto>>> GetAllDepartments(CancellationToken cancellationToken);
 
-    Task<ServiceResponse<DepartmentResponseDto?>> GetDepartmentById(Guid id);
+    Task<ServiceResponse<DepartmentResponseDto?>> GetDepartmentById(Guid id, CancellationToken cancellationToken);
 
-    Task<ServiceResponse<IReadOnlyCollection<DepartmentUserResponseDto>>> GetDepartmentEmployees(Guid departmentId);
+    Task<ServiceResponse<IReadOnlyCollection<DepartmentUserResponseDto>>> GetDepartmentEmployees(Guid departmentId, CancellationToken cancellationToken);
 }

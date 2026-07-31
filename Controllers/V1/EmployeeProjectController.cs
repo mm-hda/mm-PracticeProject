@@ -59,18 +59,18 @@ public class EmployeeProjectController(IEmployeeProjectService employeeProjectSe
     }
 
     [HttpGet("GetAllEmployeeProjects")]
-    public async Task<IActionResult> GetAllEmployeeProjectsAsync()
+    public async Task<IActionResult> GetAllEmployeeProjectsAsync(CancellationToken cancellationToken)
     {
         logger.LogTrace("GetAllEmployeeProjects called.");
 
-        var result = await employeeProjectService.GetAllEmployeeProjects().ConfigureAwait(false);
+        var result = await employeeProjectService.GetAllEmployeeProjects(cancellationToken).ConfigureAwait(false);
 
         logger.LogInformation("Retrieved all employee projects.");
         return Ok(ResponseResults<IReadOnlyCollection<EmployeeProjectResponseDto>>.Success(result.StatusCode, result.Data));
     }
 
     [HttpGet("GetUserProjectsByUserId/{userId}")]
-    public async Task<IActionResult> GetUserProjectsByUserIdAsync(Guid userId, [FromQuery] PaginationDto dto)
+    public async Task<IActionResult> GetUserProjectsByUserIdAsync(Guid userId, [FromQuery] PaginationDto dto, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(dto);
         logger.LogTrace("GetUserProjectsByUserId called with id: {UserId}", userId);
@@ -81,7 +81,7 @@ public class EmployeeProjectController(IEmployeeProjectService employeeProjectSe
             return BadRequest(ResponseResults<string>.Failure(CustomCodes.InvalidInput));
         }
 
-        var result = await employeeProjectService.GetUserProjectsByUserId(userId, dto).ConfigureAwait(false);
+        var result = await employeeProjectService.GetUserProjectsByUserId(userId, dto, cancellationToken).ConfigureAwait(false);
 
         if (!result.IsSuccess)
         {

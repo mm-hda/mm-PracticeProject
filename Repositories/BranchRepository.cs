@@ -1,83 +1,90 @@
 ﻿using backend.Data;
 using backend.Dto.BranchDtos;
 using backend.Entities;
-using backend.IRepository;
 using backend.GenericRepositories;
-
-using Microsoft.EntityFrameworkCore;
+using backend.IRepository;
 
 namespace backend.Repositories;
 
-internal sealed class BranchRepository(AppDbContext context) : GenericRepository<Branch>(context), IBranchRepository
+internal sealed class BranchRepository(
+    AppDbContext context,
+    IGenericRepository<User> userRepository,
+    IGenericRepository<Role> roleRepository,
+    IGenericRepository<Department> departmentRepository,
+    IGenericRepository<Position> positionRepository)
+    : GenericRepository<Branch>(context), IBranchRepository
 {
     public async Task<bool> BranchExistsAsync(string? name, CancellationToken cancellationToken)
     {
-        return await DbSet
-            .AsNoTracking()
-            .AnyAsync(
-                x => string.Equals(
-                    x.Name,
-                    name,
-                    StringComparison.OrdinalIgnoreCase),
-                cancellationToken)
-            .ConfigureAwait(false);
+        var branches = await GetAllAsync(cancellationToken).ConfigureAwait(false);
+
+        return branches.Any(x => string.Equals(x.Name, name, StringComparison.OrdinalIgnoreCase));
     }
 
-    public async Task<Branch?> GetByIdAsync(Guid id, CancellationToken cancellationToken) => await DbSet.FirstOrDefaultAsync(x => x.Id == id, cancellationToken).ConfigureAwait(false);
+    public async Task<Branch?> BranchByIdAsync(Guid id, CancellationToken cancellationToken)
+        => await FirstOrDefaultAsync(x => x.Id == id, cancellationToken).ConfigureAwait(false);
 
     public async Task AddBranchAsync(Branch branch, CancellationToken cancellationToken)
+        => await AddAsync(branch, cancellationToken).ConfigureAwait(false);
+
+    public async Task<IReadOnlyCollection<BranchResponseDto>> GetAllBranchesAsync(CancellationToken cancellationToken)
     {
-        await DbSet
-            .AddAsync(branch, cancellationToken)
-            .ConfigureAwait(false);
+        var branches = await GetAllAsync(cancellationToken).ConfigureAwait(false);
+        var users = await userRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
+
+        return branches.Select(branch => new BranchResponseDto
+        {
+            Id = branch.Id,
+            Name = branch.Name,
+            Location = branch.Location,
+            TotalUsers = users.Count(x => x.BranchId == branch.Id)
+        }).ToList();
     }
 
-    public async Task<IReadOnlyCollection<BranchResponseDto>> GetAllBranchesAsync()
+    public async Task<BranchResponseDto?> GetBranchByIdAsync(Guid id, CancellationToken cancellationToken)
     {
-        return await DbSet
-            .AsNoTracking()
-            .Select(x => new BranchResponseDto
-            {
-                Id = x.Id,
-                Name = x.Name,
-                Location = x.Location,
-                TotalUsers = context.Users.Count(u => u.BranchId == x.Id)
-            })
-            .ToListAsync().ConfigureAwait(false);
+        var branch = await FirstOrDefaultAsync(x => x.Id == id, cancellationToken).ConfigureAwait(false);
+
+        if (branch is null)
+        {
+            return null;
+        }
+
+        var users = await userRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
+
+        return new BranchResponseDto
+        {
+            Id = branch.Id,
+            Name = branch.Name,
+            Location = branch.Location,
+            TotalUsers = users.Count(x => x.BranchId == branch.Id)
+        };
     }
 
-    public async Task<BranchResponseDto?> GetBranchByIdAsync(Guid id)
+    public async Task<IReadOnlyCollection<BranchUserResponseDto>> GetBranchUsersAsync(Guid branchId, CancellationToken cancellationToken)
     {
-        return await DbSet
-            .AsNoTracking()
-            .Where(x => x.Id == id)
-            .Select(x => new BranchResponseDto
-            {
-                Id = x.Id,
-                Name = x.Name,
-                Location = x.Location,
-                TotalUsers = context.Users.Count(u => u.BranchId == x.Id)
-            })
-            .FirstOrDefaultAsync().ConfigureAwait(false);
-    }
+        var users = await userRepository.FindAsync(x => x.BranchId == branchId, cancellationToken).ConfigureAwait(false);
 
-    public async Task<IReadOnlyCollection<BranchUserResponseDto>> GetBranchUsersAsync(Guid branchId)
-    {
-        return await context.Users
-            .AsNoTracking()
-            .Where(x => x.BranchId == branchId)
-            .Select(x => new BranchUserResponseDto
-            {
-                UserId = x.Id,
-                Name = x.Name ?? string.Empty,
-                Email = x.Email ?? string.Empty,
-                DOB = x.DOB,
-                BranchName = x.Branch != null ? x.Branch.Name : string.Empty,
-                DepartmentName = x.Department != null ? x.Department.Name : string.Empty,
-                PositionName = x.Position != null ? x.Position.Name : string.Empty,
-                RoleName = x.Role != null ? x.Role.Name : string.Empty
-            })
-            .ToListAsync()
-            .ConfigureAwait(false);
+        var branches = await GetAllAsync(cancellationToken).ConfigureAwait(false);
+        var departments = await departmentRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
+        var positions = await positionRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
+        var roles = await roleRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
+
+        var branchDictionary = branches.ToDictionary(x => x.Id, x => x.Name);
+        var departmentDictionary = departments.ToDictionary(x => x.Id, x => x.Name);
+        var positionDictionary = positions.ToDictionary(x => x.Id, x => x.Name);
+        var roleDictionary = roles.ToDictionary(x => x.Id, x => x.Name);
+
+        return users.Select(user => new BranchUserResponseDto
+        {
+            UserId = user.Id,
+            Name = user.Name,
+            Email = user.Email,
+            DOB = user.DOB,
+            BranchName = branchDictionary.TryGetValue(user.BranchId, out var branchName) ? branchName : string.Empty,
+            DepartmentName = departmentDictionary.TryGetValue(user.DepartmentId, out var departmentName) ? departmentName : string.Empty,
+            PositionName = positionDictionary.TryGetValue(user.PositionId, out var positionName) ? positionName : string.Empty,
+            RoleName = roleDictionary.TryGetValue(user.RoleId, out var roleName) ? roleName : string.Empty
+        }).ToList();
     }
 }

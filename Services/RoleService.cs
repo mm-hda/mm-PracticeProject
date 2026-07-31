@@ -56,11 +56,11 @@ internal sealed class RoleService(IRoleRepository roleRepository, IUnitOfWork un
         }
     }
 
-    public async Task<ServiceResponse<IReadOnlyCollection<RoleResponseDto>>> GetAllRoles()
+    public async Task<ServiceResponse<IReadOnlyCollection<RoleResponseDto>>> GetAllRoles(CancellationToken cancellationToken)
     {
         try
         {
-            var roles = await roleRepository.GetAllRolesAsync().ConfigureAwait(false);
+            var roles = await roleRepository.GetAllRolesAsync(cancellationToken).ConfigureAwait(false);
 
             if (roles.Count == 0)
             {
@@ -76,11 +76,11 @@ internal sealed class RoleService(IRoleRepository roleRepository, IUnitOfWork un
         }
     }
 
-    public async Task<ServiceResponse<RoleResponseDto?>> GetRoleById(Guid id)
+    public async Task<ServiceResponse<RoleResponseDto?>> GetRoleById(Guid id, CancellationToken cancellationToken)
     {
         try
         {
-            var role = await roleRepository.GetRoleByIdAsync(id).ConfigureAwait(false);
+            var role = await roleRepository.GetRoleByIdAsync(id, cancellationToken).ConfigureAwait(false);
 
             if (role == null)
             {
@@ -96,11 +96,11 @@ internal sealed class RoleService(IRoleRepository roleRepository, IUnitOfWork un
         }
     }
 
-    public async Task<ServiceResponse<IReadOnlyCollection<RoleUserResponseDto>>> GetUsersByRole(Guid roleId)
+    public async Task<ServiceResponse<IReadOnlyCollection<RoleUserResponseDto>>> GetUsersByRole(Guid roleId, CancellationToken cancellationToken)
     {
         try
         {
-            var users = await roleRepository.GetUsersByRoleAsync(roleId).ConfigureAwait(false);
+            var users = await roleRepository.GetUsersByRoleAsync(roleId, cancellationToken).ConfigureAwait(false);
 
             if (users.Count == 0)
             {

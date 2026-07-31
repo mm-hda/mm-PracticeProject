@@ -11,9 +11,8 @@ public interface IEmployeeProjectRepository : IGenericRepository<EmployeeProject
     Task<bool> EmployeeProjectExistsAsync(Guid userId, Guid projectId, CancellationToken cancellationToken);
     Task AddEmployeeProjectAsync(EmployeeProject employeeProject, CancellationToken cancellationToken);
     Task<EmployeeProject?> GetEmployeeProjectByIdAsync(Guid id, CancellationToken cancellationToken);
-    void Remove(EmployeeProject employeeProject);
-    Task<IReadOnlyCollection<EmployeeProjectResponseDto>> GetAllEmployeeProjectsAsync();
-    Task<bool> UserExistsAsync(Guid userId);
-    Task<int> GetUserProjectsCountAsync(Guid userId);
-    Task<IReadOnlyCollection<ProjectResponseDto>> GetUserProjectsByUserIdAsync(Guid userId, int pageNumber, int pageSize);
+    void Remove(EmployeeProject employeeProject, CancellationToken cancellationToken);
+    Task<IReadOnlyCollection<EmployeeProjectResponseDto>> GetAllEmployeeProjectsAsync(CancellationToken cancellationToken);
+    Task<int> GetUserProjectsCountAsync(Guid userId, CancellationToken cancellationToken);
+    Task<IReadOnlyCollection<ProjectResponseDto>> GetUserProjectsByUserIdAsync(Guid userId, int pageNumber, int pageSize, CancellationToken cancellationToken);
 }

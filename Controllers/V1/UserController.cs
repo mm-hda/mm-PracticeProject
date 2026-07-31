@@ -20,13 +20,13 @@ public class UserController(IUserService userService, ILogger<UserController> lo
 
     [MapToApiVersion("2.0")]
     [HttpGet("GetAllUsers")]
-    public async Task<IActionResult> GetAllUsersAsync([FromQuery] PaginationDto dto)
+    public async Task<IActionResult> GetAllUsersAsync([FromQuery] PaginationDto dto, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(dto);
 
         logger.LogTrace("GetAllUsers called. Page:{PageNumber}, PageSize:{PageSize}", dto.PageNumber, dto.PageSize);
 
-        var result = await userService.GetAllUsers(dto).ConfigureAwait(false);
+        var result = await userService.GetAllUsers(dto, cancellationToken).ConfigureAwait(false);
         if (!result.IsSuccess)
         {
             logger.LogWarning("{Status code}", result.StatusCode);
@@ -39,7 +39,7 @@ public class UserController(IUserService userService, ILogger<UserController> lo
 
     [MapToApiVersion("2.0")]
     [HttpGet("GetUserBySearch")]
-    public async Task<IActionResult> GetUserBySearchAsync([FromQuery] string searchTerm)
+    public async Task<IActionResult> GetUserBySearchAsync([FromQuery] string searchTerm, CancellationToken cancellationToken)
     {
         logger.LogTrace("GetUserBySearch called with searchTerm: {SearchTerm}", searchTerm);
 
@@ -49,7 +49,7 @@ public class UserController(IUserService userService, ILogger<UserController> lo
             return BadRequest(ResponseResults<string>.Failure(CustomCodes.InvalidInput));
         }
 
-        var result = await userService.GetUserBySearch(searchTerm).ConfigureAwait(false);
+        var result = await userService.GetUserBySearch(searchTerm, cancellationToken).ConfigureAwait(false);
 
         if (!result.IsSuccess)
         {
@@ -64,7 +64,7 @@ public class UserController(IUserService userService, ILogger<UserController> lo
 
     [HttpGet("GetUserById/{id}")]
     [MapToApiVersion("1.0")]
-    public async Task<IActionResult> GetUserByIdAsync(Guid id)
+    public async Task<IActionResult> GetUserByIdAsync(Guid id, CancellationToken cancellationToken)
     {
         logger.LogTrace("GetUserById called with id: {UserId}", id);
 
@@ -74,7 +74,7 @@ public class UserController(IUserService userService, ILogger<UserController> lo
             return BadRequest(ResponseResults<string>.Failure(CustomCodes.InvalidInput));
         }
 
-        var result = await userService.GetUserById(id).ConfigureAwait(false);
+        var result = await userService.GetUserById(id, cancellationToken).ConfigureAwait(false);
 
         if (!result.IsSuccess)
         {
@@ -91,11 +91,11 @@ public class UserController(IUserService userService, ILogger<UserController> lo
 
     [MapToApiVersion("2.0")]
     [HttpPost("GetUsersByFilter")]
-    public async Task<IActionResult> GetUsersByFilterAsync([FromBody] UserFilterDto dto)
+    public async Task<IActionResult> GetUsersByFilterAsync([FromBody] UserFilterDto dto, CancellationToken cancellationToken)
     {
         logger.LogTrace("GetUsersByFilter called.");
 
-        var result = await userService.GetUsersByFilter(dto).ConfigureAwait(false);
+        var result = await userService.GetUsersByFilter(dto, cancellationToken).ConfigureAwait(false);
 
         if (!result.IsSuccess)
         {

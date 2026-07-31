@@ -4,5 +4,5 @@ namespace backend.IService;
 
 public interface IDashboardService
 {
-    Task<ServiceResponse<DashboardResponseDto>> GetDashboard();
+    Task<ServiceResponse<DashboardResponseDto>> GetDashboard(CancellationToken cancellationToken);
 }

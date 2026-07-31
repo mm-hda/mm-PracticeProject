@@ -52,11 +52,11 @@ public class DepartmentController(IDepartmentService departmentService, ILogger<
     }
 
     [HttpGet("GetAllDepartments")]
-    public async Task<IActionResult> GetAllDepartmentsAsync()
+    public async Task<IActionResult> GetAllDepartmentsAsync(CancellationToken cancellationToken)
     {
         logger.LogTrace("GetAllDepartments called");
 
-        var result = await departmentService.GetAllDepartments().ConfigureAwait(false);
+        var result = await departmentService.GetAllDepartments(cancellationToken).ConfigureAwait(false);
 
         if (!result.IsSuccess)
         {
@@ -70,7 +70,7 @@ public class DepartmentController(IDepartmentService departmentService, ILogger<
     }
 
     [HttpGet("GetDepartmentById/{id}")]
-    public async Task<IActionResult> GetDepartmentByIdAsync(Guid id)
+    public async Task<IActionResult> GetDepartmentByIdAsync(Guid id, CancellationToken cancellationToken)
     {
         logger.LogTrace("GetDepartmentById called with id: {DepartmentId}", id);
 
@@ -80,7 +80,7 @@ public class DepartmentController(IDepartmentService departmentService, ILogger<
             return BadRequest(ResponseResults<string>.Failure(CustomCodes.InvalidInput));
         }
 
-        var result = await departmentService.GetDepartmentById(id).ConfigureAwait(false);
+        var result = await departmentService.GetDepartmentById(id, cancellationToken).ConfigureAwait(false);
 
         if (!result.IsSuccess)
         {
@@ -94,7 +94,7 @@ public class DepartmentController(IDepartmentService departmentService, ILogger<
     }
 
     [HttpGet("GetDepartmentEmployees/{departmentId}")]
-    public async Task<IActionResult> GetDepartmentEmployeesAsync(Guid departmentId)
+    public async Task<IActionResult> GetDepartmentEmployeesAsync(Guid departmentId, CancellationToken cancellationToken)
     {
         logger.LogTrace("GetDepartmentEmployees called with id: {DepartmentId}", departmentId);
 
@@ -104,7 +104,7 @@ public class DepartmentController(IDepartmentService departmentService, ILogger<
             return BadRequest(ResponseResults<string>.Failure(CustomCodes.InvalidInput));
         }
 
-        var result = await departmentService.GetDepartmentEmployees(departmentId).ConfigureAwait(false);
+        var result = await departmentService.GetDepartmentEmployees(departmentId, cancellationToken).ConfigureAwait(false);
 
         if (!result.IsSuccess)
         {

@@ -8,9 +8,9 @@ public interface IBranchService
 
     Task<ServiceResponse<object>> UpdateBranch(BranchDto dto, CancellationToken cancellationToken);
 
-    Task<ServiceResponse<IReadOnlyCollection<BranchResponseDto>>> GetAllBranches();
+    Task<ServiceResponse<IReadOnlyCollection<BranchResponseDto>>> GetAllBranches(CancellationToken cancellationToken);
 
-    Task<ServiceResponse<BranchResponseDto?>> GetBranchById(Guid id);
+    Task<ServiceResponse<BranchResponseDto?>> GetBranchById(Guid id, CancellationToken cancellationToken);
 
-    Task<ServiceResponse<IReadOnlyCollection<BranchUserResponseDto>>> GetBranchUsers(Guid branchId);
+    Task<ServiceResponse<IReadOnlyCollection<BranchUserResponseDto>>> GetBranchUsers(Guid branchId, CancellationToken cancellationToken);
 }

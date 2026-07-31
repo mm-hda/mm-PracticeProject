@@ -16,7 +16,7 @@ public class UserController(IUserService userService, ILogger<UserController> lo
 
     [ApiVersion("2.0")]
     [HttpGet("GetUserById/{id}")]
-    public async Task<IActionResult> GetUserByIdAsync(Guid id)
+    public async Task<IActionResult> GetUserByIdAsync(Guid id, CancellationToken cancellationToken)
     {
         logger.LogTrace("GetUserById called with id: {UserId}", id);
         try
@@ -27,7 +27,7 @@ public class UserController(IUserService userService, ILogger<UserController> lo
                 return BadRequest(ResponseResults<string>.Failure(CustomCodes.InvalidInput));
             }
 
-            var result = await userService.GetUserById(id).ConfigureAwait(false);
+            var result = await userService.GetUserById(id, cancellationToken).ConfigureAwait(false);
 
             if (!result.IsSuccess)
             {

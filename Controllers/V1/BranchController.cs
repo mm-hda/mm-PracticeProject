@@ -7,7 +7,7 @@ using backend.Authorization;
 
 namespace backend.Controllers.V1;
 
-[Authorize(Roles = RoleConstants.Admin + "," + RoleConstants.HR)]
+// [Authorize(Roles = RoleConstants.Admin + "," + RoleConstants.HR)]
 [ApiController]
 [Route("api/[controller]")]
 public class BranchController(IBranchService branchService, ILogger<BranchController> logger) : ControllerBase
@@ -54,11 +54,11 @@ public class BranchController(IBranchService branchService, ILogger<BranchContro
     }
 
     [HttpGet("GetAllBranches")]
-    public async Task<IActionResult> GetAllBranchesAsync()
+    public async Task<IActionResult> GetAllBranchesAsync(CancellationToken cancellationToken)
     {
         logger.LogTrace("GetAllBranches called.");
 
-        var result = await branchService.GetAllBranches().ConfigureAwait(false);
+        var result = await branchService.GetAllBranches(cancellationToken).ConfigureAwait(false);
 
         if (!result.IsSuccess)
         {
@@ -72,7 +72,7 @@ public class BranchController(IBranchService branchService, ILogger<BranchContro
     }
 
     [HttpGet("GetBranchById/{id}")]
-    public async Task<IActionResult> GetBranchByIdAsync(Guid id)
+    public async Task<IActionResult> GetBranchByIdAsync(Guid id, CancellationToken cancellationToken)
     {
         logger.LogTrace("GetBranchById called with id: {BranchId}", id);
 
@@ -82,7 +82,7 @@ public class BranchController(IBranchService branchService, ILogger<BranchContro
             return BadRequest(ResponseResults<string>.Failure(CustomCodes.InvalidInput));
         }
 
-        var result = await branchService.GetBranchById(id).ConfigureAwait(false);
+        var result = await branchService.GetBranchById(id, cancellationToken).ConfigureAwait(false);
 
         if (!result.IsSuccess)
         {
@@ -96,7 +96,7 @@ public class BranchController(IBranchService branchService, ILogger<BranchContro
     }
 
     [HttpGet("GetBranchUsers/{branchId}")]
-    public async Task<IActionResult> GetBranchUsersAsync(Guid branchId)
+    public async Task<IActionResult> GetBranchUsersAsync(Guid branchId, CancellationToken cancellationToken)
     {
         logger.LogTrace("GetBranchUsers called with id: {BranchId}", branchId);
 
@@ -106,7 +106,7 @@ public class BranchController(IBranchService branchService, ILogger<BranchContro
             return BadRequest(ResponseResults<string>.Failure(CustomCodes.InvalidInput));
         }
 
-        var result = await branchService.GetBranchUsers(branchId).ConfigureAwait(false);
+        var result = await branchService.GetBranchUsers(branchId, cancellationToken).ConfigureAwait(false);
 
         if (!result.IsSuccess)
         {

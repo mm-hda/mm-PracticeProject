@@ -51,11 +51,11 @@ public class ProjectController(IProjectService projectService, ILogger<ProjectCo
     }
 
     [HttpGet("GetAllProjects")]
-    public async Task<IActionResult> GetAllProjectsAsync()
+    public async Task<IActionResult> GetAllProjectsAsync(CancellationToken cancellationToken)
     {
         logger.LogTrace("GetAllProjects called.");
 
-        var result = await projectService.GetAllProjects().ConfigureAwait(false);
+        var result = await projectService.GetAllProjects(cancellationToken).ConfigureAwait(false);
 
         if (!result.IsSuccess)
         {
@@ -68,7 +68,7 @@ public class ProjectController(IProjectService projectService, ILogger<ProjectCo
     }
 
     [HttpGet("GetProjectById/{id}")]
-    public async Task<IActionResult> GetProjectByIdAsync(Guid id)
+    public async Task<IActionResult> GetProjectByIdAsync(Guid id, CancellationToken cancellationToken)
     {
         logger.LogTrace("GetProjectById called with id: {ProjectId}", id);
 
@@ -78,7 +78,7 @@ public class ProjectController(IProjectService projectService, ILogger<ProjectCo
             return BadRequest(ResponseResults<string>.Failure(CustomCodes.InvalidInput));
         }
 
-        var result = await projectService.GetProjectById(id).ConfigureAwait(false);
+        var result = await projectService.GetProjectById(id, cancellationToken).ConfigureAwait(false);
 
         if (!result.IsSuccess)
         {
@@ -91,7 +91,7 @@ public class ProjectController(IProjectService projectService, ILogger<ProjectCo
     }
 
     [HttpGet("GetProjectEmployees/{projectId}")]
-    public async Task<IActionResult> GetProjectEmployeesAsync(Guid projectId)
+    public async Task<IActionResult> GetProjectEmployeesAsync(Guid projectId, CancellationToken cancellationToken)
     {
         logger.LogTrace("GetProjectEmployees called with id: {ProjectId}", projectId);
 
@@ -101,7 +101,7 @@ public class ProjectController(IProjectService projectService, ILogger<ProjectCo
             return BadRequest(ResponseResults<string>.Failure(CustomCodes.InvalidInput));
         }
 
-        var result = await projectService.GetProjectEmployees(projectId).ConfigureAwait(false);
+        var result = await projectService.GetProjectEmployees(projectId, cancellationToken).ConfigureAwait(false);
 
         if (!result.IsSuccess)
         {

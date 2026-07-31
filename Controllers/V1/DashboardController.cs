@@ -17,7 +17,7 @@ public class DashboardController(IDashboardService dashboardService, ILogger<Das
     {
         logger.LogTrace("GetDashboard called.");
 
-        var result = await dashboardService.GetDashboard().ConfigureAwait(false);
+        var result = await dashboardService.GetDashboard(CancellationToken.None).ConfigureAwait(false);
 
         if (!result.IsSuccess)
         {

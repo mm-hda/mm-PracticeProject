@@ -103,7 +103,7 @@ internal sealed class EmployeeProjectService(IEmployeeProjectRepository employee
                 return new ServiceResponse<object> { IsSuccess = false, StatusCode = CustomCodes.InvalidInput };
             }
 
-            employeeProjectRepository.Remove(employeeProject);
+            employeeProjectRepository.Remove(employeeProject, cancellationToken);
 
             await unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
@@ -129,11 +129,11 @@ internal sealed class EmployeeProjectService(IEmployeeProjectRepository employee
         }
     }
 
-    public async Task<ServiceResponse<IReadOnlyCollection<EmployeeProjectResponseDto>>> GetAllEmployeeProjects()
+    public async Task<ServiceResponse<IReadOnlyCollection<EmployeeProjectResponseDto>>> GetAllEmployeeProjects(CancellationToken cancellationToken)
     {
         try
         {
-            var employeeProjects = await employeeProjectRepository.GetAllEmployeeProjectsAsync().ConfigureAwait(false);
+            var employeeProjects = await employeeProjectRepository.GetAllEmployeeProjectsAsync(cancellationToken).ConfigureAwait(false);
 
             return new ServiceResponse<IReadOnlyCollection<EmployeeProjectResponseDto>> { IsSuccess = true, StatusCode = CustomCodes.DataRetrieved, Data = employeeProjects };
         }
@@ -144,7 +144,7 @@ internal sealed class EmployeeProjectService(IEmployeeProjectRepository employee
         }
     }
 
-    public async Task<ServiceResponse<IReadOnlyCollection<ProjectResponseDto>>> GetUserProjectsByUserId(Guid userId, PaginationDto dto)
+    public async Task<ServiceResponse<IReadOnlyCollection<ProjectResponseDto>>> GetUserProjectsByUserId(Guid userId, PaginationDto dto, CancellationToken cancellationToken)
     {
         try
         {
@@ -153,21 +153,21 @@ internal sealed class EmployeeProjectService(IEmployeeProjectRepository employee
             dto.PageNumber = dto.PageNumber <= 0 ? 1 : dto.PageNumber;
             dto.PageSize = dto.PageSize <= 0 ? 10 : dto.PageSize;
 
-            var userExists = await employeeProjectRepository.UserExistsAsync(userId).ConfigureAwait(false);
+            var userExists = await employeeProjectRepository.UserExistsAsync(userId, cancellationToken).ConfigureAwait(false);
 
             if (!userExists)
             {
                 return new ServiceResponse<IReadOnlyCollection<ProjectResponseDto>> { IsSuccess = false, StatusCode = CustomCodes.UserNotFound };
             }
 
-            var totalRecords = await employeeProjectRepository.GetUserProjectsCountAsync(userId).ConfigureAwait(false);
+            var totalRecords = await employeeProjectRepository.GetUserProjectsCountAsync(userId, cancellationToken).ConfigureAwait(false);
 
             if ((int)Math.Ceiling(totalRecords / (double)dto.PageSize) < dto.PageNumber)
             {
                 return new ServiceResponse<IReadOnlyCollection<ProjectResponseDto>> { IsSuccess = false, StatusCode = CustomCodes.PageNumberExceeds };
             }
 
-            var projects = await employeeProjectRepository.GetUserProjectsByUserIdAsync(userId, dto.PageNumber, dto.PageSize).ConfigureAwait(false);
+            var projects = await employeeProjectRepository.GetUserProjectsByUserIdAsync(userId, dto.PageNumber, dto.PageSize, cancellationToken).ConfigureAwait(false);
 
             var meta = new PaginationMetaDto
             {

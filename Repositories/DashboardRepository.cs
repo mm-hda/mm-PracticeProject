@@ -1,146 +1,168 @@
 ﻿using backend.Data;
 using backend.Dto.DashboardDtos;
+using backend.Entities;
+using backend.GenericRepositories;
 using backend.IRepository;
-
-using Microsoft.EntityFrameworkCore;
 
 namespace backend.Repositories;
 
-internal sealed class DashboardRepository(AppDbContext context) : IDashboardRepository
+internal sealed class DashboardRepository(
+    IGenericRepository<User> userRepository,
+    IGenericRepository<Role> roleRepository,
+    IGenericRepository<Branch> branchRepository,
+    IGenericRepository<Department> departmentRepository,
+    IGenericRepository<Position> positionRepository,
+    IGenericRepository<Project> projectRepository,
+    IGenericRepository<EmployeeProject> employeeProjectRepository)
+    : IDashboardRepository
 {
-    public async Task<int> GetTotalUsersAsync()
+    public async Task<int> GetTotalUsersAsync(CancellationToken cancellationToken)
     {
-        return await context.Users
-            .AsNoTracking()
-            .Include(x => x.Role)
-            .CountAsync(x => x.Role != null && x.Role.Name != "Admin").ConfigureAwait(false);
+        var roles = await roleRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
+        var users = await userRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
+
+        var adminRole = roles.FirstOrDefault(x => x.Name == "Admin");
+
+        if (adminRole is null)
+        {
+            return users.Count;
+        }
+
+        return users.Count(x => x.RoleId != adminRole.Id);
     }
 
-    public async Task<int> GetTotalBranchesAsync()
+    public async Task<int> GetTotalBranchesAsync(CancellationToken cancellationToken)
+        => (await branchRepository.GetAllAsync(cancellationToken).ConfigureAwait(false)).Count;
+
+    public async Task<int> GetTotalDepartmentsAsync(CancellationToken cancellationToken)
+        => (await departmentRepository.GetAllAsync(cancellationToken).ConfigureAwait(false)).Count;
+
+    public async Task<int> GetTotalProjectsAsync(CancellationToken cancellationToken)
+        => (await projectRepository.GetAllAsync(cancellationToken).ConfigureAwait(false)).Count;
+
+    public async Task<int> GetTotalRunningProjectsAsync(CancellationToken cancellationToken)
     {
-        return await context.Branches
-            .AsNoTracking()
-            .CountAsync().ConfigureAwait(false);
+        var projects = await projectRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
+        return projects.Count(x => x.EndDate == null || x.EndDate >= DateTime.UtcNow);
     }
 
-    public async Task<int> GetTotalDepartmentsAsync()
+    public async Task<IReadOnlyCollection<RoleUserCountDto>> GetRoleWiseUserCountsAsync(CancellationToken cancellationToken)
     {
-        return await context.Departments
-            .AsNoTracking()
-            .CountAsync().ConfigureAwait(false);
-    }
+        var roles = await roleRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
+        var users = await userRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
 
-    public async Task<int> GetTotalProjectsAsync()
-    {
-        return await context.Projects
-            .AsNoTracking()
-            .CountAsync().ConfigureAwait(false);
-    }
-
-    public async Task<int> GetTotalRunningProjectsAsync()
-    {
-        return await context.Projects
-            .AsNoTracking()
-            .CountAsync(x => x.EndDate == null || x.EndDate >= DateTime.UtcNow).ConfigureAwait(false);
-    }
-
-    public async Task<IReadOnlyCollection<RoleUserCountDto>> GetRoleWiseUserCountsAsync()
-    {
-        return await context.Roles
-            .AsNoTracking()
+        return roles
             .Where(x => x.Name != "Admin")
-            .Select(x => new RoleUserCountDto
+            .Select(role => new RoleUserCountDto
             {
-                RoleId = x.Id,
-                RoleName = x.Name,
-                UserCount = context.Users.Count(u => u.RoleId == x.Id)
+                RoleId = role.Id,
+                RoleName = role.Name,
+                UserCount = users.Count(user => user.RoleId == role.Id)
             })
-            .ToListAsync().ConfigureAwait(false);
+            .ToList();
     }
 
-    public async Task<IReadOnlyCollection<BranchDashboardDto>> GetBranchesAsync()
+    public async Task<IReadOnlyCollection<BranchDashboardDto>> GetBranchesAsync(CancellationToken cancellationToken)
     {
-        return await context.Branches
-            .AsNoTracking()
-            .Select(x => new BranchDashboardDto
-            {
-                BranchId = x.Id,
-                BranchName = x.Name,
-                Location = x.Location,
-                UserCount = context.Users
-                    .Include(u => u.Role)
-                    .Count(u =>
-                        u.BranchId == x.Id &&
-                        u.Role != null &&
-                        u.Role.Name != "Admin")
-            })
-            .ToListAsync().ConfigureAwait(false);
+        var branches = await branchRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
+        var users = await userRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
+        var roles = await roleRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
+
+        var adminRole = roles.FirstOrDefault(x => x.Name == "Admin");
+
+        return branches.Select(branch => new BranchDashboardDto
+        {
+            BranchId = branch.Id,
+            BranchName = branch.Name,
+            Location = branch.Location,
+            UserCount = users.Count(user =>
+                user.BranchId == branch.Id &&
+                (adminRole == null || user.RoleId != adminRole.Id))
+        }).ToList();
     }
 
-    public async Task<IReadOnlyCollection<DepartmentDashboardDto>> GetDepartmentsAsync()
+    public async Task<IReadOnlyCollection<DepartmentDashboardDto>> GetDepartmentsAsync(CancellationToken cancellationToken)
     {
-        return await context.Departments
-            .AsNoTracking()
+        var departments = await departmentRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
+        var positions = await positionRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
+        var users = await userRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
+        var roles = await roleRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
+
+        var adminRole = roles.FirstOrDefault(x => x.Name == "Admin");
+
+        return departments
             .Where(x => x.Name != "Admin")
-            .Select(x => new DepartmentDashboardDto
+            .Select(department => new DepartmentDashboardDto
             {
-                DepartmentId = x.Id,
-                DepartmentName = x.Name,
-                UserCount = context.Users
-                    .Include(u => u.Role)
-                    .Count(u =>
-                        u.DepartmentId == x.Id &&
-                        u.Role != null &&
-                        u.Role.Name != "Admin"),
+                DepartmentId = department.Id,
+                DepartmentName = department.Name,
 
-                TotalPositions = context.Positions
-                    .Count(p => p.DepartmentId == x.Id),
+                UserCount = users.Count(user =>
+                    user.DepartmentId == department.Id &&
+                    (adminRole == null || user.RoleId != adminRole.Id)),
 
-                Positions = context.Positions
-                    .Where(p => p.DepartmentId == x.Id)
-                    .Select(p => new PositionDashboardDto
+                Positions = [
+                    .. positions
+                        .Where(position => position.DepartmentId == department.Id)
+                        .Select(position => new PositionDashboardDto
+                        {
+                            PositionId = position.Id,
+                            PositionName = position.Name,
+
+                            UserCount = users.Count(user =>
+                                user.PositionId == position.Id &&
+                                (adminRole == null || user.RoleId != adminRole.Id))
+                        })
+                ],
+
+                TotalPositions = positions.Count(position =>
+                    position.DepartmentId == department.Id)
+
+            }).ToList();
+    }
+
+    public async Task<IReadOnlyCollection<ProjectDashboardDto>> GetRunningProjectsAsync(CancellationToken cancellationToken)
+    {
+        var projects = await projectRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
+        var users = await userRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
+        var roles = await roleRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
+        var employeeProjects = await employeeProjectRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
+
+        var adminRole = roles.FirstOrDefault(x => x.Name == "Admin");
+        var userDictionary = users.ToDictionary(x => x.Id);
+
+        return projects
+            .Where(project => project.EndDate == null || project.EndDate >= DateTime.UtcNow)
+            .Select(project =>
+            {
+                userDictionary.TryGetValue(project.ProjectManagerId, out var manager);
+
+                return new ProjectDashboardDto
+                {
+                    ProjectId = project.Id,
+                    ProjectName = project.Name,
+                    Description = project.Description,
+                    StartDate = project.StartDate,
+                    EndDate = project.EndDate,
+                    ProjectManagerId = project.ProjectManagerId,
+                    ProjectManagerName = manager?.Name ?? string.Empty,
+
+                    UserCount = employeeProjects.Count(ep =>
                     {
-                        PositionId = p.Id,
-                        PositionName = p.Name,
-                        UserCount = context.Users
-                            .Include(u => u.Role)
-                            .Count(u =>
-                                u.PositionId == p.Id &&
-                                u.Role != null &&
-                                u.Role.Name != "Admin")
+                        if (ep.ProjectId != project.Id)
+                        {
+                            return false;
+                        }
+
+                        if (!userDictionary.TryGetValue(ep.UserId, out var user))
+                        {
+                            return false;
+                        }
+
+                        return adminRole == null || user.RoleId != adminRole.Id;
                     })
-                    .ToList()
+                };
             })
-            .ToListAsync().ConfigureAwait(false);
-    }
-
-    public async Task<IReadOnlyCollection<ProjectDashboardDto>> GetRunningProjectsAsync()
-    {
-        return await context.Projects
-            .AsNoTracking()
-            .Include(x => x.ProjectManager)
-            .Where(x => x.EndDate == null || x.EndDate >= DateTime.UtcNow)
-            .Select(x => new ProjectDashboardDto
-            {
-                ProjectId = x.Id,
-                ProjectName = x.Name,
-                Description = x.Description,
-                StartDate = x.StartDate,
-                EndDate = x.EndDate,
-                ProjectManagerId = x.ProjectManagerId,
-                ProjectManagerName = x.ProjectManager != null
-                    ? x.ProjectManager.Name
-                    : string.Empty,
-
-                UserCount = context.EmployeeProjects
-                    .Include(ep => ep.User)
-                    .ThenInclude(u => u!.Role)
-                    .Count(ep =>
-                        ep.ProjectId == x.Id &&
-                        ep.User != null &&
-                        ep.User.Role != null &&
-                        ep.User.Role.Name != "Admin")
-            })
-            .ToListAsync().ConfigureAwait(false);
+            .ToList();
     }
 }

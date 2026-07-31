@@ -6,13 +6,13 @@ namespace backend.IRepository;
 
 public interface IProjectRepository : IGenericRepository<Project>
 {
-    Task<bool> ProjectExistsAsync(string? name);
-    Task<bool> ManagerExistsAsync(Guid managerId);
+    Task<bool> ProjectExistsAsync(string? name, CancellationToken cancellationToken);
+    Task<bool> ManagerExistsAsync(Guid managerId, CancellationToken cancellationToken);
     Task AddProjectAsync(Project project, CancellationToken cancellationToken);
-    Task<Project?> GetProByIdAsync(Guid id);
-    Task<bool> DuplicateProjectExistsAsync(Guid projectId, string? name);
-    Task<IReadOnlyCollection<ProjectResponseDto>> GetAllProjectsAsync();
-    Task<ProjectResponseDto?> GetProjectByIdAsync(Guid id);
-    Task<bool> ProjectExistsByIdAsync(Guid projectId);
-    Task<IReadOnlyCollection<ProjectUserResponseDto>> GetProjectEmployeesAsync(Guid projectId);
+    Task<Project?> GetProByIdAsync(Guid id, CancellationToken cancellationToken);
+    Task<bool> DuplicateProjectExistsAsync(Guid projectId, string? name, CancellationToken cancellationToken);
+    Task<IReadOnlyCollection<ProjectResponseDto>> GetAllProjectsAsync(CancellationToken cancellationToken);
+    Task<ProjectResponseDto?> GetProjectByIdAsync(Guid id, CancellationToken cancellationToken);
+    Task<bool> ProjectExistsByIdAsync(Guid projectId, CancellationToken cancellationToken);
+    Task<IReadOnlyCollection<ProjectUserResponseDto>> GetProjectEmployeesAsync(Guid projectId, CancellationToken cancellationToken);
 }
