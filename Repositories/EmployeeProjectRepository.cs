@@ -15,26 +15,43 @@ internal sealed class EmployeeProjectRepository(
     : GenericRepository<EmployeeProject>(context), IEmployeeProjectRepository
 {
     public async Task<bool> UserExistsAsync(Guid userId, CancellationToken cancellationToken)
-        => await userRepository.AnyAsync(x => x.Id == userId, cancellationToken).ConfigureAwait(false);
+    {
+        var users = await userRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
+
+        return users.Any(x => x.Id == userId);
+    }
 
     public async Task<Project?> GetProjectByIdAsync(Guid projectId, CancellationToken cancellationToken)
-        => await projectRepository.FirstOrDefaultAsync(x => x.Id == projectId, cancellationToken).ConfigureAwait(false);
+    {
+        var projects = await projectRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
+
+        return projects.FirstOrDefault(x => x.Id == projectId);
+    }
 
     public async Task<bool> EmployeeProjectExistsAsync(Guid userId, Guid projectId, CancellationToken cancellationToken)
-        => await AnyAsync(x => x.UserId == userId && x.ProjectId == projectId, cancellationToken).ConfigureAwait(false);
+    {
+        var employeeProjects = await GetAllAsync(cancellationToken).ConfigureAwait(false);
+
+        return employeeProjects.Any(x => x.UserId == userId && x.ProjectId == projectId);
+    }
 
     public async Task AddEmployeeProjectAsync(EmployeeProject employeeProject, CancellationToken cancellationToken)
         => await AddAsync(employeeProject, cancellationToken).ConfigureAwait(false);
 
     public async Task<EmployeeProject?> GetEmployeeProjectByIdAsync(Guid id, CancellationToken cancellationToken)
-        => await FirstOrDefaultAsync(x => x.Id == id, cancellationToken).ConfigureAwait(false);
+    {
+        var employeeProjects = await GetAllAsync(cancellationToken).ConfigureAwait(false);
+
+        return employeeProjects.FirstOrDefault(x => x.Id == id);
+    }
 
     public void Remove(EmployeeProject employeeProject, CancellationToken cancellationToken) => Delete(employeeProject, cancellationToken);
 
     public async Task<int> GetUserProjectsCountAsync(Guid userId, CancellationToken cancellationToken)
     {
-        var employeeProjects = await FindAsync(x => x.UserId == userId, cancellationToken).ConfigureAwait(false);
-        return employeeProjects.Count;
+        var employeeProjects = await GetAllAsync(cancellationToken).ConfigureAwait(false);
+
+        return employeeProjects.Count(x => x.UserId == userId);
     }
 
     public async Task<IReadOnlyCollection<EmployeeProjectResponseDto>> GetAllEmployeeProjectsAsync(CancellationToken cancellationToken)
@@ -75,7 +92,8 @@ internal sealed class EmployeeProjectRepository(
         int pageSize,
         CancellationToken cancellationToken)
     {
-        var employeeProjects = await FindAsync(x => x.UserId == userId, cancellationToken).ConfigureAwait(false);
+        var allEmployeeProjects = await GetAllAsync(cancellationToken).ConfigureAwait(false);
+        var employeeProjects = allEmployeeProjects.Where(x => x.UserId == userId).ToList();
         var projects = await projectRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
         var users = await userRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
 

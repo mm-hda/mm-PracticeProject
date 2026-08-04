@@ -15,18 +15,38 @@ internal sealed class DepartmentRepository(
     : GenericRepository<Department>(context), IDepartmentRepository
 {
     public async Task<bool> DepartmentExistsAsync(string? name, CancellationToken cancellationToken)
-        => !string.IsNullOrWhiteSpace(name) &&
-           await AnyAsync(x => x.Name.Equals(name, StringComparison.OrdinalIgnoreCase), cancellationToken).ConfigureAwait(false);
+    {
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            return false;
+        }
+
+        var departments = await GetAllAsync(cancellationToken).ConfigureAwait(false);
+
+        return departments.Any(x => string.Equals(x.Name, name, StringComparison.OrdinalIgnoreCase));
+    }
 
     public async Task AddDepartmentAsync(Department department, CancellationToken cancellationToken)
         => await AddAsync(department, cancellationToken).ConfigureAwait(false);
 
     public async Task<Department?> DepartmentByIdAsync(Guid id, CancellationToken cancellationToken)
-        => await FirstOrDefaultAsync(x => x.Id == id, cancellationToken).ConfigureAwait(false);
+    {
+        var departments = await GetAllAsync(cancellationToken).ConfigureAwait(false);
+
+        return departments.FirstOrDefault(x => x.Id == id);
+    }
 
     public async Task<bool> DuplicateDepartmentExistsAsync(Guid id, string? name, CancellationToken cancellationToken)
-        => !string.IsNullOrWhiteSpace(name) &&
-           await AnyAsync(x => x.Id != id && x.Name.Equals(name, StringComparison.OrdinalIgnoreCase), cancellationToken).ConfigureAwait(false);
+    {
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            return false;
+        }
+
+        var departments = await GetAllAsync(cancellationToken).ConfigureAwait(false);
+
+        return departments.Any(x => x.Id != id && string.Equals(x.Name, name, StringComparison.OrdinalIgnoreCase));
+    }
 
     public async Task<IReadOnlyCollection<DepartmentResponseDto>> GetAllDepartmentsAsync(CancellationToken cancellationToken)
     {
@@ -45,7 +65,8 @@ internal sealed class DepartmentRepository(
 
     public async Task<DepartmentResponseDto?> GetDepartmentByIdAsync(Guid id, CancellationToken cancellationToken)
     {
-        var department = await FirstOrDefaultAsync(x => x.Id == id, cancellationToken).ConfigureAwait(false);
+        var departments = await GetAllAsync(cancellationToken).ConfigureAwait(false);
+        var department = departments.FirstOrDefault(x => x.Id == id);
 
         if (department is null)
         {
@@ -65,23 +86,28 @@ internal sealed class DepartmentRepository(
     }
 
     public async Task<bool> DepartmentExistsByIdAsync(Guid departmentId, CancellationToken cancellationToken)
-        => await AnyAsync(x => x.Id == departmentId, cancellationToken).ConfigureAwait(false);
+    {
+        var departments = await GetAllAsync(cancellationToken).ConfigureAwait(false);
+
+        return departments.Any(x => x.Id == departmentId);
+    }
 
     public async Task<IReadOnlyCollection<DepartmentUserResponseDto>> GetDepartmentEmployeesAsync(Guid departmentId, CancellationToken cancellationToken)
     {
-        var users = await userRepository.FindAsync(x => x.DepartmentId == departmentId, cancellationToken).ConfigureAwait(false);
-
         var departments = await GetAllAsync(cancellationToken).ConfigureAwait(false);
+        var users = await userRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
         var positions = await positionRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
         var roles = await roleRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
         var branches = await branchRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
+
+        var departmentUsers = users.Where(x => x.DepartmentId == departmentId).ToList();
 
         var departmentDictionary = departments.ToDictionary(x => x.Id, x => x.Name);
         var positionDictionary = positions.ToDictionary(x => x.Id, x => x.Name);
         var roleDictionary = roles.ToDictionary(x => x.Id, x => x.Name);
         var branchDictionary = branches.ToDictionary(x => x.Id, x => x.Name);
 
-        return users.Select(user => new DepartmentUserResponseDto
+        return departmentUsers.Select(user => new DepartmentUserResponseDto
         {
             UserId = user.Id,
             Name = user.Name,

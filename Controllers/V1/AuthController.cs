@@ -9,15 +9,13 @@ using Asp.Versioning;
 namespace backend.Controllers.V1;
 
 [ApiController]
-[ApiVersion("1.0")]
-[ApiVersion("2.0")]
 [Route("api/V{version:apiVersion}/[controller]")]
+[ApiVersion("1.0")]
 [Route("api/[controller]")]
 public class AuthController(IAuthService authService, ILogger<AuthController> logger) : ControllerBase
 {
     [AllowAnonymous]
     [HttpPost("Login")]
-    [MapToApiVersion("2.0")]
     public async Task<IActionResult> LoginAsync([FromBody] LoginDto loginDto, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(loginDto);
@@ -37,7 +35,6 @@ public class AuthController(IAuthService authService, ILogger<AuthController> lo
 
     // [Authorize(Roles = RoleConstants.Admin)]
     [HttpPost("Register")]
-    [MapToApiVersion("2.0")]
     public async Task<IActionResult> RegisterAsync([FromBody] RegisterUserDto registerDto, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(registerDto);

@@ -38,8 +38,7 @@ internal sealed class RequestTracingMiddleware(RequestDelegate _next, ILogger<Re
             }
             else if (context.Response.StatusCode == 403)
             {
-                _logger.LogWarning(
-                    "Forbidden access attempt to {Path} from {IpAddress}",
+                _logger.LogWarning("Forbidden access attempt to {Path} from {IpAddress}",
                     context.Request.Path,
                     context.Connection.RemoteIpAddress);
             }
@@ -53,4 +52,3 @@ internal sealed class RequestTracingMiddleware(RequestDelegate _next, ILogger<Re
         }
     }
 }
-

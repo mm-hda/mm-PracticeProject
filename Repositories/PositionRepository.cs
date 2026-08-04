@@ -14,7 +14,12 @@ internal sealed class PositionRepository(
     IGenericRepository<Branch> branchRepository)
     : GenericRepository<Position>(context), IPositionRepository
 {
-    public async Task<bool> DepartmentExistsAsync(Guid departmentId, CancellationToken cancellationToken) => await departmentRepository.AnyAsync(x => x.Id == departmentId, cancellationToken).ConfigureAwait(false);
+    public async Task<bool> DepartmentExistsAsync(Guid departmentId, CancellationToken cancellationToken)
+    {
+        var departments = await departmentRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
+
+        return departments.Any(x => x.Id == departmentId);
+    }
 
     public async Task<bool> PositionExistsAsync(string? name, CancellationToken cancellationToken)
     {
@@ -23,12 +28,19 @@ internal sealed class PositionRepository(
             return false;
         }
 
-        return await AnyAsync(x => x.Name.Equals(name, StringComparison.OrdinalIgnoreCase), cancellationToken).ConfigureAwait(false);
+        var positions = await GetAllAsync(cancellationToken).ConfigureAwait(false);
+
+        return positions.Any(x => string.Equals(x.Name, name, StringComparison.OrdinalIgnoreCase));
     }
 
     public async Task AddPositionAsync(Position position, CancellationToken cancellationToken) => await AddAsync(position, cancellationToken).ConfigureAwait(false);
 
-    public async Task<Position?> PositionByIdAsync(Guid id, CancellationToken cancellationToken) => await FirstOrDefaultAsync(x => x.Id == id, cancellationToken).ConfigureAwait(false);
+    public async Task<Position?> PositionByIdAsync(Guid id, CancellationToken cancellationToken)
+    {
+        var positions = await GetAllAsync(cancellationToken).ConfigureAwait(false);
+
+        return positions.FirstOrDefault(x => x.Id == id);
+    }
 
     public async Task<bool> DuplicatePositionExistsAsync(Guid positionId, string? name, Guid departmentId, CancellationToken cancellationToken)
     {
@@ -37,11 +49,12 @@ internal sealed class PositionRepository(
             return false;
         }
 
-        var positions = await FindAsync(x => x.DepartmentId == departmentId, cancellationToken).ConfigureAwait(false);
+        var positions = await GetAllAsync(cancellationToken).ConfigureAwait(false);
+        var departmentPositions = positions.Where(x => x.DepartmentId == departmentId);
 
-        return positions.Any(x =>
+        return departmentPositions.Any(x =>
             x.Id != positionId &&
-            x.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
+            string.Equals(x.Name, name, StringComparison.OrdinalIgnoreCase));
     }
 
     public async Task<IReadOnlyCollection<PositionResponseDto>> GetAllPositionsAsync(CancellationToken cancellationToken)
@@ -66,7 +79,8 @@ internal sealed class PositionRepository(
 
     public async Task<PositionResponseDto?> GetPositionByIdAsync(Guid id, CancellationToken cancellationToken)
     {
-        var position = await FirstOrDefaultAsync(x => x.Id == id, cancellationToken).ConfigureAwait(false);
+        var positions = await GetAllAsync(cancellationToken).ConfigureAwait(false);
+        var position = positions.FirstOrDefault(x => x.Id == id);
 
         if (position is null)
         {
@@ -92,13 +106,14 @@ internal sealed class PositionRepository(
 
     public async Task<IReadOnlyCollection<PositionResponseDto>> GetPositionsByDepartmentAsync(Guid departmentId, CancellationToken cancellationToken)
     {
-        var positions = await FindAsync(x => x.DepartmentId == departmentId, cancellationToken).ConfigureAwait(false);
+        var positions = await GetAllAsync(cancellationToken).ConfigureAwait(false);
+        var departmentPositions = positions.Where(x => x.DepartmentId == departmentId).ToList();
         var departments = await departmentRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
         var users = await userRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
 
         var departmentDictionary = departments.ToDictionary(x => x.Id, x => x.Name);
 
-        return positions.Select(position => new PositionResponseDto
+        return departmentPositions.Select(position => new PositionResponseDto
         {
             Id = position.Id,
             Name = position.Name,
@@ -110,11 +125,17 @@ internal sealed class PositionRepository(
         }).ToList();
     }
 
-    public async Task<bool> PositionExistsAsync(Guid positionId, CancellationToken cancellationToken) => await AnyAsync(x => x.Id == positionId, cancellationToken).ConfigureAwait(false);
+    public async Task<bool> PositionExistsAsync(Guid positionId, CancellationToken cancellationToken)
+    {
+        var positions = await GetAllAsync(cancellationToken).ConfigureAwait(false);
+
+        return positions.Any(x => x.Id == positionId);
+    }
 
     public async Task<IReadOnlyCollection<PositionUserResponseDto>> GetPositionUsersAsync(Guid positionId, CancellationToken cancellationToken)
     {
-        var users = await userRepository.FindAsync(x => x.PositionId == positionId, cancellationToken).ConfigureAwait(false);
+        var users = await userRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
+        var positionUsers = users.Where(x => x.PositionId == positionId).ToList();
 
         var branches = await branchRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
         var departments = await departmentRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
@@ -126,7 +147,7 @@ internal sealed class PositionRepository(
         var positionDictionary = positions.ToDictionary(x => x.Id, x => x.Name);
         var roleDictionary = roles.ToDictionary(x => x.Id, x => x.Name);
 
-        return users.Select(user => new PositionUserResponseDto
+        return positionUsers.Select(user => new PositionUserResponseDto
         {
             UserId = user.Id,
             Name = user.Name,

@@ -12,7 +12,6 @@ internal sealed class PositionService(IPositionRepository positionRepository, IU
 {
     public async Task<ServiceResponse<object>> CreatePosition(PositionDto dto, CancellationToken cancellationToken)
     {
-        using var transaction = await unitOfWork.BeginTransactionAsync(cancellationToken).ConfigureAwait(false);
 
         try
         {
@@ -47,26 +46,18 @@ internal sealed class PositionService(IPositionRepository positionRepository, IU
 
             await unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
-            await transaction.CommitAsync(cancellationToken).ConfigureAwait(false);
-
             return new ServiceResponse<object> { IsSuccess = true, StatusCode = CustomCodes.PositionCreatedSuccessfully };
         }
         catch (OperationCanceledException)
         {
-            await transaction.RollbackAsync(cancellationToken).ConfigureAwait(false);
-
             return new ServiceResponse<object> { IsSuccess = false, StatusCode = CustomCodes.OperationCancelled };
         }
         catch (DbUpdateException)
         {
-            await transaction.RollbackAsync(cancellationToken).ConfigureAwait(false);
-
             return new ServiceResponse<object> { IsSuccess = false, StatusCode = CustomCodes.PositionCreationFailed };
         }
         catch (Exception)
         {
-            await transaction.RollbackAsync(cancellationToken).ConfigureAwait(false);
-
             return new ServiceResponse<object> { IsSuccess = false, StatusCode = CustomCodes.PositionCreationFailed };
             throw;
         }
@@ -74,8 +65,6 @@ internal sealed class PositionService(IPositionRepository positionRepository, IU
 
     public async Task<ServiceResponse<object>> UpdatePosition(PositionDto dto, CancellationToken cancellationToken)
     {
-        using var transaction = await unitOfWork.BeginTransactionAsync(cancellationToken).ConfigureAwait(false);
-
         try
         {
             ArgumentNullException.ThrowIfNull(dto);
@@ -112,26 +101,18 @@ internal sealed class PositionService(IPositionRepository positionRepository, IU
 
             await unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
-            await transaction.CommitAsync(cancellationToken).ConfigureAwait(false);
-
             return new ServiceResponse<object> { IsSuccess = true, StatusCode = CustomCodes.PositionUpdatedSuccessfully };
         }
         catch (OperationCanceledException)
         {
-            await transaction.RollbackAsync(cancellationToken).ConfigureAwait(false);
-
             return new ServiceResponse<object> { IsSuccess = false, StatusCode = CustomCodes.OperationCancelled };
         }
         catch (DbUpdateException)
         {
-            await transaction.RollbackAsync(cancellationToken).ConfigureAwait(false);
-
             return new ServiceResponse<object> { IsSuccess = false, StatusCode = CustomCodes.PositionUpdateFailed };
         }
         catch (Exception)
         {
-            await transaction.RollbackAsync(cancellationToken).ConfigureAwait(false);
-
             return new ServiceResponse<object> { IsSuccess = false, StatusCode = CustomCodes.PositionUpdateFailed };
             throw;
         }

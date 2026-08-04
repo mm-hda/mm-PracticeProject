@@ -12,7 +12,6 @@ internal sealed class RoleService(IRoleRepository roleRepository, IUnitOfWork un
 {
     public async Task<ServiceResponse<object>> CreateRole(RoleDto dto, CancellationToken cancellationToken)
     {
-        using var transaction = await unitOfWork.BeginTransactionAsync(cancellationToken).ConfigureAwait(false);
         try
         {
             ArgumentNullException.ThrowIfNull(dto);
@@ -34,23 +33,18 @@ internal sealed class RoleService(IRoleRepository roleRepository, IUnitOfWork un
 
             await unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
-            await transaction.CommitAsync(cancellationToken).ConfigureAwait(false);
-
             return new ServiceResponse<object> { IsSuccess = true, StatusCode = CustomCodes.RoleCreatedSuccessfully };
         }
         catch (OperationCanceledException)
         {
-            await transaction.RollbackAsync(cancellationToken).ConfigureAwait(false);
             return new ServiceResponse<object> { IsSuccess = false, StatusCode = CustomCodes.OperationCancelled };
         }
         catch (DbUpdateException)
         {
-            await transaction.RollbackAsync(cancellationToken).ConfigureAwait(false);
             return new ServiceResponse<object> { IsSuccess = false, StatusCode = CustomCodes.RoleCreationFailed };
         }
         catch (Exception)
         {
-            await transaction.RollbackAsync(cancellationToken).ConfigureAwait(false);
             return new ServiceResponse<object> { IsSuccess = false, StatusCode = CustomCodes.RoleCreationFailed };
             throw;
         }

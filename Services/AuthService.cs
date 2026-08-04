@@ -113,12 +113,8 @@ internal sealed class AuthService(IAuthRepository authRepository, IUnitOfWork un
     public async Task<ServiceResponse<object>> RegisterUser(RegisterUserDto dto, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(dto);
-
-        using var transaction = await unitOfWork.BeginTransactionAsync(cancellationToken).ConfigureAwait(false);
-
         try
         {
-
             var emailExists = await authRepository.EmailExistsAsync(dto.Email, cancellationToken).ConfigureAwait(false);
 
             if (emailExists)
@@ -197,8 +193,6 @@ internal sealed class AuthService(IAuthRepository authRepository, IUnitOfWork un
 
             await unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
-            await transaction.CommitAsync(cancellationToken).ConfigureAwait(false);
-
             return new ServiceResponse<object>
             {
                 StatusCode = CustomCodes.UserCreatedSuccessfully,
@@ -207,8 +201,6 @@ internal sealed class AuthService(IAuthRepository authRepository, IUnitOfWork un
         }
         catch (OperationCanceledException)
         {
-            await transaction.RollbackAsync(CancellationToken.None).ConfigureAwait(false);
-
             return new ServiceResponse<object>
             {
                 StatusCode = CustomCodes.OperationCancelled,
@@ -217,8 +209,6 @@ internal sealed class AuthService(IAuthRepository authRepository, IUnitOfWork un
         }
         catch (DbUpdateException)
         {
-            await transaction.RollbackAsync(CancellationToken.None).ConfigureAwait(false);
-
             return new ServiceResponse<object>
             {
                 StatusCode = CustomCodes.UserCreationFailed,
@@ -227,8 +217,6 @@ internal sealed class AuthService(IAuthRepository authRepository, IUnitOfWork un
         }
         catch (Exception)
         {
-            await transaction.RollbackAsync(CancellationToken.None).ConfigureAwait(false);
-
             return new ServiceResponse<object>
             {
                 StatusCode = CustomCodes.InternalServerError,

@@ -38,6 +38,16 @@ builder.Services.AddApplicationServices();
 
 builder.Services.AddForwardedHeadersConfiguration();
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAngularDevClient", policy =>
+    {
+        policy.WithOrigins("http://localhost:4200", "http://127.0.0.1:4200")
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
+
 var app = builder.Build();
 
 await app.CheckDatabaseConnectionAsync().ConfigureAwait(false);
@@ -45,6 +55,8 @@ await app.CheckDatabaseConnectionAsync().ConfigureAwait(false);
 app.UseSwaggerMiddleware();
 
 app.UseApplicationMiddleware();
+
+app.UseCors("AllowAngularDevClient");
 
 app.UseAuthentication();
 

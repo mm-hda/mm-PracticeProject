@@ -41,10 +41,10 @@ internal static class CustomCodes
     public const int BranchUpdateFailed = 9005;
     public const int PositionCreationFailed = 9006;
     public const int ProjectUpdateFailed = 9007;
-    public const int PositionUpdateFailed = 9008;
     public const int DepartmentCreationFailed = 9009;
     public const int DepartmentUpdateFailed = 9010;
     public const int EmployeeProjectRemovalFailed = 9011;
+    public const int PositionUpdateFailed = 9012;
 
     public const int RoleCreatedSuccessfully = 700;
     public const int UserCreatedSuccessfully = 701;

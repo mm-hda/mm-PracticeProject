@@ -12,7 +12,6 @@ internal sealed class DepartmentService(IDepartmentRepository departmentReposito
 {
     public async Task<ServiceResponse<object>> CreateDepartment(DepartmentDto dto, CancellationToken cancellationToken)
     {
-        using var transaction = await unitOfWork.BeginTransactionAsync(cancellationToken).ConfigureAwait(false);
         try
         {
             ArgumentNullException.ThrowIfNull(dto);
@@ -41,27 +40,20 @@ internal sealed class DepartmentService(IDepartmentRepository departmentReposito
                 return new ServiceResponse<object> { IsSuccess = false, StatusCode = CustomCodes.DepartmentCreationFailed };
             }
 
-            await unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
-
-            await transaction.CommitAsync(cancellationToken).ConfigureAwait(false);
-
             return new ServiceResponse<object> { IsSuccess = true, StatusCode = CustomCodes.DepartmentCreatedSuccessfully };
         }
         catch (OperationCanceledException)
         {
-            await transaction.RollbackAsync(cancellationToken).ConfigureAwait(false);
             return new ServiceResponse<object> { IsSuccess = false, StatusCode = CustomCodes.OperationCancelled };
         }
         catch (NullReferenceException)
         {
-            await transaction.RollbackAsync(cancellationToken).ConfigureAwait(false);
             return new ServiceResponse<object> { IsSuccess = false, StatusCode = CustomCodes.DepartmentCreationFailed };
         }
     }
 
     public async Task<ServiceResponse<object>> UpdateDepartment(DepartmentDto dto, CancellationToken cancellationToken)
     {
-        using var transaction = await unitOfWork.BeginTransactionAsync(cancellationToken).ConfigureAwait(false);
         try
         {
             ArgumentNullException.ThrowIfNull(dto);
@@ -84,18 +76,14 @@ internal sealed class DepartmentService(IDepartmentRepository departmentReposito
 
             await unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
-            await transaction.CommitAsync(cancellationToken).ConfigureAwait(false);
-
             return new ServiceResponse<object> { IsSuccess = true, StatusCode = CustomCodes.DepartmentUpdatedSuccessfully };
         }
         catch (OperationCanceledException)
         {
-            await transaction.RollbackAsync(cancellationToken).ConfigureAwait(false);
             return new ServiceResponse<object> { IsSuccess = false, StatusCode = CustomCodes.OperationCancelled };
         }
         catch (Exception)
         {
-            await transaction.RollbackAsync(cancellationToken).ConfigureAwait(false);
             return new ServiceResponse<object> { IsSuccess = false, StatusCode = CustomCodes.DepartmentUpdateFailed };
             throw;
         }

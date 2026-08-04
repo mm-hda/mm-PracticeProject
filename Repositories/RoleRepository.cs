@@ -21,7 +21,9 @@ internal sealed class RoleRepository(
             return false;
         }
 
-        return await AnyAsync(x => x.Name.Equals(name, StringComparison.OrdinalIgnoreCase), cancellationToken).ConfigureAwait(false);
+        var roles = await GetAllAsync(cancellationToken).ConfigureAwait(false);
+
+        return roles.Any(x => string.Equals(x.Name, name, StringComparison.OrdinalIgnoreCase));
     }
 
     public async Task AddRoleAsync(Role role, CancellationToken cancellationToken) => await AddAsync(role, cancellationToken).ConfigureAwait(false);
@@ -39,7 +41,8 @@ internal sealed class RoleRepository(
 
     public async Task<RoleResponseDto?> GetRoleByIdAsync(Guid id, CancellationToken cancellationToken)
     {
-        var role = await FirstOrDefaultAsync(x => x.Id == id, cancellationToken).ConfigureAwait(false);
+        var roles = await GetAllAsync(cancellationToken).ConfigureAwait(false);
+        var role = roles.FirstOrDefault(x => x.Id == id);
 
         if (role is null)
         {
@@ -59,14 +62,15 @@ internal sealed class RoleRepository(
         var departments = await departmentRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
         var positions = await positionRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
         var branches = await branchRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
-        var users = await userRepository.FindAsync(x => x.RoleId == roleId, cancellationToken).ConfigureAwait(false);
+        var users = await userRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
+        var roleUsers = users.Where(x => x.RoleId == roleId).ToList();
 
         var roleDictionary = roles.ToDictionary(x => x.Id, x => x.Name);
         var departmentDictionary = departments.ToDictionary(x => x.Id, x => x.Name);
         var positionDictionary = positions.ToDictionary(x => x.Id, x => x.Name);
         var branchDictionary = branches.ToDictionary(x => x.Id, x => x.Name);
 
-        return users.Select(x => new RoleUserResponseDto
+        return roleUsers.Select(x => new RoleUserResponseDto
         {
             UserId = x.Id,
             Name = x.Name,

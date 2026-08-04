@@ -11,12 +11,31 @@ using Asp.Versioning;
 namespace backend.Controllers.V2;
 
 [ApiController]
-[ApiVersion("2.0")]
 [Route("api/v{version:apiVersion}/[controller]")]
+[ApiVersion("2.0")]
 public class AuthController(IAuthService authService, ILogger<AuthController> logger) : ControllerBase
 {
 
-    [Authorize(Roles = RoleConstants.Admin)]
+    [AllowAnonymous]
+    [HttpPost("Login")]
+    public async Task<IActionResult> LoginAsync([FromBody] LoginDto loginDto, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(loginDto);
+        logger.LogTrace("Login called with dto: {@Email}", loginDto.Email);
+
+        var result = await authService.LoginUser(loginDto, cancellationToken).ConfigureAwait(false);
+
+        if (!result.IsSuccess)
+        {
+            logger.LogWarning("Login failed for user: {Email}", loginDto.Email);
+            return NotFound(ResponseResults<string>.Failure(result.StatusCode));
+        }
+
+        logger.LogInformation("User logged in successfully: {Email}", loginDto.Email);
+        return Ok(ResponseResults<TokenDto>.Success(result.StatusCode, result.Data));
+    }
+
+    // [Authorize(Roles = RoleConstants.Admin)]
     [HttpPost("Register")]
     public async Task<IActionResult> RegisterAsync([FromBody] RegisterUserDtoV2 registerDto, CancellationToken cancellationToken)
     {

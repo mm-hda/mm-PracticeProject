@@ -28,6 +28,7 @@ internal sealed class ProjectRepository(
     public async Task<bool> ManagerExistsAsync(Guid managerId, CancellationToken cancellationToken)
     {
         var roles = await roleRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
+        var users = await userRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
 
         var managerRole = roles.FirstOrDefault(x => string.Equals(x.Name, "Manager", StringComparison.OrdinalIgnoreCase));
 
@@ -35,12 +36,18 @@ internal sealed class ProjectRepository(
         {
             return false;
         }
-        return await userRepository.AnyAsync(x => x.Id == managerId && x.RoleId == managerRole.Id, cancellationToken).ConfigureAwait(false);
+
+        return users.Any(x => x.Id == managerId && x.RoleId == managerRole.Id);
     }
 
     public async Task AddProjectAsync(Project project, CancellationToken cancellationToken) => await AddAsync(project, cancellationToken).ConfigureAwait(false);
 
-    public async Task<Project?> GetProByIdAsync(Guid id, CancellationToken cancellationToken) => await FirstOrDefaultAsync(x => x.Id == id, cancellationToken).ConfigureAwait(false);
+    public async Task<Project?> GetProByIdAsync(Guid id, CancellationToken cancellationToken)
+    {
+        var projects = await GetAllAsync(cancellationToken).ConfigureAwait(false);
+
+        return projects.FirstOrDefault(x => x.Id == id);
+    }
 
     public async Task<bool> DuplicateProjectExistsAsync(Guid projectId, string? name, CancellationToken cancellationToken)
     {
@@ -79,13 +86,15 @@ internal sealed class ProjectRepository(
 
     public async Task<ProjectResponseDto?> GetProjectByIdAsync(Guid id, CancellationToken cancellationToken)
     {
-        var project = await FirstOrDefaultAsync(x => x.Id == id, cancellationToken).ConfigureAwait(false);
+        var projects = await GetAllAsync(cancellationToken).ConfigureAwait(false);
+        var project = projects.FirstOrDefault(x => x.Id == id);
         if (project is null)
         {
             return null;
         }
         var users = await userRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
-        var employeeProjects = await employeeProjectRepository.FindAsync(x => x.ProjectId == project.Id, cancellationToken).ConfigureAwait(false);
+        var employeeProjects = await employeeProjectRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
+        var projectAssignments = employeeProjects.Where(x => x.ProjectId == project.Id).ToList();
         var userDictionary = users.ToDictionary(x => x.Id, x => x.Name);
 
         return new ProjectResponseDto
@@ -97,16 +106,25 @@ internal sealed class ProjectRepository(
             EndDate = project.EndDate,
             ProjectManagerId = project.ProjectManagerId,
             ProjectManagerName = userDictionary.TryGetValue(project.ProjectManagerId, out var managerName) ? managerName : string.Empty,
-            TotalUsers = employeeProjects.Count
+            TotalUsers = projectAssignments.Count
         };
     }
-    public async Task<bool> ProjectExistsByIdAsync(Guid projectId, CancellationToken cancellationToken) => await AnyAsync(x => x.Id == projectId, cancellationToken).ConfigureAwait(false);
+    public async Task<bool> ProjectExistsByIdAsync(Guid projectId, CancellationToken cancellationToken)
+    {
+        var projects = await GetAllAsync(cancellationToken).ConfigureAwait(false);
+
+        return projects.Any(x => x.Id == projectId);
+    }
 
     public async Task<IReadOnlyCollection<ProjectUserResponseDto>> GetProjectEmployeesAsync(Guid projectId, CancellationToken cancellationToken)
     {
         var employeeProjects = await employeeProjectRepository
-            .FindAsync(x => x.ProjectId == projectId, cancellationToken)
+            .GetAllAsync(cancellationToken)
             .ConfigureAwait(false);
+
+        var projectAssignments = employeeProjects
+            .Where(x => x.ProjectId == projectId)
+            .ToList();
 
         var users = await userRepository.GetAllAsync(cancellationToken)
             .ConfigureAwait(false);
@@ -129,7 +147,7 @@ internal sealed class ProjectRepository(
         var positionDictionary = positions.ToDictionary(x => x.Id, x => x.Name);
         var branchDictionary = branches.ToDictionary(x => x.Id, x => x.Name);
 
-        return employeeProjects.Select(employeeProject =>
+        return projectAssignments.Select(employeeProject =>
             {
                 userDictionary.TryGetValue(employeeProject.UserId, out var user);
                 return new ProjectUserResponseDto

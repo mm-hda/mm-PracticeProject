@@ -22,7 +22,11 @@ internal sealed class BranchRepository(
     }
 
     public async Task<Branch?> BranchByIdAsync(Guid id, CancellationToken cancellationToken)
-        => await FirstOrDefaultAsync(x => x.Id == id, cancellationToken).ConfigureAwait(false);
+    {
+        var branches = await GetAllAsync(cancellationToken).ConfigureAwait(false);
+
+        return branches.FirstOrDefault(x => x.Id == id);
+    }
 
     public async Task AddBranchAsync(Branch branch, CancellationToken cancellationToken)
         => await AddAsync(branch, cancellationToken).ConfigureAwait(false);
@@ -43,7 +47,8 @@ internal sealed class BranchRepository(
 
     public async Task<BranchResponseDto?> GetBranchByIdAsync(Guid id, CancellationToken cancellationToken)
     {
-        var branch = await FirstOrDefaultAsync(x => x.Id == id, cancellationToken).ConfigureAwait(false);
+        var branches = await GetAllAsync(cancellationToken).ConfigureAwait(false);
+        var branch = branches.FirstOrDefault(x => x.Id == id);
 
         if (branch is null)
         {
@@ -63,7 +68,8 @@ internal sealed class BranchRepository(
 
     public async Task<IReadOnlyCollection<BranchUserResponseDto>> GetBranchUsersAsync(Guid branchId, CancellationToken cancellationToken)
     {
-        var users = await userRepository.FindAsync(x => x.BranchId == branchId, cancellationToken).ConfigureAwait(false);
+        var users = await userRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
+        var branchUsers = users.Where(x => x.BranchId == branchId).ToList();
 
         var branches = await GetAllAsync(cancellationToken).ConfigureAwait(false);
         var departments = await departmentRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
@@ -75,7 +81,7 @@ internal sealed class BranchRepository(
         var positionDictionary = positions.ToDictionary(x => x.Id, x => x.Name);
         var roleDictionary = roles.ToDictionary(x => x.Id, x => x.Name);
 
-        return users.Select(user => new BranchUserResponseDto
+        return branchUsers.Select(user => new BranchUserResponseDto
         {
             UserId = user.Id,
             Name = user.Name,

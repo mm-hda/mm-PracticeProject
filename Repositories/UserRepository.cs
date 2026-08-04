@@ -17,16 +17,17 @@ internal sealed class UserRepository(
     public async Task<int> GetUsersCountAsync(CancellationToken cancellationToken)
     {
         var roles = await roleRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
+        var users = await GetAllAsync(cancellationToken).ConfigureAwait(false);
 
         var adminRole = roles.FirstOrDefault(x =>
             string.Equals(x.Name, "Admin", StringComparison.OrdinalIgnoreCase));
 
         if (adminRole is null)
         {
-            return await CountAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
+            return users.Count;
         }
 
-        var users = await FindAsync(x => x.RoleId != adminRole.Id, cancellationToken).ConfigureAwait(false);
+        users = users.Where(x => x.RoleId != adminRole.Id).ToList();
 
         return users.Count;
     }
@@ -69,7 +70,8 @@ internal sealed class UserRepository(
 
     public async Task<UserResponseDto?> GetUserByIdAsync(Guid id, CancellationToken cancellationToken)
     {
-        var user = await FirstOrDefaultAsync(x => x.Id == id, cancellationToken).ConfigureAwait(false);
+        var users = await GetAllAsync(cancellationToken).ConfigureAwait(false);
+        var user = users.FirstOrDefault(x => x.Id == id);
 
         if (user is null)
         {
