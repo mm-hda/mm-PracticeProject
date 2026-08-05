@@ -17,7 +17,18 @@ internal sealed class AuthRepository(
     {
         var users = await GetAllAsync(cancellationToken).ConfigureAwait(false);
 
-        return users.FirstOrDefault(x => string.Equals(x.Email, email, StringComparison.OrdinalIgnoreCase));
+        var user = users.FirstOrDefault(x => string.Equals(x.Email, email, StringComparison.OrdinalIgnoreCase));
+
+        if (user is null)
+        {
+            return null;
+        }
+
+        var roles = await roleRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
+
+        user.Role = roles.FirstOrDefault(x => x.Id == user.RoleId);
+
+        return user;
     }
 
     public async Task<bool> EmailExistsAsync(string? email, CancellationToken cancellationToken)

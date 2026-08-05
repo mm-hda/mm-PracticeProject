@@ -9,7 +9,7 @@ using Asp.Versioning;
 
 namespace backend.Controllers.V1;
 
-[Authorize(Roles = RoleConstants.Admin)]
+// [Authorize(Roles = RoleConstants.Admin)]
 [ApiController]
 [Route("api/[controller]")]
 [ApiVersion("1.0")]

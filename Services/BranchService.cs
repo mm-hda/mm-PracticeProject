@@ -14,8 +14,6 @@ internal sealed class BranchService(IBranchRepository branchRepository, IUnitOfW
     {
         ArgumentNullException.ThrowIfNull(dto);
 
-        // using var transaction = await unitOfWork.BeginTransactionAsync(cancellationToken).ConfigureAwait(false);
-
         try
         {
             var exists = await branchRepository.BranchExistsAsync(dto.Name, cancellationToken).ConfigureAwait(false);
@@ -40,8 +38,6 @@ internal sealed class BranchService(IBranchRepository branchRepository, IUnitOfW
 
             await unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
-            // await transaction.CommitAsync(cancellationToken).ConfigureAwait(false);
-
             return new()
             {
                 StatusCode = CustomCodes.BranchCreatedSuccessfully,
@@ -50,8 +46,6 @@ internal sealed class BranchService(IBranchRepository branchRepository, IUnitOfW
         }
         catch (OperationCanceledException)
         {
-            // await transaction.RollbackAsync(CancellationToken.None).ConfigureAwait(false);
-
             return new()
             {
                 StatusCode = CustomCodes.OperationCancelled,
@@ -60,8 +54,6 @@ internal sealed class BranchService(IBranchRepository branchRepository, IUnitOfW
         }
         catch (DbUpdateException)
         {
-            // await transaction.RollbackAsync(CancellationToken.None).ConfigureAwait(false);
-
             return new()
             {
                 StatusCode = CustomCodes.BranchCreationFailed,
@@ -70,8 +62,6 @@ internal sealed class BranchService(IBranchRepository branchRepository, IUnitOfW
         }
         catch (Exception)
         {
-            // await transaction.RollbackAsync(CancellationToken.None).ConfigureAwait(false);
-
             return new()
             {
                 StatusCode = CustomCodes.BranchCreationFailed,
@@ -84,8 +74,6 @@ internal sealed class BranchService(IBranchRepository branchRepository, IUnitOfW
     public async Task<ServiceResponse<object>> UpdateBranch(BranchDto dto, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(dto);
-
-        using var transaction = await unitOfWork.BeginTransactionAsync(cancellationToken).ConfigureAwait(false);
 
         try
         {
@@ -105,8 +93,6 @@ internal sealed class BranchService(IBranchRepository branchRepository, IUnitOfW
 
             await unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
-            await transaction.CommitAsync(cancellationToken).ConfigureAwait(false);
-
             return new()
             {
                 StatusCode = CustomCodes.BranchUpdatedSuccessfully,
@@ -115,8 +101,6 @@ internal sealed class BranchService(IBranchRepository branchRepository, IUnitOfW
         }
         catch (OperationCanceledException)
         {
-            await transaction.RollbackAsync(CancellationToken.None).ConfigureAwait(false);
-
             return new()
             {
                 StatusCode = CustomCodes.OperationCancelled,
@@ -125,8 +109,6 @@ internal sealed class BranchService(IBranchRepository branchRepository, IUnitOfW
         }
         catch (DbUpdateException)
         {
-            await transaction.RollbackAsync(CancellationToken.None).ConfigureAwait(false);
-
             return new()
             {
                 StatusCode = CustomCodes.BranchUpdateFailed,
@@ -135,8 +117,6 @@ internal sealed class BranchService(IBranchRepository branchRepository, IUnitOfW
         }
         catch (Exception)
         {
-            await transaction.RollbackAsync(CancellationToken.None).ConfigureAwait(false);
-
             return new()
             {
                 StatusCode = CustomCodes.BranchUpdateFailed,

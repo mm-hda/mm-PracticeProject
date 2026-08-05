@@ -234,7 +234,6 @@ internal sealed class AuthService(IAuthRepository authRepository, IUnitOfWork un
             new(ClaimTypes.Name, user.Name ?? string.Empty),
             new(ClaimTypes.Email, user.Email ?? string.Empty)
         };
-
         if (!string.IsNullOrWhiteSpace(user.Role?.Name))
         {
             claims.Add(new Claim(ClaimTypes.Role, user.Role.Name));

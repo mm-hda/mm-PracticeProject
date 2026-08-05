@@ -7,6 +7,8 @@ internal static class CustomCodes
     public const int DatabaseDependencyNotFound = 1002;
 
     public const int InvalidCredentials = 2001;
+    public const int UnauthorizedAccess = 2002;
+    public const int AccessForbidden = 2003;
 
     public const int InvalidInput = 3002;
     public const int InputsNotFound = 3003;

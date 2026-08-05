@@ -32,7 +32,6 @@ public class BranchController(IBranchService branchService, ILogger<BranchContro
 
         logger.LogInformation("Branch created successfully.");
         return Ok(ResponseResults<string>.Success(result.StatusCode));
-
     }
 
     [HttpPut("UpdateBranch")]

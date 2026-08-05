@@ -16,20 +16,11 @@ internal sealed class UserRepository(
 {
     public async Task<int> GetUsersCountAsync(CancellationToken cancellationToken)
     {
-        var roles = await roleRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
-        var users = await GetAllAsync(cancellationToken).ConfigureAwait(false);
+        var users = await CountAsync(x => true, cancellationToken).ConfigureAwait(false);
 
-        var adminRole = roles.FirstOrDefault(x =>
-            string.Equals(x.Name, "Admin", StringComparison.OrdinalIgnoreCase));
+        var adminUsersCount = await CountAsync(x => x.Role.Name == "Admin", cancellationToken).ConfigureAwait(false);
 
-        if (adminRole is null)
-        {
-            return users.Count;
-        }
-
-        users = users.Where(x => x.RoleId != adminRole.Id).ToList();
-
-        return users.Count;
+        return users - adminUsersCount;
     }
 
     public async Task<IReadOnlyCollection<UserResponseDto>> GetAllUsersAsync(int pageNumber, int pageSize, CancellationToken cancellationToken)

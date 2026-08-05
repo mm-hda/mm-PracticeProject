@@ -25,8 +25,10 @@ internal static class DatabaseExtensions
 
             using var scope = app.Services.CreateScope();
 
+            Console.WriteLine("Checking Cosmos DB connection...");
             var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
             await dbContext.Database.EnsureCreatedAsync().ConfigureAwait(false);
+            Console.WriteLine("Cosmos DB connection established successfully.");
             Log.Information("Cosmos DB connection established successfully.");
         }
         catch (Exception ex)
