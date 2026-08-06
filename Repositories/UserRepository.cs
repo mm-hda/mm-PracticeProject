@@ -16,26 +16,19 @@ internal sealed class UserRepository(
 {
     public async Task<int> GetUsersCountAsync(CancellationToken cancellationToken)
     {
-        var adminRole = await roleRepository
-            .FirstOrDefaultAsync(x => x.Name == "Admin", cancellationToken)
-            .ConfigureAwait(false);
+        var adminRole = await roleRepository.FirstOrDefaultAsync(x => x.Name == "Admin", cancellationToken).ConfigureAwait(false);
 
         if (adminRole is null)
         {
             return 0;
         }
 
-        return await CountAsync(
-            x => x.RoleId != adminRole.Id,
-            cancellationToken)
-            .ConfigureAwait(false);
+        return await CountAsync(x => x.RoleId != adminRole.Id, cancellationToken).ConfigureAwait(false);
     }
 
     public async Task<IReadOnlyCollection<UserResponseDto>> GetAllUsersAsync(int pageNumber, int pageSize, CancellationToken cancellationToken)
     {
-        var adminRole = await roleRepository
-            .FirstOrDefaultAsync(x => x.Name == "Admin", cancellationToken)
-            .ConfigureAwait(false);
+        var adminRole = await roleRepository.FirstOrDefaultAsync(x => x.Name == "Admin", cancellationToken).ConfigureAwait(false);
 
         var users = await GetPagedAsync(
             x => adminRole == null || x.RoleId != adminRole.Id,
@@ -103,21 +96,13 @@ internal sealed class UserRepository(
     {
         ArgumentNullException.ThrowIfNull(users);
 
-        var rolesTask = roleRepository.GetAllAsync(cancellationToken);
-        var branchesTask = branchRepository.GetAllAsync(cancellationToken);
-        var departmentsTask = departmentRepository.GetAllAsync(cancellationToken);
-        var positionsTask = positionRepository.GetAllAsync(cancellationToken);
+        var roles = await roleRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
 
-        await Task.WhenAll(
-            rolesTask,
-            branchesTask,
-            departmentsTask,
-            positionsTask).ConfigureAwait(false);
+        var branches = await branchRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
 
-        var roles = await rolesTask.ConfigureAwait(false);
-        var branches = await branchesTask.ConfigureAwait(false);
-        var departments = await departmentsTask.ConfigureAwait(false);
-        var positions = await positionsTask.ConfigureAwait(false);
+        var departments = await departmentRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
+
+        var positions = await positionRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
 
         var roleDictionary = roles.ToDictionary(x => x.Id, x => x.Name);
         var branchDictionary = branches.ToDictionary(x => x.Id, x => x.Name);

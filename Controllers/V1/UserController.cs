@@ -9,16 +9,13 @@ using Asp.Versioning;
 
 namespace backend.Controllers.V1;
 
-// [Authorize(Roles = RoleConstants.Admin)]
+[Authorize(Roles = RoleConstants.Admin)]
 [ApiController]
 [Route("api/[controller]")]
 [ApiVersion("1.0")]
-[ApiVersion("2.0")]
-
 public class UserController(IUserService userService, ILogger<UserController> logger) : ControllerBase
 {
 
-    [MapToApiVersion("2.0")]
     [HttpGet("GetAllUsers")]
     public async Task<IActionResult> GetAllUsersAsync([FromQuery] PaginationDto dto, CancellationToken cancellationToken)
     {
@@ -37,7 +34,6 @@ public class UserController(IUserService userService, ILogger<UserController> lo
         return Ok(ResponseResults<IReadOnlyCollection<UserResponseDto>>.Success(result.StatusCode, result.Data, result.Meta));
     }
 
-    [MapToApiVersion("2.0")]
     [HttpGet("GetUserBySearch")]
     public async Task<IActionResult> GetUserBySearchAsync([FromQuery] string searchTerm, CancellationToken cancellationToken)
     {
@@ -63,7 +59,6 @@ public class UserController(IUserService userService, ILogger<UserController> lo
     }
 
     [HttpGet("GetUserById/{id}")]
-    [MapToApiVersion("1.0")]
     public async Task<IActionResult> GetUserByIdAsync(Guid id, CancellationToken cancellationToken)
     {
         logger.LogTrace("GetUserById called with id: {UserId}", id);
@@ -89,7 +84,6 @@ public class UserController(IUserService userService, ILogger<UserController> lo
 
     }
 
-    [MapToApiVersion("2.0")]
     [HttpPost("GetUsersByFilter")]
     public async Task<IActionResult> GetUsersByFilterAsync([FromBody] UserFilterDto dto, CancellationToken cancellationToken)
     {

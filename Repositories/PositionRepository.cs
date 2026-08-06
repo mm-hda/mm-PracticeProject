@@ -132,29 +132,22 @@ internal sealed class PositionRepository(
 
     public async Task<IReadOnlyCollection<PositionUserResponseDto>> GetPositionUsersAsync(Guid positionId, CancellationToken cancellationToken)
     {
-        var positionTask = FirstOrDefaultAsync(x => x.Id == positionId, cancellationToken);
-        var usersTask = userRepository.FindAsync(x => x.PositionId == positionId, cancellationToken);
-        var rolesTask = roleRepository.GetAllAsync(cancellationToken);
-        var branchesTask = branchRepository.GetAllAsync(cancellationToken);
-
-        await Task.WhenAll(
-            positionTask,
-            usersTask,
-            rolesTask,
-            branchesTask).ConfigureAwait(false);
-
-        var position = await positionTask.ConfigureAwait(false);
+        var position = await FirstOrDefaultAsync(x => x.Id == positionId, cancellationToken).ConfigureAwait(false);
 
         if (position is null)
         {
             return Array.Empty<PositionUserResponseDto>();
         }
 
-        var users = await usersTask.ConfigureAwait(false);
+        var users = await userRepository.FindAsync(x => x.PositionId == positionId, cancellationToken).ConfigureAwait(false);
 
-        var roleDictionary = (await rolesTask.ConfigureAwait(false)).ToDictionary(x => x.Id, x => x.Name);
+        var roles = await roleRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
 
-        var branchDictionary = (await branchesTask.ConfigureAwait(false)).ToDictionary(x => x.Id, x => x.Name);
+        var branches = await branchRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
+
+        var roleDictionary = roles.ToDictionary(x => x.Id, x => x.Name ?? string.Empty);
+
+        var branchDictionary = branches.ToDictionary(x => x.Id, x => x.Name ?? string.Empty);
 
         return users.Select(user => new PositionUserResponseDto
         {
@@ -162,8 +155,10 @@ internal sealed class PositionRepository(
             Name = user.Name,
             Email = user.Email,
             DOB = user.DOB,
-            RoleName = roleDictionary.GetValueOrDefault(user.RoleId, string.Empty),
-            BranchName = branchDictionary.GetValueOrDefault(user.BranchId, string.Empty)
+
+            RoleName = roleDictionary.TryGetValue(user.RoleId, out var roleName) ? roleName : string.Empty,
+
+            BranchName = branchDictionary.TryGetValue(user.BranchId, out var branchName) ? branchName : string.Empty
         }).ToList();
     }
 }

@@ -35,13 +35,13 @@ public class AuthController(IAuthService authService, ILogger<AuthController> lo
         return Ok(ResponseResults<TokenDto>.Success(result.StatusCode, result.Data));
     }
 
-    // [Authorize(Roles = RoleConstants.Admin)]
+    [Authorize(Roles = RoleConstants.Admin)]
     [HttpPost("Register")]
     public async Task<IActionResult> RegisterAsync([FromBody] RegisterUserDtoV2 registerDto, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(registerDto);
         logger.LogTrace("Register called V2 with dto: {@Email}", registerDto.Email);
-
+        Console.WriteLine($"Register called V2 with dto: {registerDto.Email}, {registerDto.FirstName}, {registerDto.LastName}, {registerDto.DOB}, {registerDto.RoleId}, {registerDto.BranchId}, {registerDto.DepartmentId}, {registerDto.PositionId}");
         try
         {
             RegisterUserDto dto = new()
@@ -79,5 +79,14 @@ public class AuthController(IAuthService authService, ILogger<AuthController> lo
             return StatusCode(500, ResponseResults<string>.Failure(CustomCodes.InternalServerError));
             throw;
         }
+    }
+
+    [HttpPost("logout")]
+    public IActionResult Logout([FromBody] LogoutDto logoutDto)
+    {
+        ArgumentNullException.ThrowIfNull(logoutDto);
+        logger.LogInformation("User logged out successfully. email: {Email}", logoutDto.Email);
+        Response.Cookies.Delete("jwt");
+        return Ok();
     }
 }

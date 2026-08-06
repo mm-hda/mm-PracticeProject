@@ -7,7 +7,7 @@ using backend.Authorization;
 
 namespace backend.Controllers.V1;
 
-// [Authorize(Roles = RoleConstants.Admin)]
+[Authorize(Roles = RoleConstants.Admin)]
 [ApiController]
 [Route("api/[controller]")]
 public class RoleController(IRoleService roleService, ILogger<RoleController> logger) : ControllerBase
@@ -30,7 +30,6 @@ public class RoleController(IRoleService roleService, ILogger<RoleController> lo
 
         logger.LogInformation("Role created successfully name: {RoleName}", dto.Name);
         return Ok(ResponseResults<string>.Success(result.StatusCode));
-
     }
 
     [HttpGet("GetAllRoles")]
@@ -49,39 +48,5 @@ public class RoleController(IRoleService roleService, ILogger<RoleController> lo
         logger.LogInformation("Retrieved all roles count: {Count}", result.Data?.Count ?? 0);
         return Ok(ResponseResults<IReadOnlyCollection<RoleResponseDto>>.Success(result.StatusCode, result.Data));
 
-    }
-
-    [HttpGet("GetRoleById/{id}")]
-    public async Task<IActionResult> GetRoleByIdAsync(Guid id, CancellationToken cancellationToken)
-    {
-        logger.LogTrace("GetRoleById called with id: {RoleId}", id);
-
-        var result = await roleService.GetRoleById(id, cancellationToken).ConfigureAwait(false);
-
-        if (!result.IsSuccess)
-        {
-            logger.LogWarning("{Status code} id: {RoleId}", result.StatusCode, id);
-            return NotFound(ResponseResults<string>.Failure(result.StatusCode));
-        }
-
-        logger.LogInformation("Retrieved role with id: {RoleId} name: {RoleName}", id, result.Data?.Name);
-        return Ok(ResponseResults<RoleResponseDto>.Success(result.StatusCode, result.Data));
-
-    }
-
-    [HttpGet("GetUsersByRole/{roleId}")]
-    public async Task<IActionResult> GetUsersByRoleAsync(Guid roleId, CancellationToken cancellationToken)
-    {
-        logger.LogTrace("GetUsersByRole called with id: {RoleId}", roleId);
-
-        var result = await roleService.GetUsersByRole(roleId, cancellationToken).ConfigureAwait(false);
-        if (!result.IsSuccess)
-        {
-            logger.LogWarning("{Status code} id: {RoleId}", result.StatusCode, roleId);
-            return NotFound(ResponseResults<string>.Failure(result.StatusCode));
-        }
-
-        logger.LogInformation("Retrieved users for role with id: {RoleId} count: {Count}", roleId, result.Data?.Count ?? 0);
-        return Ok(ResponseResults<IReadOnlyCollection<RoleUserResponseDto>>.Success(result.StatusCode, result.Data));
     }
 }

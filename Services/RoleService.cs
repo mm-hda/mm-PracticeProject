@@ -29,7 +29,7 @@ internal sealed class RoleService(IRoleRepository roleRepository, IUnitOfWork un
                 Name = dto.Name ?? ""
             };
 
-            await roleRepository.AddAsync(role, cancellationToken).ConfigureAwait(false);
+            await roleRepository.AddRoleAsync(role, cancellationToken).ConfigureAwait(false);
 
             await unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
@@ -66,46 +66,6 @@ internal sealed class RoleService(IRoleRepository roleRepository, IUnitOfWork un
         catch (Exception)
         {
             return new ServiceResponse<IReadOnlyCollection<RoleResponseDto>> { IsSuccess = false, StatusCode = CustomCodes.InternalServerError };
-            throw;
-        }
-    }
-
-    public async Task<ServiceResponse<RoleResponseDto?>> GetRoleById(Guid id, CancellationToken cancellationToken)
-    {
-        try
-        {
-            var role = await roleRepository.GetRoleByIdAsync(id, cancellationToken).ConfigureAwait(false);
-
-            if (role == null)
-            {
-                return new ServiceResponse<RoleResponseDto?> { IsSuccess = false, StatusCode = CustomCodes.RoleNotFound, Data = null };
-            }
-
-            return new ServiceResponse<RoleResponseDto?> { IsSuccess = true, StatusCode = CustomCodes.DataRetrieved, Data = role };
-        }
-        catch (Exception)
-        {
-            return new ServiceResponse<RoleResponseDto?> { IsSuccess = false, StatusCode = CustomCodes.InternalServerError, Data = null };
-            throw;
-        }
-    }
-
-    public async Task<ServiceResponse<IReadOnlyCollection<RoleUserResponseDto>>> GetUsersByRole(Guid roleId, CancellationToken cancellationToken)
-    {
-        try
-        {
-            var users = await roleRepository.GetUsersByRoleAsync(roleId, cancellationToken).ConfigureAwait(false);
-
-            if (users.Count == 0)
-            {
-                return new ServiceResponse<IReadOnlyCollection<RoleUserResponseDto>> { IsSuccess = false, StatusCode = CustomCodes.UserNotFound };
-            }
-
-            return new ServiceResponse<IReadOnlyCollection<RoleUserResponseDto>> { IsSuccess = true, StatusCode = CustomCodes.DataRetrieved, Data = users };
-        }
-        catch (Exception)
-        {
-            return new ServiceResponse<IReadOnlyCollection<RoleUserResponseDto>> { IsSuccess = false, StatusCode = CustomCodes.InternalServerError };
             throw;
         }
     }

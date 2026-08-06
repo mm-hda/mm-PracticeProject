@@ -7,7 +7,7 @@ using backend.Authorization;
 
 namespace backend.Controllers.V1;
 
-// [Authorize(Roles = RoleConstants.Admin + "," + RoleConstants.HR)]
+[Authorize(Roles = RoleConstants.Admin + "," + RoleConstants.HR)]
 [ApiController]
 [Route("api/[controller]")]
 public class BranchController(IBranchService branchService, ILogger<BranchController> logger) : ControllerBase

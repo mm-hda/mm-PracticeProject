@@ -14,7 +14,7 @@ using System.Text;
 
 namespace backend.Services;
 
-internal sealed class AuthService(IAuthRepository authRepository, IUnitOfWork unitOfWork, IConfiguration configuration) : IAuthService
+internal sealed class AuthService(IAuthRepository authRepository, IUnitOfWork unitOfWork, IConfiguration configuration, IHttpContextAccessor httpContextAccessor) : IAuthService
 {
     public async Task<ServiceResponse<TokenDto>> LoginUser(LoginDto dto, CancellationToken cancellationToken)
     {
@@ -28,9 +28,6 @@ internal sealed class AuthService(IAuthRepository authRepository, IUnitOfWork un
 
             if (existingUser == null)
             {
-
-                tokenDto.Message = "User not found";
-
                 return new ServiceResponse<TokenDto>
                 {
                     StatusCode = CustomCodes.UserNotFound,
@@ -48,9 +45,6 @@ internal sealed class AuthService(IAuthRepository authRepository, IUnitOfWork un
 
             if (verificationResult == PasswordVerificationResult.Failed)
             {
-
-                tokenDto.Message = "Invalid credentials";
-
                 return new ServiceResponse<TokenDto>
                 {
                     StatusCode = CustomCodes.InvalidCredentials,
@@ -71,8 +65,17 @@ internal sealed class AuthService(IAuthRepository authRepository, IUnitOfWork un
 
             var token = GetJwtToken(existingUser);
 
-            tokenDto.Token = token;
-            tokenDto.Message = "Login successful";
+            httpContextAccessor.HttpContext?.Response.Cookies.Append(
+                "jwt",
+                token,
+                new CookieOptions
+                {
+                    HttpOnly = true,
+                    Secure = true,
+                    SameSite = SameSiteMode.Strict,
+                    Expires = DateTime.UtcNow.AddDays(10)
+                });
+
             tokenDto.UserId = existingUser.Id;
             tokenDto.Name = existingUser.Name ?? string.Empty;
             tokenDto.Email = existingUser.Email ?? string.Empty;

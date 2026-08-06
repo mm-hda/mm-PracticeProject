@@ -71,31 +71,22 @@ internal sealed class BranchRepository(
 
     public async Task<IReadOnlyCollection<BranchUserResponseDto>> GetBranchUsersAsync(Guid branchId, CancellationToken cancellationToken)
     {
-        var branchTask = FirstOrDefaultAsync(x => x.Id == branchId, cancellationToken);
-
-        var usersTask = userRepository.FindAsync(x => x.BranchId == branchId, cancellationToken);
-
-        var departmentsTask = departmentRepository.GetAllAsync(cancellationToken);
-        var positionsTask = positionRepository.GetAllAsync(cancellationToken);
-
-        await Task.WhenAll(
-            branchTask,
-            usersTask,
-            departmentsTask,
-            positionsTask).ConfigureAwait(false);
-
-        var branch = await branchTask.ConfigureAwait(false);
+        var branch = await FirstOrDefaultAsync(x => x.Id == branchId, cancellationToken).ConfigureAwait(false);
 
         if (branch is null)
         {
             return Array.Empty<BranchUserResponseDto>();
         }
 
-        var users = await usersTask.ConfigureAwait(false);
+        var users = await userRepository.FindAsync(x => x.BranchId == branchId, cancellationToken).ConfigureAwait(false);
 
-        var departmentDictionary = (await departmentsTask.ConfigureAwait(false)).ToDictionary(x => x.Id, x => x.Name);
+        var departments = await departmentRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
 
-        var positionDictionary = (await positionsTask.ConfigureAwait(false)).ToDictionary(x => x.Id, x => x.Name);
+        var positions = await positionRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
+
+        var departmentDictionary = departments.ToDictionary(x => x.Id, x => x.Name ?? string.Empty);
+
+        var positionDictionary = positions.ToDictionary(x => x.Id, x => x.Name ?? string.Empty);
 
         return users.Select(user => new BranchUserResponseDto
         {
@@ -103,8 +94,10 @@ internal sealed class BranchRepository(
             Name = user.Name,
             Email = user.Email,
             DOB = user.DOB,
-            DepartmentName = departmentDictionary.GetValueOrDefault(user.DepartmentId, string.Empty),
-            PositionName = positionDictionary.GetValueOrDefault(user.PositionId, string.Empty)
+
+            DepartmentName = departmentDictionary.TryGetValue(user.DepartmentId, out var departmentName) ? departmentName : string.Empty,
+
+            PositionName = positionDictionary.TryGetValue(user.PositionId, out var positionName) ? positionName : string.Empty
         }).ToList();
     }
 }

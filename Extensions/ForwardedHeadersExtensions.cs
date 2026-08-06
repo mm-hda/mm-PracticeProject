@@ -8,11 +8,8 @@ internal static class ForwardedHeadersExtensions
         this IServiceCollection services)
     {
         services.Configure<ForwardedHeadersOptions>(options =>
-        {
-            options.ForwardedHeaders =
-                ForwardedHeaders.XForwardedFor |
-                ForwardedHeaders.XForwardedProto;
-        });
+            options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+        );
 
         return services;
     }
