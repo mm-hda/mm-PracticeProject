@@ -14,4 +14,15 @@ public interface IGenericRepository<TEntity> where TEntity : class
     void Update(TEntity entity, CancellationToken cancellationToken);
     void Delete(TEntity entity, CancellationToken cancellationToken);
     void DeleteRange(IEnumerable<TEntity> entities, CancellationToken cancellationToken);
+
+    Task<IReadOnlyCollection<TEntity>> GetPagedAsync(
+        Expression<Func<TEntity, bool>>? predicate,
+        Expression<Func<TEntity, object>> orderBy,
+        int pageNumber,
+        int pageSize,
+        CancellationToken cancellationToken);
+    Task<IReadOnlyCollection<TEntity>> GetAsync(
+        Expression<Func<TEntity, bool>> predicate,
+        Expression<Func<TEntity, object>>? orderBy = null,
+        CancellationToken cancellationToken = default);
 }

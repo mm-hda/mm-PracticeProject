@@ -16,53 +16,51 @@ internal sealed class UserRepository(
 {
     public async Task<int> GetUsersCountAsync(CancellationToken cancellationToken)
     {
-        var users = await CountAsync(x => true, cancellationToken).ConfigureAwait(false);
+        var adminRole = await roleRepository
+            .FirstOrDefaultAsync(x => x.Name == "Admin", cancellationToken)
+            .ConfigureAwait(false);
 
-        var adminUsersCount = await CountAsync(x => x.Role.Name == "Admin", cancellationToken).ConfigureAwait(false);
+        if (adminRole is null)
+        {
+            return 0;
+        }
 
-        return users - adminUsersCount;
+        return await CountAsync(
+            x => x.RoleId != adminRole.Id,
+            cancellationToken)
+            .ConfigureAwait(false);
     }
 
     public async Task<IReadOnlyCollection<UserResponseDto>> GetAllUsersAsync(int pageNumber, int pageSize, CancellationToken cancellationToken)
     {
-        var roles = await roleRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
+        var adminRole = await roleRepository
+            .FirstOrDefaultAsync(x => x.Name == "Admin", cancellationToken)
+            .ConfigureAwait(false);
 
-        var adminRole = roles.FirstOrDefault(x =>
-            string.Equals(x.Name, "Admin", StringComparison.OrdinalIgnoreCase));
-
-        var users = await GetAllAsync(cancellationToken).ConfigureAwait(false);
-
-        if (adminRole is not null)
-        {
-            users = users.Where(x => x.RoleId != adminRole.Id).ToList();
-        }
-
-        users = users.OrderBy(x => x.Name)
-            .Skip((pageNumber - 1) * pageSize)
-            .Take(pageSize)
-            .ToList();
+        var users = await GetPagedAsync(
+            x => adminRole == null || x.RoleId != adminRole.Id,
+            x => x.Name,
+            pageNumber,
+            pageSize,
+            cancellationToken).ConfigureAwait(false);
 
         return await MapUsersAsync(users, cancellationToken).ConfigureAwait(false);
     }
 
     public async Task<IReadOnlyCollection<UserResponseDto>> GetUserBySearchAsync(string searchTerm, CancellationToken cancellationToken)
     {
-        var users = await GetAllAsync(cancellationToken).ConfigureAwait(false);
+        var users = await GetAsync(
+            x => x.Name.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                 x.Email.Contains(searchTerm, StringComparison.OrdinalIgnoreCase),
+            x => x.Name,
+            cancellationToken: cancellationToken).ConfigureAwait(false);
 
-        var filteredUsers = users
-            .Where(x =>
-                x.Name.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
-                x.Email.Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
-            .OrderBy(x => x.Name)
-            .ToList();
-
-        return await MapUsersAsync(filteredUsers, cancellationToken).ConfigureAwait(false);
+        return await MapUsersAsync(users, cancellationToken).ConfigureAwait(false);
     }
 
     public async Task<UserResponseDto?> GetUserByIdAsync(Guid id, CancellationToken cancellationToken)
     {
-        var users = await GetAllAsync(cancellationToken).ConfigureAwait(false);
-        var user = users.FirstOrDefault(x => x.Id == id);
+        var user = await FirstOrDefaultAsync(x => x.Id == id, cancellationToken).ConfigureAwait(false);
 
         if (user is null)
         {
@@ -74,17 +72,9 @@ internal sealed class UserRepository(
 
     public async Task<IReadOnlyCollection<UserResponseDto>> GetUsersByFilterAsync(UserFilterDto dto, CancellationToken cancellationToken)
     {
-        var roles = await roleRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
+        var adminRole = await roleRepository.FirstOrDefaultAsync(x => x.Name == "Admin", cancellationToken).ConfigureAwait(false);
 
-        var adminRole = roles.FirstOrDefault(x =>
-            string.Equals(x.Name, "Admin", StringComparison.OrdinalIgnoreCase));
-
-        IEnumerable<User> users = await GetAllAsync(cancellationToken).ConfigureAwait(false);
-
-        if (adminRole is not null)
-        {
-            users = users.Where(x => x.RoleId != adminRole.Id);
-        }
+        IEnumerable<User> users = await FindAsync(x => adminRole == null || x.RoleId != adminRole.Id, cancellationToken).ConfigureAwait(false);
 
         if (dto.RoleId.HasValue)
         {
@@ -113,10 +103,21 @@ internal sealed class UserRepository(
     {
         ArgumentNullException.ThrowIfNull(users);
 
-        var roles = await roleRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
-        var branches = await branchRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
-        var departments = await departmentRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
-        var positions = await positionRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
+        var rolesTask = roleRepository.GetAllAsync(cancellationToken);
+        var branchesTask = branchRepository.GetAllAsync(cancellationToken);
+        var departmentsTask = departmentRepository.GetAllAsync(cancellationToken);
+        var positionsTask = positionRepository.GetAllAsync(cancellationToken);
+
+        await Task.WhenAll(
+            rolesTask,
+            branchesTask,
+            departmentsTask,
+            positionsTask).ConfigureAwait(false);
+
+        var roles = await rolesTask.ConfigureAwait(false);
+        var branches = await branchesTask.ConfigureAwait(false);
+        var departments = await departmentsTask.ConfigureAwait(false);
+        var positions = await positionsTask.ConfigureAwait(false);
 
         var roleDictionary = roles.ToDictionary(x => x.Id, x => x.Name);
         var branchDictionary = branches.ToDictionary(x => x.Id, x => x.Name);

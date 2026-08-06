@@ -34,6 +34,7 @@ internal class GenericRepository<TEntity>(AppDbContext context) : IGenericReposi
             .FirstOrDefaultAsync(predicate, cancellationToken)
             .ConfigureAwait(false);
     }
+
     public async Task<int> CountAsync(Expression<Func<TEntity, bool>>? predicate = null, CancellationToken cancellationToken = default)
     {
         if (predicate is null)
@@ -71,6 +72,43 @@ internal class GenericRepository<TEntity>(AppDbContext context) : IGenericReposi
     public void DeleteRange(IEnumerable<TEntity> entities, CancellationToken cancellationToken = default) => DbSet.RemoveRange(entities);
 
     protected IQueryable<TEntity> Query() => DbSet.AsQueryable();
+
     protected IQueryable<TEntity> QueryAsNoTracking() => DbSet.AsNoTracking();
 
+    public async Task<IReadOnlyCollection<TEntity>> GetPagedAsync(Expression<Func<TEntity, bool>>? predicate, Expression<Func<TEntity, object>> orderBy, int pageNumber,
+        int pageSize, CancellationToken cancellationToken)
+    {
+        var query = QueryAsNoTracking();
+
+        if (predicate is not null)
+        {
+            query = query.Where(predicate);
+        }
+
+        return await query
+            .OrderBy(orderBy)
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync(cancellationToken)
+            .ConfigureAwait(false);
+    }
+
+    public async Task<IReadOnlyCollection<TEntity>> GetAsync(
+    Expression<Func<TEntity, bool>> predicate,
+    Expression<Func<TEntity, object>>? orderBy = null,
+    CancellationToken cancellationToken = default)
+    {
+        var query = DbSet
+            .AsNoTracking()
+            .Where(predicate);
+
+        if (orderBy is not null)
+        {
+            query = query.OrderBy(orderBy);
+        }
+
+        return await query
+            .ToListAsync(cancellationToken)
+            .ConfigureAwait(false);
+    }
 }

@@ -9,88 +9,102 @@ namespace backend.Repositories;
 internal sealed class BranchRepository(
     AppDbContext context,
     IGenericRepository<User> userRepository,
-    IGenericRepository<Role> roleRepository,
     IGenericRepository<Department> departmentRepository,
     IGenericRepository<Position> positionRepository)
     : GenericRepository<Branch>(context), IBranchRepository
 {
     public async Task<bool> BranchExistsAsync(string? name, CancellationToken cancellationToken)
     {
-        var branches = await GetAllAsync(cancellationToken).ConfigureAwait(false);
+        var branches = await CountAsync(x => x.Name == name, cancellationToken).ConfigureAwait(false);
 
-        return branches.Any(x => string.Equals(x.Name, name, StringComparison.OrdinalIgnoreCase));
+        return branches > 0;
     }
 
     public async Task<Branch?> BranchByIdAsync(Guid id, CancellationToken cancellationToken)
     {
-        var branches = await GetAllAsync(cancellationToken).ConfigureAwait(false);
+        var branch = await FirstOrDefaultAsync(x => x.Id == id, cancellationToken).ConfigureAwait(false);
 
-        return branches.FirstOrDefault(x => x.Id == id);
+        return branch;
     }
 
-    public async Task AddBranchAsync(Branch branch, CancellationToken cancellationToken)
-        => await AddAsync(branch, cancellationToken).ConfigureAwait(false);
+    public async Task AddBranchAsync(Branch branch, CancellationToken cancellationToken) => await AddAsync(branch, cancellationToken).ConfigureAwait(false);
 
     public async Task<IReadOnlyCollection<BranchResponseDto>> GetAllBranchesAsync(CancellationToken cancellationToken)
     {
         var branches = await GetAllAsync(cancellationToken).ConfigureAwait(false);
-        var users = await userRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
+        var result = new List<BranchResponseDto>();
 
-        return branches.Select(branch => new BranchResponseDto
+        foreach (var branch in branches)
         {
-            Id = branch.Id,
-            Name = branch.Name,
-            Location = branch.Location,
-            TotalUsers = users.Count(x => x.BranchId == branch.Id)
-        }).ToList();
+            var users = await userRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
+
+            result.Add(new BranchResponseDto
+            {
+                Id = branch.Id,
+                Name = branch.Name,
+                Location = branch.Location,
+                TotalUsers = users.Count(x => x.BranchId == branch.Id)
+            });
+        }
+        return result;
     }
 
     public async Task<BranchResponseDto?> GetBranchByIdAsync(Guid id, CancellationToken cancellationToken)
     {
-        var branches = await GetAllAsync(cancellationToken).ConfigureAwait(false);
-        var branch = branches.FirstOrDefault(x => x.Id == id);
+        var branch = await FirstOrDefaultAsync(x => x.Id == id, cancellationToken).ConfigureAwait(false);
 
         if (branch is null)
         {
             return null;
         }
 
-        var users = await userRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
+        var users = await userRepository.CountAsync(x => x.BranchId == branch.Id, cancellationToken).ConfigureAwait(false);
 
         return new BranchResponseDto
         {
             Id = branch.Id,
             Name = branch.Name,
             Location = branch.Location,
-            TotalUsers = users.Count(x => x.BranchId == branch.Id)
+            TotalUsers = users
         };
     }
 
     public async Task<IReadOnlyCollection<BranchUserResponseDto>> GetBranchUsersAsync(Guid branchId, CancellationToken cancellationToken)
     {
-        var users = await userRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
-        var branchUsers = users.Where(x => x.BranchId == branchId).ToList();
+        var branchTask = FirstOrDefaultAsync(x => x.Id == branchId, cancellationToken);
 
-        var branches = await GetAllAsync(cancellationToken).ConfigureAwait(false);
-        var departments = await departmentRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
-        var positions = await positionRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
-        var roles = await roleRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
+        var usersTask = userRepository.FindAsync(x => x.BranchId == branchId, cancellationToken);
 
-        var branchDictionary = branches.ToDictionary(x => x.Id, x => x.Name);
-        var departmentDictionary = departments.ToDictionary(x => x.Id, x => x.Name);
-        var positionDictionary = positions.ToDictionary(x => x.Id, x => x.Name);
-        var roleDictionary = roles.ToDictionary(x => x.Id, x => x.Name);
+        var departmentsTask = departmentRepository.GetAllAsync(cancellationToken);
+        var positionsTask = positionRepository.GetAllAsync(cancellationToken);
 
-        return branchUsers.Select(user => new BranchUserResponseDto
+        await Task.WhenAll(
+            branchTask,
+            usersTask,
+            departmentsTask,
+            positionsTask).ConfigureAwait(false);
+
+        var branch = await branchTask.ConfigureAwait(false);
+
+        if (branch is null)
+        {
+            return Array.Empty<BranchUserResponseDto>();
+        }
+
+        var users = await usersTask.ConfigureAwait(false);
+
+        var departmentDictionary = (await departmentsTask.ConfigureAwait(false)).ToDictionary(x => x.Id, x => x.Name);
+
+        var positionDictionary = (await positionsTask.ConfigureAwait(false)).ToDictionary(x => x.Id, x => x.Name);
+
+        return users.Select(user => new BranchUserResponseDto
         {
             UserId = user.Id,
             Name = user.Name,
             Email = user.Email,
             DOB = user.DOB,
-            BranchName = branchDictionary.TryGetValue(user.BranchId, out var branchName) ? branchName : string.Empty,
-            DepartmentName = departmentDictionary.TryGetValue(user.DepartmentId, out var departmentName) ? departmentName : string.Empty,
-            PositionName = positionDictionary.TryGetValue(user.PositionId, out var positionName) ? positionName : string.Empty,
-            RoleName = roleDictionary.TryGetValue(user.RoleId, out var roleName) ? roleName : string.Empty
+            DepartmentName = departmentDictionary.GetValueOrDefault(user.DepartmentId, string.Empty),
+            PositionName = positionDictionary.GetValueOrDefault(user.PositionId, string.Empty)
         }).ToList();
     }
 }

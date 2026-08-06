@@ -15,18 +15,16 @@ internal sealed class AuthRepository(
 {
     public async Task<User?> GetUserByEmailWithDetailsAsync(string? email, CancellationToken cancellationToken)
     {
-        var users = await GetAllAsync(cancellationToken).ConfigureAwait(false);
-
-        var user = users.FirstOrDefault(x => string.Equals(x.Email, email, StringComparison.OrdinalIgnoreCase));
+        var user = await FirstOrDefaultAsync(x => x.Email == email, cancellationToken).ConfigureAwait(false);
 
         if (user is null)
         {
             return null;
         }
 
-        var roles = await roleRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
+        var role = await roleRepository.FirstOrDefaultAsync(x => x.Id == user.RoleId, cancellationToken).ConfigureAwait(false);
 
-        user.Role = roles.FirstOrDefault(x => x.Id == user.RoleId);
+        user.Role = role;
 
         return user;
     }
@@ -38,39 +36,38 @@ internal sealed class AuthRepository(
             return false;
         }
 
-        var users = await GetAllAsync(cancellationToken).ConfigureAwait(false);
+        var user = await CountAsync(x => x.Email == email, cancellationToken).ConfigureAwait(false);
 
-        return users.Any(x => string.Equals(x.Email, email, StringComparison.OrdinalIgnoreCase));
+        return user > 0;
     }
 
     public async Task<bool> BranchExistsAsync(Guid branchId, CancellationToken cancellationToken)
     {
-        var branches = await branchRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
+        var branch = await branchRepository.CountAsync(x => x.Id == branchId, cancellationToken).ConfigureAwait(false);
 
-        return branches.Any(x => x.Id == branchId);
+        return branch > 0;
     }
 
     public async Task<bool> DepartmentExistsAsync(Guid departmentId, CancellationToken cancellationToken)
     {
-        var departments = await departmentRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
+        var department = await departmentRepository.CountAsync(x => x.Id == departmentId, cancellationToken).ConfigureAwait(false);
 
-        return departments.Any(x => x.Id == departmentId);
+        return department > 0;
     }
 
     public async Task<bool> PositionExistsAsync(Guid positionId, Guid departmentId, CancellationToken cancellationToken)
     {
-        var positions = await positionRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
+        var positions = await positionRepository.CountAsync(x => x.Id == positionId && x.DepartmentId == departmentId, cancellationToken).ConfigureAwait(false);
 
-        return positions.Any(x => x.Id == positionId && x.DepartmentId == departmentId);
+        return positions > 0;
     }
 
     public async Task<bool> RoleExistsAsync(Guid roleId, CancellationToken cancellationToken)
     {
-        var roles = await roleRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
+        var roles = await roleRepository.CountAsync(x => x.Id == roleId, cancellationToken).ConfigureAwait(false);
 
-        return roles.Any(x => x.Id == roleId);
+        return roles > 0;
     }
 
-    public async Task AddUserAsync(User user, CancellationToken cancellationToken)
-        => await AddAsync(user, cancellationToken).ConfigureAwait(false);
+    public async Task AddUserAsync(User user, CancellationToken cancellationToken) => await AddAsync(user, cancellationToken).ConfigureAwait(false);
 }

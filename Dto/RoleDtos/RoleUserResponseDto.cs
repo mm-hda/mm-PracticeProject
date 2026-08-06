@@ -8,5 +8,5 @@ public class RoleUserResponseDto
     public string? RoleName { get; set; }
     public string? DepartmentName { get; set; }
     public string? PositionName { get; set; }
-    public string? BranchName { get; set; }
+    public string? BranchName { get; set; } = string.Empty;
 }

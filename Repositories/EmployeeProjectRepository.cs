@@ -16,23 +16,23 @@ internal sealed class EmployeeProjectRepository(
 {
     public async Task<bool> UserExistsAsync(Guid userId, CancellationToken cancellationToken)
     {
-        var users = await userRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
+        var users = await userRepository.CountAsync(x => x.Id == userId, cancellationToken).ConfigureAwait(false);
 
-        return users.Any(x => x.Id == userId);
+        return users > 0;
     }
 
     public async Task<Project?> GetProjectByIdAsync(Guid projectId, CancellationToken cancellationToken)
     {
-        var projects = await projectRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
+        var project = await projectRepository.FirstOrDefaultAsync(x => x.Id == projectId, cancellationToken).ConfigureAwait(false);
 
-        return projects.FirstOrDefault(x => x.Id == projectId);
+        return project;
     }
 
     public async Task<bool> EmployeeProjectExistsAsync(Guid userId, Guid projectId, CancellationToken cancellationToken)
     {
-        var employeeProjects = await GetAllAsync(cancellationToken).ConfigureAwait(false);
+        var employeeProjects = await CountAsync(x => x.UserId == userId && x.ProjectId == projectId, cancellationToken).ConfigureAwait(false);
 
-        return employeeProjects.Any(x => x.UserId == userId && x.ProjectId == projectId);
+        return employeeProjects > 0;
     }
 
     public async Task AddEmployeeProjectAsync(EmployeeProject employeeProject, CancellationToken cancellationToken)
@@ -40,18 +40,18 @@ internal sealed class EmployeeProjectRepository(
 
     public async Task<EmployeeProject?> GetEmployeeProjectByIdAsync(Guid id, CancellationToken cancellationToken)
     {
-        var employeeProjects = await GetAllAsync(cancellationToken).ConfigureAwait(false);
+        var employeeProject = await FirstOrDefaultAsync(x => x.Id == id, cancellationToken).ConfigureAwait(false);
 
-        return employeeProjects.FirstOrDefault(x => x.Id == id);
+        return employeeProject;
     }
 
     public void Remove(EmployeeProject employeeProject, CancellationToken cancellationToken) => Delete(employeeProject, cancellationToken);
 
     public async Task<int> GetUserProjectsCountAsync(Guid userId, CancellationToken cancellationToken)
     {
-        var employeeProjects = await GetAllAsync(cancellationToken).ConfigureAwait(false);
+        var employeeProjects = await CountAsync(x => x.UserId == userId, cancellationToken).ConfigureAwait(false);
 
-        return employeeProjects.Count(x => x.UserId == userId);
+        return employeeProjects;
     }
 
     public async Task<IReadOnlyCollection<EmployeeProjectResponseDto>> GetAllEmployeeProjectsAsync(CancellationToken cancellationToken)
@@ -72,7 +72,6 @@ internal sealed class EmployeeProjectRepository(
 
             return new EmployeeProjectResponseDto
             {
-                Id = ep.Id,
                 UserId = ep.UserId,
                 UserName = user?.Name ?? string.Empty,
                 UserEmail = user?.Email ?? string.Empty,
@@ -86,38 +85,39 @@ internal sealed class EmployeeProjectRepository(
         }).ToList();
     }
 
-    public async Task<IReadOnlyCollection<ProjectResponseDto>> GetUserProjectsByUserIdAsync(
-        Guid userId,
-        int pageNumber,
-        int pageSize,
-        CancellationToken cancellationToken)
+    public async Task<IReadOnlyCollection<ProjectResponseDto>> GetUserProjectsByUserIdAsync(Guid userId, int pageNumber, int pageSize, CancellationToken cancellationToken)
     {
-        var allEmployeeProjects = await GetAllAsync(cancellationToken).ConfigureAwait(false);
-        var employeeProjects = allEmployeeProjects.Where(x => x.UserId == userId).ToList();
-        var projects = await projectRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
-        var users = await userRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
+        var employeeProjectsTask = GetAsync(x => x.UserId == userId, cancellationToken: cancellationToken);
+
+        var projectsTask = projectRepository.GetAllAsync(cancellationToken);
+        var usersTask = userRepository.GetAllAsync(cancellationToken);
+
+        await Task.WhenAll(
+            employeeProjectsTask,
+            projectsTask,
+            usersTask).ConfigureAwait(false);
+
+        var employeeProjects = await employeeProjectsTask.ConfigureAwait(false);
+        var projects = await projectsTask.ConfigureAwait(false);
+        var users = await usersTask.ConfigureAwait(false);
 
         var projectDictionary = projects.ToDictionary(x => x.Id);
         var userDictionary = users.ToDictionary(x => x.Id);
 
+        var projectUserCountDictionary = employeeProjects.GroupBy(x => x.ProjectId).ToDictionary(x => x.Key, x => x.Count());
+
         var pagedProjects = employeeProjects
-            .OrderByDescending(x =>
-                projectDictionary.TryGetValue(x.ProjectId, out var project)
-                    ? project.StartDate
-                    : DateTime.MinValue)
+            .OrderByDescending(x => projectDictionary.TryGetValue(x.ProjectId, out var project)
+                ? project.StartDate
+                : DateTime.MinValue)
             .Skip((pageNumber - 1) * pageSize)
-            .Take(pageSize)
-            .ToList();
+            .Take(pageSize);
 
         return pagedProjects.Select(ep =>
         {
             projectDictionary.TryGetValue(ep.ProjectId, out var project);
 
-            var totalUsers = employeeProjects.Count(x => x.ProjectId == ep.ProjectId);
-
-            userDictionary.TryGetValue(
-                project?.ProjectManagerId ?? Guid.Empty,
-                out var manager);
+            userDictionary.TryGetValue(project?.ProjectManagerId ?? Guid.Empty, out var manager);
 
             return new ProjectResponseDto
             {
@@ -128,7 +128,7 @@ internal sealed class EmployeeProjectRepository(
                 EndDate = project?.EndDate,
                 ProjectManagerId = project?.ProjectManagerId ?? Guid.Empty,
                 ProjectManagerName = manager?.Name ?? string.Empty,
-                TotalUsers = totalUsers
+                TotalUsers = projectUserCountDictionary.GetValueOrDefault(project?.Id ?? Guid.Empty, 0)
             };
         }).ToList();
     }

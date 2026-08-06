@@ -20,33 +20,30 @@ internal sealed class ProjectRepository(
         {
             return false;
         }
-        var projects = await GetAllAsync(cancellationToken).ConfigureAwait(false);
+        var projects = await FirstOrDefaultAsync(x => string.Equals(x.Name, name, StringComparison.OrdinalIgnoreCase), cancellationToken).ConfigureAwait(false);
 
-        return projects.Any(x => string.Equals(x.Name, name, StringComparison.OrdinalIgnoreCase));
+        return projects is not null;
     }
 
     public async Task<bool> ManagerExistsAsync(Guid managerId, CancellationToken cancellationToken)
     {
-        var roles = await roleRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
-        var users = await userRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
-
-        var managerRole = roles.FirstOrDefault(x => string.Equals(x.Name, "Manager", StringComparison.OrdinalIgnoreCase));
+        var managerRole = await roleRepository.FirstOrDefaultAsync(x => string.Equals(x.Name, "Manager", StringComparison.OrdinalIgnoreCase), cancellationToken).ConfigureAwait(false);
 
         if (managerRole is null)
         {
             return false;
         }
+        var users = await userRepository.CountAsync(x => x.Id == managerId && x.RoleId == managerRole.Id, cancellationToken).ConfigureAwait(false);
 
-        return users.Any(x => x.Id == managerId && x.RoleId == managerRole.Id);
+        return users > 0;
     }
 
     public async Task AddProjectAsync(Project project, CancellationToken cancellationToken) => await AddAsync(project, cancellationToken).ConfigureAwait(false);
 
     public async Task<Project?> GetProByIdAsync(Guid id, CancellationToken cancellationToken)
     {
-        var projects = await GetAllAsync(cancellationToken).ConfigureAwait(false);
-
-        return projects.FirstOrDefault(x => x.Id == id);
+        var project = await FirstOrDefaultAsync(x => x.Id == id, cancellationToken).ConfigureAwait(false);
+        return project;
     }
 
     public async Task<bool> DuplicateProjectExistsAsync(Guid projectId, string? name, CancellationToken cancellationToken)
@@ -55,15 +52,23 @@ internal sealed class ProjectRepository(
         {
             return false;
         }
-        var projects = await GetAllAsync(cancellationToken).ConfigureAwait(false);
+        var projects = await CountAsync(x => x.Id != projectId && string.Equals(x.Name, name, StringComparison.OrdinalIgnoreCase), cancellationToken).ConfigureAwait(false);
 
-        return projects.Any(x => x.Id != projectId && string.Equals(x.Name, name, StringComparison.OrdinalIgnoreCase));
+        return projects > 0;
     }
 
     public async Task<IReadOnlyCollection<ProjectResponseDto>> GetAllProjectsAsync(CancellationToken cancellationToken)
     {
         var projects = await GetAllAsync(cancellationToken).ConfigureAwait(false);
-        var users = await userRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
+
+        var managerRole = await roleRepository.FirstOrDefaultAsync(x => string.Equals(x.Name, "Manager", StringComparison.OrdinalIgnoreCase), cancellationToken).ConfigureAwait(false);
+
+        if (managerRole is null)
+        {
+            return Array.Empty<ProjectResponseDto>();
+        }
+
+        var users = await userRepository.FindAsync(x => x.RoleId == managerRole.Id, cancellationToken).ConfigureAwait(false);
         var employeeProjects = await employeeProjectRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
         var userDictionary = users.ToDictionary(x => x.Id, x => x.Name);
 
@@ -75,11 +80,7 @@ internal sealed class ProjectRepository(
             StartDate = project.StartDate,
             EndDate = project.EndDate,
             ProjectManagerId = project.ProjectManagerId,
-            ProjectManagerName = userDictionary.TryGetValue(
-                    project.ProjectManagerId,
-                    out var managerName)
-                        ? managerName
-                        : string.Empty,
+            ProjectManagerName = userDictionary.TryGetValue(project.ProjectManagerId, out var managerName) ? managerName : string.Empty,
             TotalUsers = employeeProjects.Count(x => x.ProjectId == project.Id)
         }).ToList();
     }
@@ -92,10 +93,8 @@ internal sealed class ProjectRepository(
         {
             return null;
         }
-        var users = await userRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
-        var employeeProjects = await employeeProjectRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
-        var projectAssignments = employeeProjects.Where(x => x.ProjectId == project.Id).ToList();
-        var userDictionary = users.ToDictionary(x => x.Id, x => x.Name);
+        var users = await userRepository.FirstOrDefaultAsync(x => x.RoleId == project.ProjectManagerId, cancellationToken).ConfigureAwait(false);
+        var employeeProjects = await employeeProjectRepository.CountAsync(x => x.ProjectId == project.Id, cancellationToken).ConfigureAwait(false);
 
         return new ProjectResponseDto
         {
@@ -105,41 +104,30 @@ internal sealed class ProjectRepository(
             StartDate = project.StartDate,
             EndDate = project.EndDate,
             ProjectManagerId = project.ProjectManagerId,
-            ProjectManagerName = userDictionary.TryGetValue(project.ProjectManagerId, out var managerName) ? managerName : string.Empty,
-            TotalUsers = projectAssignments.Count
+            ProjectManagerName = users?.Name ?? string.Empty,
+            TotalUsers = employeeProjects
         };
     }
     public async Task<bool> ProjectExistsByIdAsync(Guid projectId, CancellationToken cancellationToken)
     {
-        var projects = await GetAllAsync(cancellationToken).ConfigureAwait(false);
+        var projects = await CountAsync(x => x.Id == projectId, cancellationToken).ConfigureAwait(false);
 
-        return projects.Any(x => x.Id == projectId);
+        return projects > 0;
     }
 
     public async Task<IReadOnlyCollection<ProjectUserResponseDto>> GetProjectEmployeesAsync(Guid projectId, CancellationToken cancellationToken)
     {
-        var employeeProjects = await employeeProjectRepository
-            .GetAllAsync(cancellationToken)
-            .ConfigureAwait(false);
+        var projectAssignments = await employeeProjectRepository.FindAsync(x => x.ProjectId == projectId, cancellationToken).ConfigureAwait(false);
 
-        var projectAssignments = employeeProjects
-            .Where(x => x.ProjectId == projectId)
-            .ToList();
+        var users = await userRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
 
-        var users = await userRepository.GetAllAsync(cancellationToken)
-            .ConfigureAwait(false);
+        var roles = await roleRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
 
-        var roles = await roleRepository.GetAllAsync(cancellationToken)
-            .ConfigureAwait(false);
+        var departments = await departmentRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
 
-        var departments = await departmentRepository.GetAllAsync(cancellationToken)
-            .ConfigureAwait(false);
+        var positions = await positionRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
 
-        var positions = await positionRepository.GetAllAsync(cancellationToken)
-            .ConfigureAwait(false);
-
-        var branches = await branchRepository.GetAllAsync(cancellationToken)
-            .ConfigureAwait(false);
+        var branches = await branchRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
 
         var userDictionary = users.ToDictionary(x => x.Id);
         var roleDictionary = roles.ToDictionary(x => x.Id, x => x.Name);
@@ -156,26 +144,10 @@ internal sealed class ProjectRepository(
                     Name = user?.Name ?? string.Empty,
                     Email = user?.Email ?? string.Empty,
                     DOB = user?.DOB,
-                    BranchName =
-                        user is not null &&
-                        branchDictionary.TryGetValue(user.BranchId, out var branchName)
-                            ? branchName
-                            : string.Empty,
-                    DepartmentName =
-                        user is not null &&
-                        departmentDictionary.TryGetValue(user.DepartmentId, out var departmentName)
-                            ? departmentName
-                            : string.Empty,
-                    PositionName =
-                        user is not null &&
-                        positionDictionary.TryGetValue(user.PositionId, out var positionName)
-                            ? positionName
-                            : string.Empty,
-                    RoleName =
-                        user is not null &&
-                        roleDictionary.TryGetValue(user.RoleId, out var roleName)
-                            ? roleName
-                            : string.Empty
+                    BranchName = user is not null && branchDictionary.TryGetValue(user.BranchId, out var branchName) ? branchName : string.Empty,
+                    DepartmentName = user is not null && departmentDictionary.TryGetValue(user.DepartmentId, out var departmentName) ? departmentName : string.Empty,
+                    PositionName = user is not null && positionDictionary.TryGetValue(user.PositionId, out var positionName) ? positionName : string.Empty,
+                    RoleName = user is not null && roleDictionary.TryGetValue(user.RoleId, out var roleName) ? roleName : string.Empty
                 };
             })
             .ToList();
