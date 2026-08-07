@@ -1,0 +1,47 @@
+<div class="min-vh-100 d-flex align-items-center justify-content-center bg-body-tertiary px-3 py-5">
+  <div class="container">
+    <div class="row justify-content-center align-items-center g-4">
+      <div class="col-12 col-lg-6">
+        <div class="rounded-4 border bg-white p-4 p-md-5 shadow-sm">
+          <div class="mb-4">
+            <span class="badge text-bg-dark mb-3">HRMS</span>
+            <h1 class="h3 mb-2">Sign in</h1>
+            <p class="text-secondary mb-0">Use your email and password to continue.</p>
+          </div>
+
+          <form [formGroup]="form" (ngSubmit)="submit()" class="d-grid gap-3">
+            <div>
+              <label for="email" class="form-label">Email</label>
+              <input id="email" type="email" class="form-control form-control-lg" formControlName="email"
+                placeholder="name@company.com" />
+              @if (controlInvalid('email')) {
+              <div class="text-danger small mt-1">Enter a valid email.</div>
+              }
+            </div>
+
+            <div>
+              <label for="password" class="form-label">Password</label>
+              <div class="input-group input-group-lg">
+                <input id="password" [type]="hidePassword() ? 'password' : 'text'" class="form-control"
+                  formControlName="password" placeholder="Your password" />
+                <button type="button" class="btn btn-outline-secondary" (click)="togglePassword()">
+                  <i class="bi" [class.bi-eye]="hidePassword()" [class.bi-eye-slash]="!hidePassword()"></i>
+                </button>
+              </div>
+              @if (controlInvalid('password')) {
+              <div class="text-danger small mt-1">Password is required.</div>
+              }
+            </div>
+
+            <button type="submit" class="btn btn-dark btn-lg" [disabled]="isSubmitting()">
+              @if (isSubmitting()) {
+              <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+              }
+              Sign in
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

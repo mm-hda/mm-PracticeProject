@@ -1,0 +1,66 @@
+<nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom shadow-sm text-black sticky-top">
+  <div class="container">
+
+    <a class="navbar-brand fw-bold d-flex align-items-center gap-2" routerLink="/dashboard">
+      <i class="bi bi-building"></i>
+      <span>HRMS</span>
+    </a>
+
+
+    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+
+
+      <li class="nav-item">
+        <a class="nav-link" routerLink="/branches">
+          <i class="bi bi-diagram-3 me-1"></i>
+          branches
+        </a>
+      </li>
+
+      <li class="nav-item">
+        <a class="nav-link" routerLink="/departments">
+          <i class="bi bi-kanban me-1"></i>
+          Departments
+        </a>
+      </li>
+
+      <li class="nav-item">
+        <a class="nav-link" routerLink="/positions">
+          <i class="bi bi-briefcase me-1"></i>
+          Positions
+        </a>
+      </li>
+
+      <li class="nav-item">
+        <a class="nav-link" routerLink="/users">
+          <i class="bi bi-people me-1"></i>
+          Users
+        </a>
+      </li>
+
+      <li class="nav-item">
+        <a class="nav-link" routerLink="/projects">
+          <i class="bi bi-folder me-1"></i>
+          Projects
+        </a>
+      </li>
+    </ul>
+
+    <div class="d-flex align-items-center gap-3">
+      <div class="text-end">
+        <div class="fw-bold">
+          {{ userName }}
+        </div>
+
+        <div class="small text-secondary">
+          {{ email }}
+        </div>
+      </div>
+
+      <button class="btn btn-outline-dark" (click)="logout()">
+        <i class="bi bi-box-arrow-right"></i>
+        Logout
+      </button>
+    </div>
+  </div>
+</nav>

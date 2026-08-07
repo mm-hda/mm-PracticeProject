@@ -1,0 +1,405 @@
+<div class="container py-4">
+  <div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+      <h2 class="h4 fw-bold mb-1">Users</h2>
+      <p class="text-secondary mb-0">
+        Manage company users and employee information.
+      </p>
+    </div>
+
+    <button class="btn btn-dark" type="button" (click)="openAddModal()">
+      <i class="bi bi-person-plus me-1"></i>
+      Add User
+    </button>
+  </div>
+
+  <div class="card border-0 shadow-sm mb-3">
+    <div class="card-body">
+      <div class="row g-2">
+        <div class="col-md-3">
+          <input type="text" class="form-control" placeholder="Search user..."
+            [formControl]="filterForm.controls.searchTerm">
+        </div>
+
+        <div class="col-md-2">
+          <select class="form-select" [formControl]="filterForm.controls.roleId">
+            <option value="">All Roles</option>
+            @for(role of roles(); track role.id) {
+            <option [value]="role.id">
+              {{ role.name }}
+            </option>
+            }
+          </select>
+        </div>
+
+        <div class="col-md-2">
+          <select class="form-select" [formControl]="filterForm.controls.branchId">
+            <option value="">All Branches</option>
+            @for(branch of branches(); track branch.id) {
+            <option [value]="branch.id">
+              {{ branch.name }}
+            </option>
+            }
+          </select>
+        </div>
+
+        <div class="col-md-2">
+          <select class="form-select" [formControl]="filterForm.controls.departmentId">
+            <option value="">All Departments</option>
+            @for(department of departments(); track department.id) {
+            <option [value]="department.id">
+              {{ department.name }}
+            </option>
+            }
+          </select>
+        </div>
+
+        <div class="col-md-2">
+          <select class="form-select" [formControl]="filterForm.controls.positionId">
+            <option value="">All Positions</option>
+            @for(position of positions(); track position.id) {
+            <option [value]="position.id">
+              {{ position.name }}
+            </option>
+            }
+          </select>
+        </div>
+
+        <div class="col-md-1 d-grid">
+          <button class="btn btn-dark" type="button" (click)="applyFilters()">
+            <i class="bi bi-funnel"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="mt-2">
+        <button class="btn btn-outline-secondary btn-sm me-2" type="button" (click)="searchUsers()">
+          Search
+        </button>
+        <button class="btn btn-outline-danger btn-sm" type="button" (click)="resetFilters()">
+          Reset
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+      @if (isPageLoading()) {
+      <div class="p-4 text-center">
+        <div class="spinner-border text-dark" role="status">
+        </div>
+        <div class="text-secondary mt-2">
+          Loading users...
+        </div>
+      </div>
+
+      } @else {
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th class="ps-4">Name</th>
+              <th>Email</th>
+              <th>Branch</th>
+              <th>Department</th>
+              <th>Position</th>
+              <th>Role</th>
+              <th class="text-end pe-4">
+                Actions
+              </th>
+            </tr>
+          </thead>
+
+          <tbody>
+            @for(user of users(); track user.id) {
+            <tr>
+              <td class="ps-4 fw-semibold"> {{ user.name }} </td>
+              <td> {{ user.email }} </td>
+              <td> {{ user.branchName }} </td>
+              <td> {{ user.departmentName }} </td>
+              <td> {{ user.positionName }} </td>
+              <td> <span class="badge text-bg-dark"> {{ user.roleName }} </span> </td>
+
+              <td class="text-end pe-4">
+                <div class="btn-group">
+                  <button class="btn btn-sm btn-outline-secondary" title="User Detail" (click)="openDetailModal(user)">
+                    <i class="bi bi-info-circle"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+
+            } @empty {
+            <tr>
+              <td colspan="7" class="text-center text-secondary py-5">
+                No users found.
+              </td>
+            </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      }
+    </div>
+  </div>
+
+  <div class="d-flex justify-content-between align-items-center mt-3">
+    <button class="btn btn-outline-dark" (click)="previousPage()" [disabled]="currentPage() <= 1">
+      Previous
+    </button>
+    <div class="fw-semibold">
+      Page {{ currentPage() }}
+      of
+      {{ totalPages() }}
+    </div>
+    <button class="btn btn-outline-dark" (click)="nextPage()" [disabled]="currentPage() >= totalPages()">
+      Next
+    </button>
+
+  </div>
+
+</div>
+@if (isAddModalOpen()) {
+
+<div class="modal fade show d-block" tabindex="-1" role="dialog" aria-modal="true" (click)="closeModals()">
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document" (click)="$event.stopPropagation()">
+    <div class="modal-content border-0 shadow">
+      <div class="modal-header">
+        <h5 class="modal-title fw-bold">
+          Add User
+        </h5>
+        <button class="btn-close" type="button" (click)="closeModals()">
+        </button>
+      </div>
+
+      <form [formGroup]="userForm" (ngSubmit)="createUser()">
+        <div class="modal-body">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">
+                First Name
+              </label>
+              <input class="form-control" type="text" formControlName="firstName">
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">
+                Last Name
+              </label>
+              <input class="form-control" type="text" formControlName="lastName">
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">
+                Email
+              </label>
+              <input class="form-control" type="email" formControlName="email">
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">
+                Password
+              </label>
+              <input class="form-control" type="password" formControlName="password">
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">
+                Date Of Birth
+              </label>
+              <input class="form-control" type="date" formControlName="dob">
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">
+                Role
+              </label>
+
+              <select class="form-select" formControlName="roleId">
+                <option value="">
+                  Select Role
+                </option>
+
+                @for(role of roles(); track role.id) {
+                <option [value]="role.id">
+                  {{ role.name }}
+                </option>
+                }
+              </select>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">
+                Branch
+              </label>
+
+              <select class="form-select" formControlName="branchId">
+                <option value="">
+                  Select Branch
+                </option>
+
+                @for(branch of branches(); track branch.id) {
+                <option [value]="branch.id">
+                  {{ branch.name }}
+                </option>
+                }
+              </select>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">
+                Department
+              </label>
+
+              <select class="form-select" formControlName="departmentId" (change)="filterPositions()">
+                <option value="">
+                  Select Department
+                </option>
+
+                @for(department of departments(); track department.id) {
+                <option [value]="department.id">
+                  {{ department.name }}
+                </option>
+                }
+              </select>
+            </div>
+
+            <div class="col-md-12">
+
+              <label class="form-label">
+                Position
+              </label>
+
+              <select class="form-select" formControlName="positionId">
+                <option value="">
+                  Select Position
+                </option>
+
+                @for(position of DepartmentPositions(); track position.id) {
+                <option [value]="position.id">
+                  {{ position.name }}
+                </option>
+                }
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-light border" type="button" (click)="closeModals()">
+            Cancel
+          </button>
+
+          <button class="btn btn-dark" type="submit" [disabled]="isSubmitting()">
+            @if(isSubmitting()) {
+            <span class="spinner-border spinner-border-sm me-2">
+            </span>
+            }
+            Create User
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+<div class="modal-backdrop fade show"></div>
+
+}
+
+@if (isDetailModalOpen()) {
+
+<div class="modal fade show d-block" tabindex="-1" role="dialog" aria-modal="true" (click)="closeModals()">
+
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document" (click)="$event.stopPropagation()">
+
+    <div class="modal-content border-0 shadow">
+      <div class="modal-header">
+        <h5 class="modal-title fw-bold">
+          User Detail
+        </h5>
+        <button class="btn-close" type="button" (click)="closeModals()">
+        </button>
+      </div>
+      <div class="modal-body">
+
+        @if(selectedUser(); as user) {
+
+        <div class="row g-3">
+          <div class="col-md-6">
+            <div class="p-3 rounded-3 border bg-light">
+              <div class="small text-secondary">
+                Name
+              </div>
+              <div class="fw-semibold">
+                {{ user.name }}
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="p-3 rounded-3 border bg-light">
+              <div class="small text-secondary">
+                Email
+              </div>
+              <div class="fw-semibold">
+                {{ user.email }}
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="p-3 rounded-3 border bg-light">
+              <div class="small text-secondary">
+                Branch
+              </div>
+              <div class="fw-semibold">
+                {{ user.branchName }}
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="p-3 rounded-3 border bg-light">
+              <div class="small text-secondary">
+                Department
+              </div>
+              <div class="fw-semibold">
+                {{ user.departmentName }}
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="p-3 rounded-3 border bg-light">
+              <div class="small text-secondary">
+                Position
+              </div>
+              <div class="fw-semibold">
+                {{ user.positionName }}
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="p-3 rounded-3 border bg-light">
+              <div class="small text-secondary">
+                Role
+              </div>
+              <div class="fw-semibold">
+                {{ user.roleName }}
+              </div>
+            </div>
+          </div>
+        </div>
+        } @else {
+        <div class="text-center py-4 text-secondary">
+          User details not found.
+        </div>
+        }
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal-backdrop fade show"></div>
+}

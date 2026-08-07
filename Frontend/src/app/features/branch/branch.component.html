@@ -1,0 +1,213 @@
+<div class="container py-4">
+  <div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+      <h2 class="h4 fw-bold mb-1">Branches</h2>
+      <p class="text-secondary mb-0">Manage company branches and view employees by branch.</p>
+    </div>
+
+    <button class="btn btn-dark" type="button" (click)="openAddModal()">
+      <i class="bi bi-plus-circle me-1"></i>
+      Add Branch
+    </button>
+
+  </div>
+  <div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+      @if (isPageLoading()) {
+      <div class="p-4 text-center">
+        <div class="spinner-border text-dark" role="status"></div>
+        <div class="text-secondary mt-2">Loading...</div>
+      </div>
+      } @else {
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th class="ps-4">Branch Name</th>
+              <th>Location</th>
+              <th>Total Users</th>
+              <th class="text-end pe-4">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (branch of branches(); track branch.id) {
+            <tr>
+              <td class="ps-4 fw-semibold">
+                {{ branch.name }}
+              </td>
+              <td>
+                <span class="badge text-bg-light border">
+                  <i class="bi bi-geo-alt me-1"></i>
+                  {{ branch.location }}
+                </span>
+              </td>
+              <td>
+                <span class="badge text-bg-dark">
+                  {{ branch.totalUsers }}
+                </span>
+              </td>
+              <td class="text-end pe-4">
+                <div class="btn-group">
+                  <button class="btn btn-sm btn-outline-secondary" type="button" title="Branch Detail"
+                    (click)="openDetailModal(branch)">
+                    <i class="bi bi-info-circle"></i>
+                  </button>
+                  <button class="btn btn-sm btn-outline-secondary" type="button" title="Branch Employees"
+                    (click)="openEmployeesModal(branch.id)">
+                    <i class="bi bi-people"></i>
+                  </button>
+                  <button class="btn btn-sm btn-outline-dark" type="button" title="Edit Branch"
+                    (click)="openEditModal(branch)">
+                    <i class="bi bi-pencil-square"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+            } @empty {
+            <tr>
+              <td colspan="4" class="text-center text-secondary py-5">
+                No branches found.
+              </td>
+            </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      }
+    </div>
+  </div>
+</div>
+
+@if (isAddModalOpen() || isEditModalOpen()) {
+<div class="modal fade show d-block" tabindex="-1" role="dialog" aria-modal="true" (click)="closeModals()">
+  <div class="modal-dialog modal-dialog-centered" role="document" (click)="$event.stopPropagation()">
+    <div class="modal-content border-0 shadow">
+      <div class="modal-header">
+        <h5 class="modal-title fw-bold">
+          {{ isAddModalOpen() ? 'Add Branch' : 'Edit Branch' }}
+        </h5>
+        <button class="btn-close" type="button" aria-label="Close" (click)="closeModals()"></button>
+      </div>
+      <form [formGroup]="branchForm" (ngSubmit)="isAddModalOpen() ? createBranch() : updateBranch()">
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="branchName" class="form-label">Branch Name</label>
+            <input id="branchName" class="form-control form-control-lg" type="text" formControlName="name"
+              placeholder="Enter branch name" />
+            @if (controlInvalid('name')) {
+            <div class="text-danger small mt-1">
+              @if (branchForm.controls.name.hasError('required')) {
+              Branch name is required.
+              } @else if (branchForm.controls.name.hasError('minlength')) {
+              Branch name must be at least 2 characters.
+              } @else if (branchForm.controls.name.hasError('maxlength')) {
+              Branch name must not exceed 100 characters.
+              }
+            </div>
+            }
+          </div>
+          <div>
+            <label for="branchLocation" class="form-label">Location</label>
+            <input id="branchLocation" class="form-control form-control-lg" type="text" formControlName="location"
+              placeholder="Enter location" />
+            @if (controlInvalid('location')) {
+            <div class="text-danger small mt-1">
+              @if (branchForm.controls.location.hasError('required')) {
+              Location is required.
+              } @else if (branchForm.controls.location.hasError('minlength')) {
+              Location must be at least 2 characters.
+              } @else if (branchForm.controls.location.hasError('maxlength')) {
+              Location must not exceed 100 characters.
+              }
+            </div>
+            }
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-light border" type="button" (click)="closeModals()">
+            Cancel
+          </button>
+          <button class="btn btn-dark" type="submit" [disabled]="isSubmitting()">
+            @if (isSubmitting()) {
+            <span class="spinner-border spinner-border-sm me-2"></span>
+            }
+            {{ isAddModalOpen() ? 'Create Branch' : 'Update Branch' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+<div class="modal-backdrop fade show"></div>
+}
+
+@if (isDetailModalOpen()) {
+<div class="modal fade show d-block" tabindex="-1" role="dialog" aria-modal="true" (click)="closeModals()">
+  <div class="modal-dialog modal-dialog-centered" role="document" (click)="$event.stopPropagation()">
+    <div class="modal-content border-0 shadow">
+      <div class="modal-header">
+        <h5 class="modal-title fw-bold">Branch Detail</h5>
+        <button class="btn-close" type="button" aria-label="Close" (click)="closeModals()"></button>
+      </div>
+      <div class="modal-body">
+        @if (isModalLoading()) {
+        <div class="text-center py-4">
+          <div class="spinner-border text-dark" role="status"></div>
+          <div class="text-secondary mt-2">Loading branch details...</div>
+        </div>
+        } @else {
+        @if (selectedBranch(); as branch) {
+        <div class="d-grid gap-3">
+          <div class="p-3 rounded-3 bg-light border">
+            <div class="text-secondary small">Name</div>
+            <div class="fw-semibold">{{ branch.name }}</div>
+          </div>
+          <div class="p-3 rounded-3 bg-light border">
+            <div class="text-secondary small">Location</div>
+            <div class="fw-semibold">{{ branch.location }}</div>
+          </div>
+          <div class="p-3 rounded-3 bg-light border">
+            <div class="text-secondary small">Total Users</div>
+            <div class="fw-semibold">{{ branch.totalUsers }}</div>
+          </div>
+        </div>
+        } @else {
+        <div class="text-center text-secondary py-4">
+          Branch details not found.
+        </div>
+        }
+        }
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal-backdrop fade show"></div>
+}
+
+@if (isEmployeesModalOpen()) {
+<div class="modal fade show d-block" tabindex="-1" role="dialog" aria-modal="true" (click)="closeModals()">
+  <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable" role="document"
+    (click)="$event.stopPropagation()">
+    <div class="modal-content border-0 shadow">
+      <div class="modal-header">
+        <h5 class="modal-title fw-bold">Branch Employees</h5>
+        <button class="btn-close" type="button" aria-label="Close" (click)="closeModals()"></button>
+      </div>
+      <div class="modal-body">
+        @if (isModalLoading()) {
+        <div class="text-center py-4">
+          <div class="spinner-border text-dark" role="status"></div>
+          <div class="text-secondary mt-2">Loading employees...</div>
+        </div>
+        } @else {
+        <div class="table-responsive">
+          <app-table [columns]="userColumns" [data]="branchEmployees()">
+          </app-table>
+        </div>
+        }
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal-backdrop fade show"></div>
+}
