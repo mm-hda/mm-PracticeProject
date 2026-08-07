@@ -3,6 +3,7 @@ using backend.Dto.UserDtos;
 using backend.Entities;
 using backend.GenericRepositories;
 using backend.IRepository;
+using backend.Dto;
 
 namespace backend.Repositories;
 

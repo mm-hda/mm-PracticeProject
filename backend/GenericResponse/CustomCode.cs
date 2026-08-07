@@ -61,6 +61,7 @@ internal static class CustomCodes
     public const int DepartmentUpdatedSuccessfully = 711;
     public const int BranchUpdatedSuccessfully = 712;
     public const int LoginSuccessfully = 713;
+    public const int UserUpdatedSuccessfully = 714;
 
     public const int DataRetrieved = 200;
 

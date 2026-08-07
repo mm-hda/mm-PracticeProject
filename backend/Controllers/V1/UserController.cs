@@ -1,4 +1,5 @@
-﻿using backend.Dto.UserDtos;
+﻿using backend.Dto;
+using backend.Dto.UserDtos;
 using backend.Dto.CommonDtos;
 using backend.GenericResponse;
 using backend.IService;
@@ -117,6 +118,28 @@ public class UserController(IUserService userService, ILogger<UserController> lo
 
         logger.LogInformation("Retrieved managers successfully. Count: {Count}", result.Data?.Count ?? 0);
         return Ok(ResponseResults<IReadOnlyCollection<UserResponseDto>>.Success(result.StatusCode, result.Data, result.Meta));
+    }
 
+    [HttpPut("UpdateUser/{id}")]
+    public async Task<IActionResult> UpdateUserAsync(Guid id, [FromBody] RegisterUserDtoV2 dto, CancellationToken cancellationToken)
+    {
+        logger.LogTrace("UpdateUser called with id: {UserId}", id);
+
+        if (id == Guid.Empty || dto == null)
+        {
+            logger.LogWarning("Invalid input provided. UserId: {UserId}, DTO: {DTO}", id, dto);
+            return BadRequest(ResponseResults<string>.Failure(CustomCodes.InvalidInput));
+        }
+
+        var result = await userService.UpdateUser(id, dto, cancellationToken).ConfigureAwait(false);
+
+        if (!result.IsSuccess)
+        {
+            logger.LogWarning("{Status code} id: {UserId}", result.StatusCode, id);
+            return NotFound(ResponseResults<string>.Failure(result.StatusCode));
+        }
+
+        logger.LogInformation("Updated user successfully with id: {UserId}", id);
+        return Ok(ResponseResults<string>.Success(result.StatusCode, "User updated successfully."));
     }
 }

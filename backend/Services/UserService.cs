@@ -1,12 +1,13 @@
 ﻿using backend.Dto.CommonDtos;
 using backend.Dto.UserDtos;
+using backend.Dto;
 using backend.GenericResponse;
 using backend.IRepository;
 using backend.IService;
 
 namespace backend.Services;
 
-internal sealed class UserService(IUserRepository userRepository) : IUserService
+internal sealed class UserService(IUserRepository userRepository, IUnitOfWork unitOfWork) : IUserService
 {
     public async Task<ServiceResponse<IReadOnlyCollection<UserResponseDto>>> GetAllUsers(PaginationDto dto, CancellationToken cancellationToken)
     {
@@ -130,6 +131,31 @@ internal sealed class UserService(IUserRepository userRepository) : IUserService
         catch (Exception)
         {
             return new ServiceResponse<IReadOnlyCollection<UserResponseDto>> { IsSuccess = false, StatusCode = CustomCodes.InternalServerError };
+            throw;
+        }
+    }
+
+    public async Task<ServiceResponse<object?>> UpdateUser(Guid id, RegisterUserDtoV2 dto, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var user = await userRepository.GetByIdAsync(id, cancellationToken).ConfigureAwait(false);
+
+            if (user == null)
+            {
+                return new ServiceResponse<object?> { IsSuccess = false, StatusCode = CustomCodes.UserNotFound };
+            }
+
+            user.Name = dto.FirstName + " " + dto.LastName;
+            user.Email = dto.Email ?? user.Email;
+            user.PositionId = dto.PositionId;
+
+            await unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+            return new ServiceResponse<object?> { IsSuccess = true, StatusCode = CustomCodes.UserUpdatedSuccessfully };
+        }
+        catch (Exception)
+        {
+            return new ServiceResponse<object?> { IsSuccess = false, StatusCode = CustomCodes.InternalServerError };
             throw;
         }
     }

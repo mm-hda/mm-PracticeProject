@@ -37,3 +37,17 @@ export interface CreateUserRequest {
   positionId: string;
   roleId: string;
 }
+
+
+export interface updateUserRequest {
+  userId: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  dob: string | null;
+  branchId: string;
+  departmentId: string;
+  positionId: string;
+  roleId: string;
+}
+

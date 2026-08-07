@@ -11,7 +11,8 @@ import {
   CreateUserRequest,
   userFilterRequest,
   searchUserRequest,
-  paginationRequest
+  paginationRequest,
+  updateUserRequest
 } from '../models/userModels/user.model';
 import { ManagerResponse } from '../models/projectModels/project.model';
 
@@ -66,6 +67,13 @@ export class UserApiService {
   public getManagers(): Observable<ServiceResponse<ManagerResponse[]>> {
     return this.httpClient.get<ServiceResponse<ManagerResponse[]>>(
       `${apiEndpoints.user}/GetManagers`
+    );
+  }
+
+  public updateUser(userId: string, request: updateUserRequest): Observable<ServiceResponse<string>> {
+    return this.httpClient.put<ServiceResponse<string>>(
+      `${apiEndpoints.user}/UpdateUser/${userId}`,
+      request
     );
   }
 }

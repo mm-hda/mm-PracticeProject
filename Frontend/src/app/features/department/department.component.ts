@@ -126,6 +126,7 @@ export class DepartmentComponent implements OnInit {
           this.departments.set([]);
 
           this.toastService.show(getStatusCodeMessage(error.statusCode));
+          this.toastService.show(getStatusCodeMessage(error.statusCode));
         }
       });
   }

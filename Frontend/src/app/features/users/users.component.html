@@ -112,7 +112,7 @@
           </thead>
 
           <tbody>
-            @for(user of users(); track user.id) {
+            @for(user of users(); track user.userId) {
             <tr>
               <td class="ps-4 fw-semibold"> {{ user.name }} </td>
               <td> {{ user.email }} </td>
