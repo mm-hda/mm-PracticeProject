@@ -7,7 +7,7 @@ using backend.Authorization;
 
 namespace backend.Controllers.V1;
 
-[Authorize(Roles = RoleConstants.Admin + "," + RoleConstants.Manager)]
+[Authorize(Roles = RoleConstants.Admin + "," + RoleConstants.Manager + "," + RoleConstants.Employee)]
 [ApiController]
 [Route("api/[controller]")]
 public class ProjectController(IProjectService projectService, ILogger<ProjectController> logger) : ControllerBase
@@ -28,7 +28,6 @@ public class ProjectController(IProjectService projectService, ILogger<ProjectCo
 
         logger.LogInformation("Project created successfully name: {ProjectName}", dto.Name);
         return Ok(ResponseResults<string>.Success(result.StatusCode));
-
     }
 
     [HttpPut("UpdateProject")]
@@ -111,5 +110,51 @@ public class ProjectController(IProjectService projectService, ILogger<ProjectCo
 
         logger.LogInformation("Retrieved employees for project with id: {ProjectId} count: {Count}", projectId, result.Data?.Count ?? 0);
         return Ok(ResponseResults<IReadOnlyCollection<ProjectUserResponseDto>>.Success(result.StatusCode, result.Data));
+    }
+
+    [HttpGet("GetProjectsByManagerId/{managerId}")]
+    public async Task<IActionResult> GetProjectsByManagerIdAsync(Guid managerId, CancellationToken cancellationToken)
+    {
+        logger.LogTrace("GetProjectsByManagerId called with id: {ManagerId}", managerId);
+
+        if (managerId == Guid.Empty)
+        {
+            logger.LogWarning("Invalid manager id provided: {ManagerId}", managerId);
+            return BadRequest(ResponseResults<string>.Failure(CustomCodes.InvalidInput));
+        }
+
+        var result = await projectService.GetProjectsByManagerId(managerId, cancellationToken).ConfigureAwait(false);
+
+        if (!result.IsSuccess)
+        {
+            logger.LogWarning("StatusCode: {StatusCode}", result.StatusCode);
+            return NotFound(ResponseResults<IReadOnlyCollection<ProjectResponseDto>>.Failure(result.StatusCode));
+        }
+
+        logger.LogInformation("Retrieved projects for manager with id: {ManagerId} count: {Count}", managerId, result.Data?.Count ?? 0);
+        return Ok(ResponseResults<IReadOnlyCollection<ProjectResponseDto>>.Success(result.StatusCode, result.Data));
+    }
+
+    [HttpGet("GetEmployeeProjects/{userId}")]
+    public async Task<IActionResult> GetEmployeeProjectsAsync(Guid userId, CancellationToken cancellationToken)
+    {
+        logger.LogTrace("GetEmployeeProjects called with id: {UserId}", userId);
+
+        if (userId == Guid.Empty)
+        {
+            logger.LogWarning("Invalid user id provided: {UserId}", userId);
+            return BadRequest(ResponseResults<string>.Failure(CustomCodes.InvalidInput));
+        }
+
+        var result = await projectService.GetEmployeeProjects(userId, cancellationToken).ConfigureAwait(false);
+
+        if (!result.IsSuccess)
+        {
+            logger.LogWarning("StatusCode: {StatusCode}", result.StatusCode);
+            return NotFound(ResponseResults<IReadOnlyCollection<ProjectResponseDto>>.Failure(result.StatusCode));
+        }
+
+        logger.LogInformation("Retrieved projects for employee with id: {UserId} count: {Count}", userId, result.Data?.Count ?? 0);
+        return Ok(ResponseResults<IReadOnlyCollection<ProjectResponseDto>>.Success(result.StatusCode, result.Data));
     }
 }

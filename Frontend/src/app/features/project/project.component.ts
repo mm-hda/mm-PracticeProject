@@ -35,6 +35,7 @@ import {
 } from '@app/shared/components/table/generic-table.component';
 import { EmployeeProjectApiService } from '@app/core/services/employeeProject-api.service';
 import { UserResponse } from '@app/core/models/userModels/user.model';
+import { AuthService } from '@app/core/services/auth.service';
 
 type ProjectModalType = | 'add' | 'edit' | 'detail' | 'employees' | 'addEmployeeProject' | null;
 
@@ -46,11 +47,11 @@ type ProjectModalType = | 'add' | 'edit' | 'detail' | 'employees' | 'addEmployee
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ProjectComponent implements OnInit {
-
   private readonly projectApiService = inject(ProjectApiService);
   private readonly userApiService = inject(UserApiService);
   private readonly toastService = inject(ToastService);
   private readonly employeeProjectApiService = inject(EmployeeProjectApiService);
+  private readonly authService = inject(AuthService);
 
   public readonly projects = signal<projectResponse[]>([]);
   public readonly Employees = signal<UserResponse[]>([]);
@@ -59,6 +60,8 @@ export class ProjectComponent implements OnInit {
   public readonly projectEmployees = signal<ProjectUserResponse[]>([]);
 
   public readonly selectedProject = signal<projectResponse | null>(null);
+
+  public readonly currentUser = this.authService.currentUser;
 
   public readonly isPageLoading = signal(false);
   public readonly isModalLoading = signal(false);
@@ -120,27 +123,64 @@ export class ProjectComponent implements OnInit {
   public loadProjects(): void {
     this.isPageLoading.set(true);
 
-    this.userApiService.getManagers().subscribe({
-      next: response => { this.managers.set(response.data ?? []); },
-      error: error => {
-        this.managers.set([]);
-        this.toastService.show(getStatusCodeMessage(error.statusCode));
-      }
-    });
-
-    this.projectApiService
-      .getAllProjects()
-      .pipe(finalize(() => this.isPageLoading.set(false)))
-      .subscribe({
-        next: response => { this.projects.set(response.data ?? []); },
-
+    if (this.currentUser()?.role === 'Admin') {
+      this.userApiService.getManagers().subscribe({
+        next: response => { this.managers.set(response.data ?? []); },
         error: error => {
-          this.projects.set([]);
-
-          this.toastService.show(getStatusCodeMessage(error.statusCode)
-          );
+          this.managers.set([]);
+          this.toastService.show(getStatusCodeMessage(error.statusCode));
         }
       });
+    }
+
+    if (this.currentUser()?.role === 'Manager') {
+      const userId = this.currentUser()?.userId;
+
+      this.projectApiService
+        .getProjectsByManagerId(userId ?? '')
+        .pipe(finalize(() => this.isPageLoading.set(false)))
+        .subscribe({
+          next: response => {
+            this.projects.set(response.data ?? []);
+          },
+          error: error => {
+            this.projects.set([]);
+            this.toastService.show(getStatusCodeMessage(error.statusCode));
+          }
+        });
+    } else if (this.currentUser()?.role === 'Employee') {
+      const userId = this.currentUser()?.userId;
+
+      this.projectApiService
+        .getEmployeeProjects(userId ?? '')
+        .pipe(finalize(() => this.isPageLoading.set(false)))
+        .subscribe({
+          next: response => {
+            this.projects.set(response.data ?? []);
+          },
+          error: error => {
+            this.projects.set([]);
+            this.toastService.show(getStatusCodeMessage(error.statusCode));
+          }
+        });
+    }
+    else {
+      this.projectApiService
+        .getAllProjects()
+        .pipe(finalize(() => this.isPageLoading.set(false)))
+        .subscribe({
+          next: response => {
+            this.projects.set(response.data ?? []);
+          },
+
+          error: error => {
+            this.projects.set([]);
+
+            this.toastService.show(getStatusCodeMessage(error.statusCode)
+            );
+          }
+        });
+    }
   }
 
   public searchEmployees(searchTerm: string): void {
@@ -177,14 +217,15 @@ export class ProjectComponent implements OnInit {
       .subscribe({
         next: () => {
           this.toastService.show('Employee added to project successfully.');
+
+          this.projects.set([]);
+          this.loadProjects();
           this.closeModals();
         },
         error: error => {
           this.toastService.show(getStatusCodeMessage(error.statusCode));
         }
       });
-
-    this.loadProjects();
   }
 
   public openAddEmployeeProjectModal(projectId: string): void {
@@ -241,7 +282,6 @@ export class ProjectComponent implements OnInit {
   }
 
   public openEmployeesModal(projectId: string): void {
-
     this.selectedProject.set(null);
     this.projectEmployees.set([]);
 

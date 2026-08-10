@@ -10,13 +10,13 @@ using Asp.Versioning;
 
 namespace backend.Controllers.V1;
 
-[Authorize(Roles = RoleConstants.Admin)]
 [ApiController]
 [Route("api/[controller]")]
 [ApiVersion("1.0")]
 public class UserController(IUserService userService, ILogger<UserController> logger) : ControllerBase
 {
 
+    [Authorize(Roles = RoleConstants.Admin + "," + RoleConstants.Manager + "," + RoleConstants.HR)]
     [HttpGet("GetAllUsers")]
     public async Task<IActionResult> GetAllUsersAsync([FromQuery] PaginationDto dto, CancellationToken cancellationToken)
     {
@@ -35,6 +35,7 @@ public class UserController(IUserService userService, ILogger<UserController> lo
         return Ok(ResponseResults<IReadOnlyCollection<UserResponseDto>>.Success(result.StatusCode, result.Data, result.Meta));
     }
 
+    [Authorize(Roles = RoleConstants.Admin + "," + RoleConstants.Manager + "," + RoleConstants.HR)]
     [HttpGet("GetUserBySearch")]
     public async Task<IActionResult> GetUserBySearchAsync([FromQuery] string searchTerm, CancellationToken cancellationToken)
     {
@@ -59,6 +60,7 @@ public class UserController(IUserService userService, ILogger<UserController> lo
         return Ok(ResponseResults<IReadOnlyCollection<UserResponseDto>>.Success(result.StatusCode, result.Data, result.Meta));
     }
 
+    [Authorize(Roles = RoleConstants.Admin + "," + RoleConstants.Manager + "," + RoleConstants.HR)]
     [HttpGet("GetUserById/{id}")]
     public async Task<IActionResult> GetUserByIdAsync(Guid id, CancellationToken cancellationToken)
     {
@@ -82,10 +84,10 @@ public class UserController(IUserService userService, ILogger<UserController> lo
         logger.LogInformation("Retrieved user with id: {UserId} and logs: {Logs}", id, logs);
 
         return Ok(ResponseResults<UserResponseDto>.Success(result.StatusCode, result.Data));
-
     }
 
     [HttpPost("GetUsersByFilter")]
+    [Authorize(Roles = RoleConstants.Admin + "," + RoleConstants.HR)]
     public async Task<IActionResult> GetUsersByFilterAsync([FromBody] UserFilterDto dto, CancellationToken cancellationToken)
     {
         logger.LogTrace("GetUsersByFilter called.");
@@ -100,10 +102,10 @@ public class UserController(IUserService userService, ILogger<UserController> lo
 
         logger.LogInformation("Retrieved users by filter the count: {Count}", result.Data?.Count ?? 0);
         return Ok(ResponseResults<IReadOnlyCollection<UserResponseDto>>.Success(result.StatusCode, result.Data, result.Meta));
-
     }
 
     [HttpGet("GetManagers")]
+    [Authorize(Roles = RoleConstants.Admin + "," + RoleConstants.Manager + "," + RoleConstants.HR)]
     public async Task<IActionResult> GetManagersAsync(CancellationToken cancellationToken)
     {
         logger.LogTrace("GetManagers called.");
@@ -121,6 +123,7 @@ public class UserController(IUserService userService, ILogger<UserController> lo
     }
 
     [HttpPut("UpdateUser/{id}")]
+    [Authorize(Roles = RoleConstants.Admin + "," + RoleConstants.Manager + "," + RoleConstants.HR)]
     public async Task<IActionResult> UpdateUserAsync(Guid id, [FromBody] RegisterUserDtoV2 dto, CancellationToken cancellationToken)
     {
         logger.LogTrace("UpdateUser called with id: {UserId}", id);

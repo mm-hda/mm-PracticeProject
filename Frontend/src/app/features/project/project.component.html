@@ -8,10 +8,12 @@
       </p>
     </div>
 
+    @if(currentUser()?.role === 'Admin') {
     <button class="btn btn-dark" type="button" (click)="openAddModal()">
       <i class="bi bi-plus-circle me-1"></i>
       Add Project
     </button>
+    }
   </div>
 
   <div class="card border-0 shadow-sm">
@@ -35,7 +37,9 @@
               <th>End Date</th>
               <th>Total Users</th>
               <th class="text-end pe-4">Actions</th>
+              @if(currentUser()?.role === 'Admin'|| currentUser()?.role === 'Manager') {
               <th>Add Employee</th>
+              }
             </tr>
           </thead>
 
@@ -71,18 +75,22 @@
                     <i class="bi bi-people"></i>
                   </button>
 
+                  @if(currentUser()?.role === 'Admin') {
                   <button class="btn btn-sm btn-outline-dark" type="button" title="Edit Project"
                     (click)="openEditModal(project)">
                     <i class="bi bi-pencil-square"></i>
                   </button>
+                  }
                 </div>
               </td>
+              @if(currentUser()?.role === 'Admin'|| currentUser()?.role === 'Manager') {
               <td>
                 <button class="btn btn-sm btn-outline-danger" type="button" title="Add Employee"
                   (click)="openAddEmployeeProjectModal(project.id)">
                   <i class="bi bi-person-plus"></i>
                 </button>
               </td>
+              }
             </tr>
             } @empty {
             <tr>

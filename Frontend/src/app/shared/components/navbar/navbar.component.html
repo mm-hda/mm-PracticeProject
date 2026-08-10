@@ -9,7 +9,7 @@
 
     <ul class="navbar-nav me-auto mb-2 mb-lg-0">
 
-
+      @if(currentUser()?.role === 'Admin'){
       <li class="nav-item">
         <a class="nav-link" routerLink="/branches">
           <i class="bi bi-diagram-3 me-1"></i>
@@ -30,20 +30,24 @@
           Positions
         </a>
       </li>
-
+      }
+      @if(currentUser()?.role === 'Admin' || currentUser()?.role === 'HR'){
       <li class="nav-item">
         <a class="nav-link" routerLink="/users">
           <i class="bi bi-people me-1"></i>
           Users
         </a>
       </li>
+      }
 
+      @if(currentUser()?.role === 'Admin' || currentUser()?.role === 'Manager' || currentUser()?.role === 'Employee'){
       <li class="nav-item">
         <a class="nav-link" routerLink="/projects">
           <i class="bi bi-folder me-1"></i>
           Projects
         </a>
       </li>
+      }
     </ul>
 
     <div class="d-flex align-items-center gap-3">

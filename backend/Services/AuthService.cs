@@ -80,6 +80,7 @@ internal sealed class AuthService(IAuthRepository authRepository, IUnitOfWork un
             tokenDto.Name = existingUser.Name ?? string.Empty;
             tokenDto.Email = existingUser.Email ?? string.Empty;
             tokenDto.Role = existingUser.Role?.Name ?? string.Empty;
+            tokenDto.Branch = existingUser.Branch?.Name ?? string.Empty;
 
             return new ServiceResponse<TokenDto>
             {

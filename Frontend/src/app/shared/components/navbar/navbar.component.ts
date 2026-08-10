@@ -1,6 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { AuthApiService } from '@app/core/services/auth-api.service';
+import { AuthService } from '@app/core/services/auth.service';
 import { StorageService } from '@app/core/services/storage.service';
 
 @Component({
@@ -16,8 +17,11 @@ export class NavbarComponent {
   public email: string;
   public role: string;
 
-  public constructor(
-    private readonly router: Router
+  private readonly authService = inject(AuthService);
+
+  public readonly currentUser = this.authService.currentUser;
+
+  public constructor(private readonly router: Router
   ) {
 
     const user = this.storageService.getItem<{
@@ -34,6 +38,7 @@ export class NavbarComponent {
 
   public logout(): void {
     this.authApi.logout();
+    this.authService.clearCurrentUser();
     this.storageService.clear();
     this.router.navigate(['/login']);
   }

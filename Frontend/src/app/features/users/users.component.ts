@@ -37,6 +37,7 @@ import { RoleApiService } from '@app/core/services/role-api.service';
 
 import { StorageService } from '@app/core/services/storage.service';
 import { ToastService } from '@app/core/services/toast.service';
+import { AuthService } from '@app/core/services/auth.service';
 
 type UserModalType = | 'add' | 'detail' | null;
 
@@ -54,11 +55,14 @@ export class UsersComponent implements OnInit {
   private readonly branchApiService = inject(BranchApiService);
   private readonly departmentApiService = inject(DepartmentApiService);
   private readonly positionApiService = inject(PositionApiService);
+  private readonly authService = inject(AuthService);
 
   private readonly storageService = inject(StorageService);
   private readonly toastService = inject(ToastService);
 
   public readonly users = signal<UserResponse[]>([]);
+
+  public readonly currentUser = this.authService.currentUser;
 
   public readonly roles = signal<roleResponse[]>([]);
   public readonly branches = signal<BranchResponse[]>([]);
@@ -67,6 +71,8 @@ export class UsersComponent implements OnInit {
   private readonly pageCache = signal<Map<number, UserResponse[]>>(new Map());
   public readonly selectedUser = signal<UserResponse | null>(null);
   public readonly DepartmentPositions = signal<PositionResponse[]>([]);
+  public readonly draftUser = signal<CreateUserRequest | null>(null);
+
 
   public readonly isPageLoading = signal(false);
   public readonly isModalLoading = signal(false);
@@ -93,25 +99,13 @@ export class UsersComponent implements OnInit {
   });
 
   public readonly userForm = new FormGroup({
-    firstName: new FormControl('', {
-      nonNullable: true,
-      validators: [Validators.required]
-    }),
+    firstName: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
 
-    lastName: new FormControl('', {
-      nonNullable: true,
-      validators: [Validators.required]
-    }),
+    lastName: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
 
-    email: new FormControl('', {
-      nonNullable: true,
-      validators: [Validators.required, Validators.email]
-    }),
+    email: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.email] }),
 
-    password: new FormControl('', {
-      nonNullable: true,
-      validators: [Validators.required, Validators.minLength(6)]
-    }),
+    password: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.minLength(6)] }),
 
     dob: new FormControl<string | null>(null),
 
@@ -298,47 +292,46 @@ export class UsersComponent implements OnInit {
   }
 
   public nextPage(): void {
-
     if (this.currentPage() >= this.totalPages()) {
       return;
     }
-
     this.currentPage.update(page => page + 1);
-
     this.loadUsers();
   }
 
   public previousPage(): void {
-
     if (this.currentPage() <= 1) {
       return;
     }
-
     this.currentPage.update(page => page - 1);
-
     this.loadUsers();
   }
 
   public openAddModal(): void {
 
-    this.userForm.reset();
+    const draft = this.draftUser();
+
+    if (draft) {
+      this.userForm.patchValue(draft);
+    } else {
+      this.userForm.reset();
+    }
 
     this.activeModal.set('add');
   }
 
   public openDetailModal(user: UserResponse): void {
-
     this.selectedUser.set(user);
-
     this.activeModal.set('detail');
   }
 
   public closeModals(): void {
+    this.draftUser.set(
+      this.userForm.getRawValue() as CreateUserRequest
+    );
 
     this.activeModal.set(null);
-
     this.selectedUser.set(null);
-
     this.userForm.reset();
   }
 
@@ -368,6 +361,8 @@ export class UsersComponent implements OnInit {
       .pipe(finalize(() => this.isSubmitting.set(false)))
       .subscribe({
         next: response => {
+          this.draftUser.set(null);
+
           this.toastService.show(getStatusCodeMessage(response.statusCode));
           this.closeModals();
 

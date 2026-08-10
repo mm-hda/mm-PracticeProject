@@ -30,4 +30,12 @@ export class ProjectApiService {
   public getProjectEmployees(projectId: string): Observable<ServiceResponse<ProjectUserResponse[]>> {
     return this.httpClient.get<ServiceResponse<ProjectUserResponse[]>>(`${apiEndpoints.project}/GetProjectEmployees/${projectId}`);
   }
+
+  public getProjectsByManagerId(managerId: string): Observable<ServiceResponse<projectResponse[]>> {
+    return this.httpClient.get<ServiceResponse<projectResponse[]>>(`${apiEndpoints.project}/GetProjectsByManagerId/${managerId}`);
+  }
+
+  public getEmployeeProjects(userId: string): Observable<ServiceResponse<projectResponse[]>> {
+    return this.httpClient.get<ServiceResponse<projectResponse[]>>(`${apiEndpoints.project}/GetEmployeeProjects/${userId}`);
+  }
 }

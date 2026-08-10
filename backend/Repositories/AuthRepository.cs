@@ -26,6 +26,9 @@ internal sealed class AuthRepository(
 
         user.Role = role;
 
+        var branch = await branchRepository.FirstOrDefaultAsync(x => x.Id == user.BranchId, cancellationToken).ConfigureAwait(false);
+        user.Branch = branch;
+
         return user;
     }
 

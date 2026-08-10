@@ -3,6 +3,7 @@ using backend.Entities;
 using backend.GenericResponse;
 using backend.IRepository;
 using backend.IService;
+using backend.Repositories;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -176,6 +177,53 @@ internal sealed class ProjectService(IProjectRepository projectRepository, IUnit
         catch (Exception)
         {
             return new ServiceResponse<IReadOnlyCollection<ProjectUserResponseDto>> { IsSuccess = false, StatusCode = CustomCodes.InternalServerError };
+            throw;
+        }
+    }
+
+    public async Task<ServiceResponse<IReadOnlyCollection<ProjectResponseDto>>> GetProjectsByManagerId(Guid managerId, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var managerExists = await projectRepository.ManagerExistsAsync(managerId, cancellationToken).ConfigureAwait(false);
+
+            if (!managerExists)
+            {
+                return new ServiceResponse<IReadOnlyCollection<ProjectResponseDto>> { IsSuccess = false, StatusCode = CustomCodes.ProjectManagerNotFound };
+            }
+
+            var projects = await projectRepository.GetProjectsByManagerIdAsync(managerId, cancellationToken).ConfigureAwait(false);
+
+            if (projects == null || projects.Count == 0)
+            {
+                return new ServiceResponse<IReadOnlyCollection<ProjectResponseDto>> { IsSuccess = false, StatusCode = CustomCodes.ProjectNotFound };
+            }
+
+            return new ServiceResponse<IReadOnlyCollection<ProjectResponseDto>> { IsSuccess = true, StatusCode = CustomCodes.DataRetrieved, Data = projects };
+        }
+        catch (Exception)
+        {
+            return new ServiceResponse<IReadOnlyCollection<ProjectResponseDto>> { IsSuccess = false, StatusCode = CustomCodes.InternalServerError };
+            throw;
+        }
+    }
+
+    public async Task<ServiceResponse<IReadOnlyCollection<ProjectResponseDto>>> GetEmployeeProjects(Guid userId, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var projects = await projectRepository.GetEmployeeProjectsAsync(userId, cancellationToken).ConfigureAwait(false);
+
+            if (projects == null || projects.Count == 0)
+            {
+                return new ServiceResponse<IReadOnlyCollection<ProjectResponseDto>> { IsSuccess = false, StatusCode = CustomCodes.ProjectNotFound };
+            }
+
+            return new ServiceResponse<IReadOnlyCollection<ProjectResponseDto>> { IsSuccess = true, StatusCode = CustomCodes.DataRetrieved, Data = projects };
+        }
+        catch (Exception)
+        {
+            return new ServiceResponse<IReadOnlyCollection<ProjectResponseDto>> { IsSuccess = false, StatusCode = CustomCodes.InternalServerError };
             throw;
         }
     }

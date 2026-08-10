@@ -9,6 +9,7 @@ import { AuthApiService } from '@app/core/services/auth-api.service';
 import { ToastService } from '@app/core/services/toast.service';
 import { getStatusCodeMessage } from '@app/core/config/status-code-messages';
 import { LoginRequest } from '@app/core/models/authModels/login-request.model';
+import { AuthService } from '@app/core/services/auth.service';
 
 @Component({
   standalone: true,
@@ -20,6 +21,7 @@ export class LoginComponent {
   private readonly fb = inject(FormBuilder);
   private readonly authApi = inject(AuthApiService);
   private readonly toastService = inject(ToastService);
+  private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
 
   protected readonly isSubmitting = signal(false);
@@ -44,11 +46,14 @@ export class LoginComponent {
       .pipe(finalize(() => this.isSubmitting.set(false)))
       .subscribe({
         next: (response) => {
+
           this.toastService.show(getStatusCodeMessage(response.statusCode));
 
-          if (response.statusCode !== 713) {
-            return;
-          }
+          if (response.statusCode !== 713) { return; }
+
+          if (!response.data) { return; }
+
+          this.authService.setCurrentUser(response.data);
 
           this.router.navigateByUrl('/dashboard');
         },

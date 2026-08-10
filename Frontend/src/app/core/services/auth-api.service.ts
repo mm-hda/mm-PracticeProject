@@ -7,6 +7,7 @@ import { ServiceResponse } from '@app/core/models/service-response.model';
 import { LoginRequest } from '@app/core/models/authModels/login-request.model';
 import { TokenDto } from '@app/core/models/authModels/token.model';
 import { StorageService } from './storage.service';
+import { AuthService } from './auth.service';
 
 @Injectable({
   providedIn: 'root'
@@ -15,6 +16,7 @@ export class AuthApiService {
   private readonly http = inject(HttpClient);
   private readonly authUrl = apiEndpoints.auth;
   private readonly storageService = inject(StorageService);
+  private readonly authService = inject(AuthService);
 
   public constructor() { }
 
@@ -27,7 +29,15 @@ export class AuthApiService {
   logout(): void {
     var email = this.storageService.getItem<{ email: string }>('auth_user')?.email;
     localStorage.clear();
-    this.http.post(`${this.authUrl}/logout`, { email }, { withCredentials: true }
-    ).subscribe();
+    this.http.post(`${this.authUrl}/logout`, { email }, { withCredentials: true }).subscribe(
+      {
+        complete: () => {
+          this.authService.clearCurrentUser();
+        },
+        error: (error) => {
+          this.authService.clearCurrentUser();
+        }
+      }
+    );
   }
 }

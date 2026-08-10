@@ -238,11 +238,25 @@
                 <option value="">
                   Select Branch
                 </option>
-
+                @if(currentUser()?.role === 'Admin') {
                 @for(branch of branches(); track branch.id) {
                 <option [value]="branch.id">
                   {{ branch.name }}
                 </option>
+                }
+                }
+                @if(currentUser()?.role === 'HR') {
+                @for(branch of branches(); track branch.id) {
+
+                @if(branch.name === currentUser()?.branch) {
+
+                <option [value]="branch.id">
+                  {{ branch.name }}
+                </option>
+
+                }
+
+                }
                 }
               </select>
             </div>

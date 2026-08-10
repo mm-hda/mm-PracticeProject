@@ -15,4 +15,7 @@ public interface IProjectRepository : IGenericRepository<Project>
     Task<ProjectResponseDto?> GetProjectByIdAsync(Guid id, CancellationToken cancellationToken);
     Task<bool> ProjectExistsByIdAsync(Guid projectId, CancellationToken cancellationToken);
     Task<IReadOnlyCollection<ProjectUserResponseDto>> GetProjectEmployeesAsync(Guid projectId, CancellationToken cancellationToken);
+    Task<IReadOnlyCollection<ProjectResponseDto>> GetProjectsByManagerIdAsync(Guid managerId, CancellationToken cancellationToken);
+
+    Task<IReadOnlyCollection<ProjectResponseDto>> GetEmployeeProjectsAsync(Guid userId, CancellationToken cancellationToken);
 }

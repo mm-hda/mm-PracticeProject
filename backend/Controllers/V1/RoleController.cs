@@ -7,7 +7,7 @@ using backend.Authorization;
 
 namespace backend.Controllers.V1;
 
-[Authorize(Roles = RoleConstants.Admin)]
+[Authorize(Roles = RoleConstants.Admin + "," + RoleConstants.HR)]
 [ApiController]
 [Route("api/[controller]")]
 public class RoleController(IRoleService roleService, ILogger<RoleController> logger) : ControllerBase
@@ -47,6 +47,5 @@ public class RoleController(IRoleService roleService, ILogger<RoleController> lo
 
         logger.LogInformation("Retrieved all roles count: {Count}", result.Data?.Count ?? 0);
         return Ok(ResponseResults<IReadOnlyCollection<RoleResponseDto>>.Success(result.StatusCode, result.Data));
-
     }
 }
