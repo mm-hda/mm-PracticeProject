@@ -25,15 +25,15 @@ import {
   ProjectUserResponse
 } from '@app/core/models/projectModels/project.model';
 
-import { ProjectApiService } from '@app/core/services/project-api.service';
-import { UserApiService } from '@app/core/services/user-api.service';
+import { ProjectApiService } from '@app/core/services/api-service/project-api.service';
+import { UserApiService } from '@app/core/services/api-service/user-api.service';
 import { ToastService } from '@app/core/services/toast.service';
 
 import {
   GenericTableComponent,
   TableColumn
 } from '@app/shared/components/table/generic-table.component';
-import { EmployeeProjectApiService } from '@app/core/services/employeeProject-api.service';
+import { EmployeeProjectApiService } from '@app/core/services/api-service/employeeProject-api.service';
 import { UserResponse } from '@app/core/models/userModels/user.model';
 import { AuthService } from '@app/core/services/auth.service';
 

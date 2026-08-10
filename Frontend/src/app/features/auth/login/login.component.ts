@@ -5,7 +5,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { finalize } from 'rxjs';
 
-import { AuthApiService } from '@app/core/services/auth-api.service';
+import { AuthApiService } from '@app/core/services/api-service/auth-api.service';
 import { ToastService } from '@app/core/services/toast.service';
 import { getStatusCodeMessage } from '@app/core/config/status-code-messages';
 import { LoginRequest } from '@app/core/models/authModels/login-request.model';

@@ -1,8 +1,8 @@
 import { Component, inject, signal } from '@angular/core';
-import { BranchApiService } from '@app/core/services/branch-api.service';
-import { DepartmentApiService } from '@app/core/services/department-api.service';
-import { PositionApiService } from '@app/core/services/position-api.service';
-import { RoleApiService } from '@app/core/services/role-api.service';
+import { BranchApiService } from '@app/core/services/api-service/branch-api.service';
+import { DepartmentApiService } from '@app/core/services/api-service/department-api.service';
+import { PositionApiService } from '@app/core/services/api-service/position-api.service';
+import { RoleApiService } from '@app/core/services/api-service/role-api.service';
 import { StorageService } from '@app/core/services/storage.service';
 import { AuthService } from '@app/core/services/auth.service';
 

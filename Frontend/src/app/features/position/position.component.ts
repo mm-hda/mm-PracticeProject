@@ -25,8 +25,8 @@ import {
   PositionUserResponse,
   UpdatePositionRequest
 } from '@app/core/models/positionModels/position.model';
-import { DepartmentApiService } from '@app/core/services/department-api.service';
-import { PositionApiService } from '@app/core/services/position-api.service';
+import { DepartmentApiService } from '@app/core/services/api-service/department-api.service';
+import { PositionApiService } from '@app/core/services/api-service/position-api.service';
 import { ToastService } from '@app/core/services/toast.service';
 import {
   GenericTableComponent,

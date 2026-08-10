@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 
 import { OfflineQueueService } from './offline-queue.service';
-import { UserApiService } from './user-api.service';
+import { UserApiService } from './api-service/user-api.service';
 
 import { CreateUserRequest } from '../models/userModels/user.model';
 import { ToastService } from './toast.service';

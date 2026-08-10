@@ -10,7 +10,7 @@ import {
   CreateBranchRequest,
   UpdateBranchRequest
 } from '@app/core/models/branchModels/branch.model';
-import { BranchApiService } from '@app/core/services/branch-api.service';
+import { BranchApiService } from '@app/core/services/api-service/branch-api.service';
 import { ToastService } from '@app/core/services/toast.service';
 import { TableColumn, GenericTableComponent } from '@app/shared/components/table/generic-table.component';
 import { StorageService } from '@app/core/services/storage.service';

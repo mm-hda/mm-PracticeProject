@@ -5,7 +5,7 @@ import { Observable } from 'rxjs';
 
 import { apiEndpoints } from '@app/core/config/api-endpoints';
 import { ServiceResponse } from '@app/core/models/service-response.model';
-import { CreatePositionRequest, PositionResponse, PositionUserResponse, UpdatePositionRequest } from '../models/positionModels/position.model';
+import { CreatePositionRequest, PositionResponse, PositionUserResponse, UpdatePositionRequest } from '../../models/positionModels/position.model';
 
 @Injectable({
   providedIn: 'root'

@@ -22,13 +22,13 @@ import {
   CreateDepartmentRequest,
   UpdateDepartmentRequest
 } from '@app/core/models/departmentModels/department.model';
-import { DepartmentApiService } from '@app/core/services/department-api.service';
+import { DepartmentApiService } from '@app/core/services/api-service/department-api.service';
 import { ToastService } from '@app/core/services/toast.service';
 import {
   TableColumn,
   GenericTableComponent
 } from '@app/shared/components/table/generic-table.component';
-import { PositionApiService } from '@app/core/services/position-api.service';
+import { PositionApiService } from '@app/core/services/api-service/position-api.service';
 import { PositionResponse } from '@app/core/models/positionModels/position.model';
 import { StorageService } from '@app/core/services/storage.service';
 

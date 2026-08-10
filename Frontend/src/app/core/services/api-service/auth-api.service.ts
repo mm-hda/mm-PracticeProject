@@ -6,8 +6,8 @@ import { apiEndpoints } from '@app/core/config/api-endpoints';
 import { ServiceResponse } from '@app/core/models/service-response.model';
 import { LoginRequest } from '@app/core/models/authModels/login-request.model';
 import { TokenDto } from '@app/core/models/authModels/token.model';
-import { StorageService } from './storage.service';
-import { AuthService } from './auth.service';
+import { StorageService } from '../storage.service';
+import { AuthService } from '../auth.service';
 
 @Injectable({
   providedIn: 'root'

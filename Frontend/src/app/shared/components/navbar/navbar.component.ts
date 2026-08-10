@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { AuthApiService } from '@app/core/services/auth-api.service';
+import { AuthApiService } from '@app/core/services/api-service/auth-api.service';
 import { AuthService } from '@app/core/services/auth.service';
 import { StorageService } from '@app/core/services/storage.service';
 

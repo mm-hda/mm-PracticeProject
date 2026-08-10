@@ -13,8 +13,8 @@ import {
   searchUserRequest,
   paginationRequest,
   updateUserRequest
-} from '../models/userModels/user.model';
-import { ManagerResponse } from '../models/projectModels/project.model';
+} from '../../models/userModels/user.model';
+import { ManagerResponse } from '../../models/projectModels/project.model';
 
 @Injectable({
   providedIn: 'root'

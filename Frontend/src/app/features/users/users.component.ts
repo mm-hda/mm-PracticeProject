@@ -29,11 +29,11 @@ import { DepartmentResponse } from '@app/core/models/departmentModels/department
 import { PositionResponse } from '@app/core/models/positionModels/position.model';
 import { roleResponse } from '@app/core/models/roleModels/role.model';
 
-import { UserApiService } from '@app/core/services/user-api.service';
-import { BranchApiService } from '@app/core/services/branch-api.service';
-import { DepartmentApiService } from '@app/core/services/department-api.service';
-import { PositionApiService } from '@app/core/services/position-api.service';
-import { RoleApiService } from '@app/core/services/role-api.service';
+import { UserApiService } from '@app/core/services/api-service/user-api.service';
+import { BranchApiService } from '@app/core/services/api-service/branch-api.service';
+import { DepartmentApiService } from '@app/core/services/api-service/department-api.service';
+import { PositionApiService } from '@app/core/services/api-service/position-api.service';
+import { RoleApiService } from '@app/core/services/api-service/role-api.service';
 
 import { StorageService } from '@app/core/services/storage.service';
 import { ToastService } from '@app/core/services/toast.service';
