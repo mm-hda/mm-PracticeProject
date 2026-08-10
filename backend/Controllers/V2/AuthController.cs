@@ -35,7 +35,7 @@ public class AuthController(IAuthService authService, ILogger<AuthController> lo
         return Ok(ResponseResults<TokenDto>.Success(result.StatusCode, result.Data));
     }
 
-    [Authorize(Roles = RoleConstants.Admin)]
+    [Authorize(Roles = RoleConstants.Admin + "," + RoleConstants.HR)]
     [HttpPost("Register")]
     public async Task<IActionResult> RegisterAsync([FromBody] RegisterUserDtoV2 registerDto, CancellationToken cancellationToken)
     {

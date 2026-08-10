@@ -50,4 +50,3 @@ export interface updateUserRequest {
   positionId: string;
   roleId: string;
 }
-

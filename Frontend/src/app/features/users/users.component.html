@@ -114,7 +114,20 @@
           <tbody>
             @for(user of users(); track user.userId) {
             <tr>
-              <td class="ps-4 fw-semibold"> {{ user.name }} </td>
+              <td class="ps-4 fw-semibold"> {{ user.name }}
+
+                @if(user.syncStatus === 'pending') {
+                <span class="badge bg-warning">
+                  Pending
+                </span>
+                }
+
+                @if(user.syncStatus === 'synced') {
+                <span class="badge bg-success">
+                  Synced
+                </span>
+                }
+              </td>
               <td> {{ user.email }} </td>
               <td> {{ user.branchName }} </td>
               <td> {{ user.departmentName }} </td>

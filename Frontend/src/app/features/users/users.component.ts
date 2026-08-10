@@ -38,8 +38,12 @@ import { RoleApiService } from '@app/core/services/role-api.service';
 import { StorageService } from '@app/core/services/storage.service';
 import { ToastService } from '@app/core/services/toast.service';
 import { AuthService } from '@app/core/services/auth.service';
+import { OfflineQueueService } from '@app/core/services/offline-queue.service';
 
 type UserModalType = | 'add' | 'detail' | null;
+type PendingUserResponse = UserResponse & {
+  syncStatus?: 'pending' | 'synced';
+};
 
 @Component({
   standalone: true,
@@ -56,11 +60,12 @@ export class UsersComponent implements OnInit {
   private readonly departmentApiService = inject(DepartmentApiService);
   private readonly positionApiService = inject(PositionApiService);
   private readonly authService = inject(AuthService);
+  private readonly offlineQueueService = inject(OfflineQueueService);
 
   private readonly storageService = inject(StorageService);
   private readonly toastService = inject(ToastService);
 
-  public readonly users = signal<UserResponse[]>([]);
+  public readonly users = signal<PendingUserResponse[]>([]);
 
   public readonly currentUser = this.authService.currentUser;
 
@@ -142,23 +147,36 @@ export class UsersComponent implements OnInit {
       .getAllUsers(request)
       .pipe(finalize(() => this.isPageLoading.set(false)))
       .subscribe({
-        next: response => {
+        next: async response => {
           const users = response.data ?? [];
+          const pendingRequests = await this.offlineQueueService.getPendingUserRequests();
 
-          this.users.set(users);
+          const pendingUsers = pendingRequests.map(request => {
+            const payload = request.payload as CreateUserRequest;
+
+            return {
+              userId: `pending-${request.id}`,
+              name: `${payload.firstName} ${payload.lastName}`,
+              email: payload.email,
+              syncStatus: 'pending'
+            } as PendingUserResponse;
+          });
+
+          const mergedUsers = [
+            ...pendingUsers,
+            ...users
+          ];
+
+          this.users.set(mergedUsers);
 
           this.pageCache.update(cache => {
             const newCache = new Map(cache);
-
-            newCache.set(page, users);
-
+            newCache.set(page, mergedUsers);
             return newCache;
           });
-
           this.totalPages.set(response.meta?.totalPages ?? 0);
           this.totalRecords.set(response.meta?.totalRecords ?? 0);
         },
-
         error: error => { this.users.set([]); this.toastService.show(getStatusCodeMessage(error.statusCode)); }
       });
   }
@@ -226,7 +244,6 @@ export class UsersComponent implements OnInit {
   };
 
   public searchUsers(): void {
-
     const searchTerm = this.filterForm.controls.searchTerm.value?.trim();
 
     if (!searchTerm) {
@@ -335,7 +352,7 @@ export class UsersComponent implements OnInit {
     this.userForm.reset();
   }
 
-  public createUser(): void {
+  public async createUser(): Promise<void> {
 
     if (this.userForm.invalid) {
       this.userForm.markAllAsTouched();
@@ -354,6 +371,29 @@ export class UsersComponent implements OnInit {
       roleId: this.userForm.controls.roleId.value
     };
 
+    if (!navigator.onLine) {
+      await this.offlineQueueService.addRequest(
+        'create-user',
+        request
+      );
+
+      this.users.update(users => [
+        {
+          userId: crypto.randomUUID(),
+          name: `${request.firstName} ${request.lastName}`,
+          email: request.email,
+          syncStatus: 'pending'
+        } as PendingUserResponse,
+        ...users
+      ]);
+
+      this.toastService.show('Internet unavailable. User queued for sync.');
+
+      this.closeModals();
+
+      return;
+    }
+
     this.isSubmitting.set(true);
 
     this.userApiService
@@ -362,14 +402,14 @@ export class UsersComponent implements OnInit {
       .subscribe({
         next: response => {
           this.draftUser.set(null);
-
           this.toastService.show(getStatusCodeMessage(response.statusCode));
           this.closeModals();
-
           this.loadUsers();
         },
 
-        error: error => { this.toastService.show(getStatusCodeMessage(error.statusCode)); }
+        error: error => {
+          this.toastService.show(getStatusCodeMessage(error.statusCode));
+        }
       });
 
     this.storageService.removeItem('departments');
@@ -377,6 +417,6 @@ export class UsersComponent implements OnInit {
     this.storageService.removeItem('branches');
     this.storageService.removeItem('roles');
 
-    this.loadLookupData()
+    this.loadLookupData();
   }
 }
