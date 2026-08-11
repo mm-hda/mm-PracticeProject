@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 
 import { ToastHostComponent } from '@app/shared/components/toast-host/toast-host.component';
@@ -10,9 +10,9 @@ import { LanguageService } from './core/services/language.service';
   selector: 'app-root',
   imports: [RouterOutlet, ToastHostComponent],
   templateUrl: './app.html',
-  styleUrl: './app.css'
+  changeDetection: ChangeDetectionStrategy.Eager,
+  styleUrl: './app.css',
 })
-
 export class App {
   private readonly syncService = inject(SyncService);
   private readonly languageService = inject(LanguageService);

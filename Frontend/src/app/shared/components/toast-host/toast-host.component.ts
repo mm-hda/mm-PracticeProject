@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 
 import { ToastService } from '@app/core/services/toast.service';
 
@@ -7,7 +7,8 @@ import { ToastService } from '@app/core/services/toast.service';
   standalone: true,
   selector: 'app-toast-host',
   imports: [CommonModule],
-  templateUrl: './toast-host.component.html'
+  changeDetection: ChangeDetectionStrategy.Eager,
+  templateUrl: './toast-host.component.html',
 })
 export class ToastHostComponent {
   protected readonly toastService = inject(ToastService);

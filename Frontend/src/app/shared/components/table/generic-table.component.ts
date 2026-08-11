@@ -1,7 +1,4 @@
-import {
-  Component,
-  Input
-} from '@angular/core';
+import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
 
 import { CommonModule } from '@angular/common';
 
@@ -9,7 +6,8 @@ import { CommonModule } from '@angular/common';
   selector: 'app-table',
   standalone: true,
   imports: [CommonModule],
-  templateUrl: './generic-table.component.html'
+  changeDetection: ChangeDetectionStrategy.Eager,
+  templateUrl: './generic-table.component.html',
 })
 export class GenericTableComponent {
   @Input({ required: true })

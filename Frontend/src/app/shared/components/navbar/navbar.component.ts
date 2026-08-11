@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { AuthApiService } from '@app/core/services/api-service/auth-api.service';
 import { AuthService } from '@app/core/services/auth.service';
@@ -8,14 +8,11 @@ import { LanguageService } from '@app/core/services/language.service';
 
 @Component({
   selector: 'app-navbar',
-  imports: [
-    RouterLink,
-    TranslatePipe
-  ],
-  templateUrl: './navbar.component.html'
+  imports: [RouterLink, TranslatePipe],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  templateUrl: './navbar.component.html',
 })
 export class NavbarComponent {
-
   private readonly authApi = inject(AuthApiService);
   private readonly storageService = inject(StorageService);
   private readonly authService = inject(AuthService);
@@ -31,7 +28,6 @@ export class NavbarComponent {
   public selectedLanguage = this.languageService.getCurrentLanguage();
 
   public constructor(private readonly router: Router) {
-
     const user = this.storageService.getItem<{
       userId: string;
       name: string;
@@ -45,7 +41,6 @@ export class NavbarComponent {
   }
 
   public changeLanguage(event: Event): void {
-
     const language = (event.target as HTMLSelectElement).value;
 
     this.selectedLanguage = language;

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -16,7 +16,8 @@ import { TranslatePipe } from '@ngx-translate/core';
   standalone: true,
   selector: 'app-login',
   imports: [CommonModule, ReactiveFormsModule, TranslatePipe],
-  templateUrl: './login.component.html'
+  changeDetection: ChangeDetectionStrategy.Eager,
+  templateUrl: './login.component.html',
 })
 export class LoginComponent {
   private readonly fb = inject(FormBuilder);
@@ -30,7 +31,7 @@ export class LoginComponent {
 
   protected readonly form = this.fb.nonNullable.group({
     email: ['', [Validators.required, Validators.email]],
-    password: ['', [Validators.required]]
+    password: ['', [Validators.required]],
   });
 
   protected submit(): void {
@@ -47,12 +48,15 @@ export class LoginComponent {
       .pipe(finalize(() => this.isSubmitting.set(false)))
       .subscribe({
         next: (response) => {
-
           this.toastService.show(getStatusCodeMessage(response.statusCode));
 
-          if (response.statusCode !== 713) { return; }
+          if (response.statusCode !== 713) {
+            return;
+          }
 
-          if (!response.data) { return; }
+          if (!response.data) {
+            return;
+          }
 
           this.authService.setCurrentUser(response.data);
 
@@ -62,7 +66,7 @@ export class LoginComponent {
           const statusCode = error.error?.statusCode ?? error.status;
 
           this.toastService.show(getStatusCodeMessage(statusCode));
-        }
+        },
       });
   }
 

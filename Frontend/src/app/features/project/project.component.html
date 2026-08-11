@@ -1,5 +1,4 @@
 <div class="container py-4">
-
   <div class="d-flex align-items-center justify-content-between mb-4">
     <div>
       <h2 class="h4 fw-bold mb-1">{{ 'PROJECT.TITLE' | translate }}</h2>
@@ -17,368 +16,435 @@
   <div class="card border-0 shadow-sm">
     <div class="card-body p-0">
       @if (isPageLoading()) {
-      <div class="p-4 text-center">
-        <div class="spinner-border text-dark"></div>
-        <div class="text-secondary mt-2">
-          {{ 'PROJECT.LOADING' | translate }}
+        <div class="p-4 text-center">
+          <div class="spinner-border text-dark"></div>
+          <div class="text-secondary mt-2">
+            {{ 'PROJECT.LOADING' | translate }}
+          </div>
         </div>
-      </div>
-
       } @else {
-      <div class="table-responsive">
-        <table class="table table-hover align-middle mb-0">
-          <thead class="table-light">
-            <tr>
-              <th class="ps-4">{{ 'PROJECT.NAME' | translate }}</th>
-              <th>{{ 'PROJECT.MANAGER' | translate }}</th>
-              <th>{{ 'PROJECT.START_DATE' | translate }}</th>
-              <th>{{ 'PROJECT.END_DATE' | translate }}</th>
-              <th>{{ 'PROJECT.TOTAL_USERS' | translate }}</th>
-              <th class="text-end pe-4">{{ 'PROJECT.ACTIONS' | translate }}</th>
-              <th>{{ 'PROJECT.ADD_EMPLOYEE' | translate }}</th>
-            </tr>
-          </thead>
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+              <tr>
+                <th class="ps-4">{{ 'PROJECT.NAME' | translate }}</th>
+                <th>{{ 'PROJECT.MANAGER' | translate }}</th>
+                <th>{{ 'PROJECT.START_DATE' | translate }}</th>
+                <th>{{ 'PROJECT.END_DATE' | translate }}</th>
+                <th>{{ 'PROJECT.TOTAL_USERS' | translate }}</th>
+                <th class="text-end pe-4">{{ 'PROJECT.ACTIONS' | translate }}</th>
+                <th>{{ 'PROJECT.ADD_EMPLOYEE' | translate }}</th>
+              </tr>
+            </thead>
 
-          <tbody>
-            @for(project of projects(); track project.id) {
-            <tr>
-              <td class="ps-4 fw-semibold">
-                {{ project.name }}
-              </td>
-              <td>
-                {{ project.projectManagerName || '-' }}
-              </td>
-              <td>
-                {{ project.startDate | date:'dd/MM/yyyy' }}
-              </td>
-              <td>
-                {{ project.endDate | date:'dd/MM/yyyy' }}
-              </td>
-              <td>
-                <span class="badge text-bg-dark">
-                  {{ project.totalUsers ?? 0 }}
-                </span>
-              </td>
-              <td class="text-end pe-4">
-                <div class="btn-group">
-                  <button class="btn btn-sm btn-outline-secondary" type="button" title="Project Detail"
-                    (click)="openDetailModal(project)">
-                    <i class="bi bi-info-circle"></i>
-                  </button>
+            <tbody>
+              @for (project of projects(); track project.id) {
+                <tr>
+                  <td class="ps-4 fw-semibold">
+                    {{ project.name }}
+                  </td>
+                  <td>
+                    {{ project.projectManagerName || '-' }}
+                  </td>
+                  <td>
+                    {{ project.startDate | date: 'dd/MM/yyyy' }}
+                  </td>
+                  <td>
+                    {{ project.endDate | date: 'dd/MM/yyyy' }}
+                  </td>
+                  <td>
+                    <span class="badge text-bg-dark">
+                      {{ project.totalUsers ?? 0 }}
+                    </span>
+                  </td>
+                  <td class="text-end pe-4">
+                    <div class="btn-group">
+                      <button
+                        class="btn btn-sm btn-outline-secondary"
+                        type="button"
+                        title="Project Detail"
+                        (click)="openDetailModal(project)"
+                      >
+                        <i class="bi bi-info-circle"></i>
+                      </button>
 
-                  <button class="btn btn-sm btn-outline-secondary" type="button" title="Project Employees"
-                    (click)="openEmployeesModal(project.id)">
-                    <i class="bi bi-people"></i>
-                  </button>
+                      <button
+                        class="btn btn-sm btn-outline-secondary"
+                        type="button"
+                        title="Project Employees"
+                        (click)="openEmployeesModal(project.id)"
+                      >
+                        <i class="bi bi-people"></i>
+                      </button>
 
-                  <button class="btn btn-sm btn-outline-dark" type="button" title="Edit Project"
-                    (click)="openEditModal(project)">
-                    <i class="bi bi-pencil-square"></i>
-                  </button>
-                </div>
-              </td>
-              <td>
-                <button class="btn btn-sm btn-outline-danger" type="button" title="Add Employee"
-                  (click)="openAddEmployeeProjectModal(project.id)">
-                  <i class="bi bi-person-plus"></i>
-                </button>
-              </td>
-            </tr>
-            } @empty {
-            <tr>
-              <td colspan="6" class="text-center text-secondary py-5">
-                {{ 'PROJECT.NO_PROJECTS' | translate }}
-              </td>
-            </tr>
-            }
-          </tbody>
-        </table>
-      </div>
+                      <button
+                        class="btn btn-sm btn-outline-dark"
+                        type="button"
+                        title="Edit Project"
+                        (click)="openEditModal(project)"
+                      >
+                        <i class="bi bi-pencil-square"></i>
+                      </button>
+                    </div>
+                  </td>
+                  <td>
+                    <button
+                      class="btn btn-sm btn-outline-danger"
+                      type="button"
+                      title="Add Employee"
+                      (click)="openAddEmployeeProjectModal(project.id)"
+                    >
+                      <i class="bi bi-person-plus"></i>
+                    </button>
+                  </td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td colspan="6" class="text-center text-secondary py-5">
+                    {{ 'PROJECT.NO_PROJECTS' | translate }}
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
       }
     </div>
   </div>
 </div>
 
-@if(isAddModalOpen() || isEditModalOpen()) {
-<div class="modal fade show d-block" tabindex="-1" role="dialog" aria-modal="true" (click)="closeModals()">
-  <div class="modal-dialog modal-lg modal-dialog-centered" role="document" (click)="$event.stopPropagation()">
-    <div class="modal-content border-0 shadow">
-      <div class="modal-header">
-        <h5 class="modal-title fw-bold">
-          {{ isAddModalOpen() ? 'Add Project' : 'Edit Project' }}
-        </h5>
+@if (isAddModalOpen() || isEditModalOpen()) {
+  <div
+    class="modal fade show d-block"
+    tabindex="-1"
+    role="dialog"
+    aria-modal="true"
+    (click)="closeModals()"
+  >
+    <div
+      class="modal-dialog modal-lg modal-dialog-centered"
+      role="document"
+      (click)="$event.stopPropagation()"
+    >
+      <div class="modal-content border-0 shadow">
+        <div class="modal-header">
+          <h5 class="modal-title fw-bold">
+            {{ isAddModalOpen() ? 'Add Project' : 'Edit Project' }}
+          </h5>
 
-        <button class="btn-close" type="button" (click)="closeModals()">
-        </button>
-      </div>
+          <button class="btn-close" type="button" (click)="closeModals()"></button>
+        </div>
 
-      <form [formGroup]="projectForm" (ngSubmit)="isAddModalOpen() ? createProject() : updateProject()">
-        <div class="modal-body">
-          @if(isModalLoading()) {
-          <div class="text-center py-4">
-            <div class="spinner-border text-dark"></div>
+        <form
+          [formGroup]="projectForm"
+          (ngSubmit)="isAddModalOpen() ? createProject() : updateProject()"
+        >
+          <div class="modal-body">
+            @if (isModalLoading()) {
+              <div class="text-center py-4">
+                <div class="spinner-border text-dark"></div>
 
-            <div class="text-secondary mt-2">
-              {{ 'PROJECT.LOADING_MANAGERS' | translate }}
-            </div>
+                <div class="text-secondary mt-2">
+                  {{ 'PROJECT.LOADING_MANAGERS' | translate }}
+                </div>
+              </div>
+            } @else {
+              <div class="row g-3">
+                <div class="col-md-12">
+                  <label class="form-label">
+                    {{ 'PROJECT.NAME' | translate }}
+                  </label>
+
+                  <input class="form-control" type="text" formControlName="name" />
+                </div>
+
+                <div class="col-md-12">
+                  <label class="form-label">
+                    {{ 'PROJECT.DESCRIPTION' | translate }}
+                  </label>
+
+                  <textarea class="form-control" rows="3" formControlName="description"> </textarea>
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label">
+                    {{ 'PROJECT.START_DATE' | translate }}
+                  </label>
+                  <input class="form-control" type="date" formControlName="startDate" />
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label">
+                    {{ 'PROJECT.END_DATE' | translate }}
+                  </label>
+
+                  <input class="form-control" type="date" formControlName="endDate" />
+                </div>
+
+                <div class="col-md-12">
+                  <label class="form-label">
+                    {{ 'PROJECT.MANAGER' | translate }}
+                  </label>
+
+                  <select class="form-select" formControlName="projectManagerId">
+                    <option value="">
+                      {{ 'PROJECT.SELECT_MANAGER' | translate }}
+                    </option>
+
+                    @for (manager of managers(); track manager.userId) {
+                      <option [value]="manager.userId">
+                        {{ manager.name }}
+                      </option>
+                    }
+                  </select>
+                </div>
+              </div>
+            }
           </div>
+
+          <div class="modal-footer">
+            <button class="btn btn-light border" type="button" (click)="closeModals()">
+              {{ 'PROJECT.CANCEL' | translate }}
+            </button>
+
+            <button
+              class="btn btn-dark"
+              type="submit"
+              [disabled]="isSubmitting() || isModalLoading()"
+            >
+              @if (isSubmitting()) {
+                <span class="spinner-border spinner-border-sm me-2"></span>
+              }
+              {{ (isAddModalOpen() ? 'PROJECT.CREATE' : 'PROJECT.UPDATE') | translate }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  <div class="modal-backdrop fade show"></div>
+}
+
+@if (isDetailModalOpen()) {
+  <div
+    class="modal fade show d-block"
+    tabindex="-1"
+    role="dialog"
+    aria-modal="true"
+    (click)="closeModals()"
+  >
+    <div
+      class="modal-dialog modal-dialog-centered"
+      role="document"
+      (click)="$event.stopPropagation()"
+    >
+      <div class="modal-content border-0 shadow">
+        <div class="modal-header">
+          <h5 class="modal-title fw-bold">
+            {{ 'PROJECT.DETAIL' | translate }}
+          </h5>
+
+          <button class="btn-close" type="button" (click)="closeModals()"></button>
+        </div>
+
+        <div class="modal-body">
+          @if (selectedProject(); as project) {
+            <div class="d-grid gap-3">
+              <div class="p-3 rounded-3 bg-light border">
+                <div class="text-secondary small">
+                  {{ 'PROJECT.NAME' | translate }}
+                </div>
+
+                <div class="fw-semibold">
+                  {{ project.name }}
+                </div>
+              </div>
+
+              <div class="p-3 rounded-3 bg-light border">
+                <div class="text-secondary small">
+                  {{ 'PROJECT.DESCRIPTION' | translate }}
+                </div>
+
+                <div class="fw-semibold">
+                  {{ project.description || '-' }}
+                </div>
+              </div>
+
+              <div class="p-3 rounded-3 bg-light border">
+                <div class="text-secondary small">
+                  {{ 'PROJECT.MANAGER' | translate }}
+                </div>
+
+                <div class="fw-semibold">
+                  {{ project.projectManagerName || '-' }}
+                </div>
+              </div>
+
+              <div class="p-3 rounded-3 bg-light border">
+                <div class="text-secondary small">
+                  {{ 'PROJECT.START_DATE' | translate }}
+                </div>
+
+                <div class="fw-semibold">
+                  {{ project.startDate | date: 'dd/MM/yyyy' }}
+                </div>
+              </div>
+
+              <div class="p-3 rounded-3 bg-light border">
+                <div class="text-secondary small">
+                  {{ 'PROJECT.END_DATE' | translate }}
+                </div>
+
+                <div class="fw-semibold">
+                  {{ project.endDate | date: 'dd/MM/yyyy' }}
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal-backdrop fade show"></div>
+}
+
+@if (isEmployeesModalOpen()) {
+  <div
+    class="modal fade show d-block"
+    tabindex="-1"
+    role="dialog"
+    aria-modal="true"
+    (click)="closeModals()"
+  >
+    <div
+      class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable"
+      role="document"
+      (click)="$event.stopPropagation()"
+    >
+      <div class="modal-content border-0 shadow">
+        <div class="modal-header">
+          <h5 class="modal-title fw-bold">
+            {{ 'PROJECT.EMPLOYEES' | translate }}
+          </h5>
+
+          <button class="btn-close" type="button" (click)="closeModals()"></button>
+        </div>
+
+        <div class="modal-body">
+          @if (isModalLoading()) {
+            <div class="text-center py-4">
+              <div class="spinner-border text-dark"></div>
+
+              <div class="text-secondary mt-2">
+                {{ 'PROJECT.LOADING_EMPLOYEES' | translate }}
+              </div>
+            </div>
           } @else {
-          <div class="row g-3">
-            <div class="col-md-12">
+            <app-table [columns]="employeeColumns" [data]="projectEmployeesTableData()">
+            </app-table>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal-backdrop fade show"></div>
+}
+
+@if (isAddEmployeeProjectModalOpen()) {
+  <div
+    class="modal fade show d-block"
+    tabindex="-1"
+    role="dialog"
+    aria-modal="true"
+    (click)="closeModals()"
+  >
+    <div
+      class="modal-dialog modal-lg modal-dialog-centered"
+      role="document"
+      (click)="$event.stopPropagation()"
+    >
+      <div class="modal-content border-0 shadow">
+        <div class="modal-header">
+          <h5 class="modal-title fw-bold">
+            {{ 'PROJECT.ADD_EMPLOYEE' | translate }}
+          </h5>
+          <button class="btn-close" type="button" (click)="closeModals()"></button>
+        </div>
+
+        <form
+          [formGroup]="EmployeeProjectForm"
+          (ngSubmit)="addEmployeeProject(EmployeeProjectForm.controls.projectId.value)"
+        >
+          <div class="modal-body">
+            <div class="mb-3">
               <label class="form-label">
                 {{ 'PROJECT.NAME' | translate }}
               </label>
-
-              <input class="form-control" type="text" formControlName="name">
+              <input
+                class="form-control"
+                [value]="$safeNavigationMigration(selectedProject()?.name)"
+                readonly
+              />
             </div>
 
-            <div class="col-md-12">
+            <div class="mb-3">
               <label class="form-label">
-                {{ 'PROJECT.DESCRIPTION' | translate }}
+                {{ 'PROJECT.SEARCH_EMPLOYEE' | translate }}
               </label>
+              <div class="d-flex gap-2">
+                <input
+                  #searchBox
+                  type="text"
+                  class="form-control"
+                  placeholder="{{ 'PROJECT.ENTER_EMPLOYEE_NAME' | translate }}"
+                />
 
-              <textarea class="form-control" rows="3" formControlName="description">
-              </textarea>
+                <button
+                  class="btn btn-dark"
+                  type="button"
+                  (click)="searchEmployees(searchBox.value)"
+                >
+                  <i class="bi bi-search me-1"></i>
+                  {{ 'PROJECT.SEARCH' | translate }}
+                </button>
+              </div>
             </div>
 
-            <div class="col-md-6">
-              <label class="form-label">
-                {{ 'PROJECT.START_DATE' | translate }}
-              </label>
-              <input class="form-control" type="date" formControlName="startDate">
-            </div>
+            @if (Employees().length > 0) {
+              <div class="mb-3">
+                <label class="form-label">
+                  {{ 'PROJECT.SELECT_EMPLOYEE' | translate }}
+                </label>
 
-            <div class="col-md-6">
-              <label class="form-label">
-                {{ 'PROJECT.END_DATE' | translate }}
-              </label>
-
-              <input class="form-control" type="date" formControlName="endDate">
-            </div>
-
-            <div class="col-md-12">
-              <label class="form-label">
-                {{ 'PROJECT.MANAGER' | translate }}
-              </label>
-
-              <select class="form-select" formControlName="projectManagerId">
-                <option value="">
-                  {{ 'PROJECT.SELECT_MANAGER' | translate }}
-                </option>
-
-                @for(manager of managers(); track manager.userId) {
-                <option [value]="manager.userId">
-                  {{ manager.name }}
-                </option>
-                }
-              </select>
-            </div>
-          </div>
-          }
-        </div>
-
-        <div class="modal-footer">
-          <button class="btn btn-light border" type="button" (click)="closeModals()">
-            {{ 'PROJECT.CANCEL' | translate }}
-          </button>
-
-          <button class="btn btn-dark" type="submit" [disabled]="isSubmitting() || isModalLoading()">
-            @if(isSubmitting()) {
-            <span class="spinner-border spinner-border-sm me-2"></span>
+                <select class="form-select" formControlName="userId">
+                  <option value="">
+                    {{ 'PROJECT.SELECT_EMPLOYEE' | translate }}
+                  </option>
+                  @for (employee of Employees(); track employee.userId) {
+                    <option [value]="employee.userId">
+                      {{ employee.name }} ({{ employee.email }})
+                    </option>
+                  }
+                </select>
+              </div>
             }
-            {{ (isAddModalOpen() ? 'PROJECT.CREATE' : 'PROJECT.UPDATE' ) | translate }}
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
-</div>
-<div class="modal-backdrop fade show"></div>
-}
-
-@if(isDetailModalOpen()) {
-<div class="modal fade show d-block" tabindex="-1" role="dialog" aria-modal="true" (click)="closeModals()">
-  <div class="modal-dialog modal-dialog-centered" role="document" (click)="$event.stopPropagation()">
-    <div class="modal-content border-0 shadow">
-      <div class="modal-header">
-        <h5 class="modal-title fw-bold">
-          {{ 'PROJECT.DETAIL' | translate }}
-        </h5>
-
-        <button class="btn-close" type="button" (click)="closeModals()">
-        </button>
-      </div>
-
-      <div class="modal-body">
-        @if(selectedProject(); as project) {
-        <div class="d-grid gap-3">
-          <div class="p-3 rounded-3 bg-light border">
-            <div class="text-secondary small">
-              {{ 'PROJECT.NAME' | translate }}
-            </div>
-
-            <div class="fw-semibold">
-              {{ project.name }}
-            </div>
           </div>
 
-          <div class="p-3 rounded-3 bg-light border">
-            <div class="text-secondary small">
-              {{ 'PROJECT.DESCRIPTION' | translate }}
-            </div>
+          <div class="modal-footer">
+            <button class="btn btn-light border" type="button" (click)="closeModals()">
+              {{ 'PROJECT.CANCEL' | translate }}
+            </button>
 
-            <div class="fw-semibold">
-              {{ project.description || '-' }}
-            </div>
-          </div>
-
-          <div class="p-3 rounded-3 bg-light border">
-            <div class="text-secondary small">
-              {{ 'PROJECT.MANAGER' | translate }}
-            </div>
-
-            <div class="fw-semibold">
-              {{ project.projectManagerName || '-' }}
-            </div>
-          </div>
-
-          <div class="p-3 rounded-3 bg-light border">
-            <div class="text-secondary small">
-              {{ 'PROJECT.START_DATE' | translate }}
-            </div>
-
-            <div class="fw-semibold">
-              {{ project.startDate | date:'dd/MM/yyyy' }}
-            </div>
-          </div>
-
-          <div class="p-3 rounded-3 bg-light border">
-            <div class="text-secondary small">
-              {{ 'PROJECT.END_DATE' | translate }}
-            </div>
-
-            <div class="fw-semibold">
-              {{ project.endDate | date:'dd/MM/yyyy' }}
-            </div>
-          </div>
-        </div>
-        }
-      </div>
-    </div>
-  </div>
-</div>
-<div class="modal-backdrop fade show"></div>
-}
-
-@if(isEmployeesModalOpen()) {
-
-<div class="modal fade show d-block" tabindex="-1" role="dialog" aria-modal="true" (click)="closeModals()">
-  <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable" role="document"
-    (click)="$event.stopPropagation()">
-    <div class="modal-content border-0 shadow">
-      <div class="modal-header">
-        <h5 class="modal-title fw-bold">
-          {{ 'PROJECT.EMPLOYEES' | translate }}
-        </h5>
-
-        <button class="btn-close" type="button" (click)="closeModals()">
-        </button>
-      </div>
-
-      <div class="modal-body">
-        @if(isModalLoading()) {
-        <div class="text-center py-4">
-          <div class="spinner-border text-dark"></div>
-
-          <div class="text-secondary mt-2">
-            {{ 'PROJECT.LOADING_EMPLOYEES' | translate }}
-          </div>
-        </div>
-        } @else {
-        <app-table [columns]="employeeColumns" [data]="projectEmployeesTableData()">
-        </app-table>
-        }
-      </div>
-    </div>
-  </div>
-</div>
-<div class="modal-backdrop fade show"></div>
-}
-
-
-@if(isAddEmployeeProjectModalOpen()) {
-<div class="modal fade show d-block" tabindex="-1" role="dialog" aria-modal="true" (click)="closeModals()">
-  <div class="modal-dialog modal-lg modal-dialog-centered" role="document" (click)="$event.stopPropagation()">
-    <div class="modal-content border-0 shadow">
-      <div class="modal-header">
-        <h5 class="modal-title fw-bold">
-          {{ 'PROJECT.ADD_EMPLOYEE' | translate }}
-        </h5>
-        <button class="btn-close" type="button" (click)="closeModals()">
-        </button>
-      </div>
-
-      <form [formGroup]="EmployeeProjectForm"
-        (ngSubmit)="addEmployeeProject(EmployeeProjectForm.controls.projectId.value)">
-        <div class="modal-body">
-          <div class="mb-3">
-            <label class="form-label">
-              {{ 'PROJECT.NAME' | translate }}
-            </label>
-            <input class="form-control" [value]="selectedProject()?.name" readonly>
-          </div>
-
-          <div class="mb-3">
-            <label class="form-label">
-              {{ 'PROJECT.SEARCH_EMPLOYEE' | translate }}
-            </label>
-            <div class="d-flex gap-2">
-              <input #searchBox type="text" class="form-control"
-                placeholder="{{ 'PROJECT.ENTER_EMPLOYEE_NAME' | translate }}" />
-
-              <button class="btn btn-dark" type="button" (click)="searchEmployees(searchBox.value)">
-                <i class="bi bi-search me-1"></i>
-                {{ 'PROJECT.SEARCH' | translate }}
-              </button>
-            </div>
-          </div>
-
-          @if(Employees().length > 0) {
-          <div class="mb-3">
-            <label class="form-label">
-              {{ 'PROJECT.SELECT_EMPLOYEE' | translate }}
-            </label>
-
-            <select class="form-select" formControlName="userId">
-              <option value="">
-                {{ 'PROJECT.SELECT_EMPLOYEE' | translate }}
-              </option>
-              @for(employee of Employees(); track employee.userId) {
-              <option [value]="employee.userId">
-                {{ employee.name }} ({{ employee.email }})
-              </option>
+            <button class="btn btn-success" type="submit" [disabled]="isSubmitting()">
+              @if (isSubmitting()) {
+                <span class="spinner-border spinner-border-sm me-2"></span>
               }
-            </select>
+              {{ 'PROJECT.ADD_EMPLOYEE' | translate }}
+            </button>
           </div>
-          }
-
-        </div>
-
-        <div class="modal-footer">
-          <button class="btn btn-light border" type="button" (click)="closeModals()">
-            {{ 'PROJECT.CANCEL' | translate }}
-          </button>
-
-          <button class="btn btn-success" type="submit" [disabled]="isSubmitting()">
-            @if(isSubmitting()) {
-            <span class="spinner-border spinner-border-sm me-2"></span>
-            }
-            {{ 'PROJECT.ADD_EMPLOYEE' | translate }}
-          </button>
-        </div>
-      </form>
+        </form>
+      </div>
     </div>
   </div>
-</div>
-<div class="modal-backdrop fade show"></div>
+  <div class="modal-backdrop fade show"></div>
 }
