@@ -10,11 +10,12 @@ import { ToastService } from '@app/core/services/toast.service';
 import { getStatusCodeMessage } from '@app/core/config/status-code-messages';
 import { LoginRequest } from '@app/core/models/authModels/login-request.model';
 import { AuthService } from '@app/core/services/auth.service';
+import { TranslatePipe } from '@ngx-translate/core';
 
 @Component({
   standalone: true,
   selector: 'app-login',
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, TranslatePipe],
   templateUrl: './login.component.html'
 })
 export class LoginComponent {

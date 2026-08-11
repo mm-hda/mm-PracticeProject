@@ -2,18 +2,16 @@
 
   <div class="d-flex align-items-center justify-content-between mb-4">
     <div>
-      <h2 class="h4 fw-bold mb-1">Projects</h2>
+      <h2 class="h4 fw-bold mb-1">{{ 'PROJECT.TITLE' | translate }}</h2>
       <p class="text-secondary mb-0">
-        Manage company projects and view project employees.
+        {{ 'PROJECT.DESCRIPTION' | translate }}
       </p>
     </div>
 
-    @if(currentUser()?.role === 'Admin') {
     <button class="btn btn-dark" type="button" (click)="openAddModal()">
       <i class="bi bi-plus-circle me-1"></i>
-      Add Project
+      {{ 'PROJECT.ADD' | translate }}
     </button>
-    }
   </div>
 
   <div class="card border-0 shadow-sm">
@@ -22,7 +20,7 @@
       <div class="p-4 text-center">
         <div class="spinner-border text-dark"></div>
         <div class="text-secondary mt-2">
-          Loading...
+          {{ 'PROJECT.LOADING' | translate }}
         </div>
       </div>
 
@@ -31,15 +29,13 @@
         <table class="table table-hover align-middle mb-0">
           <thead class="table-light">
             <tr>
-              <th class="ps-4">Project Name</th>
-              <th>Project Manager</th>
-              <th>Start Date</th>
-              <th>End Date</th>
-              <th>Total Users</th>
-              <th class="text-end pe-4">Actions</th>
-              @if(currentUser()?.role === 'Admin'|| currentUser()?.role === 'Manager') {
-              <th>Add Employee</th>
-              }
+              <th class="ps-4">{{ 'PROJECT.NAME' | translate }}</th>
+              <th>{{ 'PROJECT.MANAGER' | translate }}</th>
+              <th>{{ 'PROJECT.START_DATE' | translate }}</th>
+              <th>{{ 'PROJECT.END_DATE' | translate }}</th>
+              <th>{{ 'PROJECT.TOTAL_USERS' | translate }}</th>
+              <th class="text-end pe-4">{{ 'PROJECT.ACTIONS' | translate }}</th>
+              <th>{{ 'PROJECT.ADD_EMPLOYEE' | translate }}</th>
             </tr>
           </thead>
 
@@ -75,27 +71,23 @@
                     <i class="bi bi-people"></i>
                   </button>
 
-                  @if(currentUser()?.role === 'Admin') {
                   <button class="btn btn-sm btn-outline-dark" type="button" title="Edit Project"
                     (click)="openEditModal(project)">
                     <i class="bi bi-pencil-square"></i>
                   </button>
-                  }
                 </div>
               </td>
-              @if(currentUser()?.role === 'Admin'|| currentUser()?.role === 'Manager') {
               <td>
                 <button class="btn btn-sm btn-outline-danger" type="button" title="Add Employee"
                   (click)="openAddEmployeeProjectModal(project.id)">
                   <i class="bi bi-person-plus"></i>
                 </button>
               </td>
-              }
             </tr>
             } @empty {
             <tr>
               <td colspan="6" class="text-center text-secondary py-5">
-                No projects found.
+                {{ 'PROJECT.NO_PROJECTS' | translate }}
               </td>
             </tr>
             }
@@ -127,14 +119,14 @@
             <div class="spinner-border text-dark"></div>
 
             <div class="text-secondary mt-2">
-              Loading managers...
+              {{ 'PROJECT.LOADING_MANAGERS' | translate }}
             </div>
           </div>
           } @else {
           <div class="row g-3">
             <div class="col-md-12">
               <label class="form-label">
-                Project Name
+                {{ 'PROJECT.NAME' | translate }}
               </label>
 
               <input class="form-control" type="text" formControlName="name">
@@ -142,7 +134,7 @@
 
             <div class="col-md-12">
               <label class="form-label">
-                Description
+                {{ 'PROJECT.DESCRIPTION' | translate }}
               </label>
 
               <textarea class="form-control" rows="3" formControlName="description">
@@ -151,14 +143,14 @@
 
             <div class="col-md-6">
               <label class="form-label">
-                Start Date
+                {{ 'PROJECT.START_DATE' | translate }}
               </label>
               <input class="form-control" type="date" formControlName="startDate">
             </div>
 
             <div class="col-md-6">
               <label class="form-label">
-                End Date
+                {{ 'PROJECT.END_DATE' | translate }}
               </label>
 
               <input class="form-control" type="date" formControlName="endDate">
@@ -166,12 +158,12 @@
 
             <div class="col-md-12">
               <label class="form-label">
-                Project Manager
+                {{ 'PROJECT.MANAGER' | translate }}
               </label>
 
               <select class="form-select" formControlName="projectManagerId">
                 <option value="">
-                  Select Project Manager
+                  {{ 'PROJECT.SELECT_MANAGER' | translate }}
                 </option>
 
                 @for(manager of managers(); track manager.userId) {
@@ -187,14 +179,14 @@
 
         <div class="modal-footer">
           <button class="btn btn-light border" type="button" (click)="closeModals()">
-            Cancel
+            {{ 'PROJECT.CANCEL' | translate }}
           </button>
 
           <button class="btn btn-dark" type="submit" [disabled]="isSubmitting() || isModalLoading()">
             @if(isSubmitting()) {
             <span class="spinner-border spinner-border-sm me-2"></span>
             }
-            {{ isAddModalOpen() ? 'Create Project' : 'Update Project' }}
+            {{ (isAddModalOpen() ? 'PROJECT.CREATE' : 'PROJECT.UPDATE' ) | translate }}
           </button>
         </div>
       </form>
@@ -210,7 +202,7 @@
     <div class="modal-content border-0 shadow">
       <div class="modal-header">
         <h5 class="modal-title fw-bold">
-          Project Detail
+          {{ 'PROJECT.DETAIL' | translate }}
         </h5>
 
         <button class="btn-close" type="button" (click)="closeModals()">
@@ -222,7 +214,7 @@
         <div class="d-grid gap-3">
           <div class="p-3 rounded-3 bg-light border">
             <div class="text-secondary small">
-              Project Name
+              {{ 'PROJECT.NAME' | translate }}
             </div>
 
             <div class="fw-semibold">
@@ -232,7 +224,7 @@
 
           <div class="p-3 rounded-3 bg-light border">
             <div class="text-secondary small">
-              Description
+              {{ 'PROJECT.DESCRIPTION' | translate }}
             </div>
 
             <div class="fw-semibold">
@@ -242,7 +234,7 @@
 
           <div class="p-3 rounded-3 bg-light border">
             <div class="text-secondary small">
-              Project Manager
+              {{ 'PROJECT.MANAGER' | translate }}
             </div>
 
             <div class="fw-semibold">
@@ -252,7 +244,7 @@
 
           <div class="p-3 rounded-3 bg-light border">
             <div class="text-secondary small">
-              Start Date
+              {{ 'PROJECT.START_DATE' | translate }}
             </div>
 
             <div class="fw-semibold">
@@ -262,7 +254,7 @@
 
           <div class="p-3 rounded-3 bg-light border">
             <div class="text-secondary small">
-              End Date
+              {{ 'PROJECT.END_DATE' | translate }}
             </div>
 
             <div class="fw-semibold">
@@ -286,7 +278,7 @@
     <div class="modal-content border-0 shadow">
       <div class="modal-header">
         <h5 class="modal-title fw-bold">
-          Project Employees
+          {{ 'PROJECT.EMPLOYEES' | translate }}
         </h5>
 
         <button class="btn-close" type="button" (click)="closeModals()">
@@ -299,7 +291,7 @@
           <div class="spinner-border text-dark"></div>
 
           <div class="text-secondary mt-2">
-            Loading employees...
+            {{ 'PROJECT.LOADING_EMPLOYEES' | translate }}
           </div>
         </div>
         } @else {
@@ -320,7 +312,7 @@
     <div class="modal-content border-0 shadow">
       <div class="modal-header">
         <h5 class="modal-title fw-bold">
-          Add Employee To Project
+          {{ 'PROJECT.ADD_EMPLOYEE' | translate }}
         </h5>
         <button class="btn-close" type="button" (click)="closeModals()">
         </button>
@@ -331,21 +323,22 @@
         <div class="modal-body">
           <div class="mb-3">
             <label class="form-label">
-              Project
+              {{ 'PROJECT.NAME' | translate }}
             </label>
             <input class="form-control" [value]="selectedProject()?.name" readonly>
           </div>
 
           <div class="mb-3">
             <label class="form-label">
-              Search Employee
+              {{ 'PROJECT.SEARCH_EMPLOYEE' | translate }}
             </label>
             <div class="d-flex gap-2">
-              <input #searchBox type="text" class="form-control" placeholder="Enter employee name...">
+              <input #searchBox type="text" class="form-control"
+                placeholder="{{ 'PROJECT.ENTER_EMPLOYEE_NAME' | translate }}" />
 
               <button class="btn btn-dark" type="button" (click)="searchEmployees(searchBox.value)">
                 <i class="bi bi-search me-1"></i>
-                Search
+                {{ 'PROJECT.SEARCH' | translate }}
               </button>
             </div>
           </div>
@@ -353,12 +346,12 @@
           @if(Employees().length > 0) {
           <div class="mb-3">
             <label class="form-label">
-              Select Employee
+              {{ 'PROJECT.SELECT_EMPLOYEE' | translate }}
             </label>
 
             <select class="form-select" formControlName="userId">
               <option value="">
-                Select Employee
+                {{ 'PROJECT.SELECT_EMPLOYEE' | translate }}
               </option>
               @for(employee of Employees(); track employee.userId) {
               <option [value]="employee.userId">
@@ -373,14 +366,14 @@
 
         <div class="modal-footer">
           <button class="btn btn-light border" type="button" (click)="closeModals()">
-            Cancel
+            {{ 'PROJECT.CANCEL' | translate }}
           </button>
 
           <button class="btn btn-success" type="submit" [disabled]="isSubmitting()">
             @if(isSubmitting()) {
             <span class="spinner-border spinner-border-sm me-2"></span>
             }
-            Add Employee
+            {{ 'PROJECT.ADD_EMPLOYEE' | translate }}
           </button>
         </div>
       </form>

@@ -1,9 +1,9 @@
-import { Injectable } from "@angular/core";
-import { HttpClient } from "@angular/common/http";
-import { apiEndpoints } from "../../config/api-endpoints";
-import { ServiceResponse } from "../../models/service-response.model";
-import { Observable } from "rxjs/internal/Observable";
-import { projectCreateRequest, projectResponse, projectUpdateRequest, ProjectUserResponse } from "../../models/projectModels/project.model";
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { apiEndpoints } from '../../config/api-endpoints';
+import { ServiceResponse } from '../../models/service-response.model';
+import { Observable } from 'rxjs/internal/Observable';
+import { projectCreateRequest, projectResponse, projectUpdateRequest, ProjectUserResponse } from '../../models/projectModels/project.model';
 
 @Injectable({
   providedIn: "root"

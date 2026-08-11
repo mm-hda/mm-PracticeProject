@@ -4,32 +4,32 @@
       <div class="col-12 col-lg-6">
         <div class="rounded-4 border bg-white p-4 p-md-5 shadow-sm">
           <div class="mb-4">
-            <span class="badge text-bg-dark mb-3">HRMS</span>
-            <h1 class="h3 mb-2">Sign in</h1>
-            <p class="text-secondary mb-0">Use your email and password to continue.</p>
+            <span class="badge text-bg-dark mb-3">{{ 'AUTH.APP_NAME' | translate }}</span>
+            <h1 class="h3 mb-2">{{ 'AUTH.TITLE' | translate }}</h1>
+            <p class="text-secondary mb-0">{{ 'AUTH.DESCRIPTION' | translate }}</p>
           </div>
 
           <form [formGroup]="form" (ngSubmit)="submit()" class="d-grid gap-3">
             <div>
-              <label for="email" class="form-label">Email</label>
+              <label for="email" class="form-label">{{ 'COMMON.EMAIL' | translate }}</label>
               <input id="email" type="email" class="form-control form-control-lg" formControlName="email"
-                placeholder="name@company.com" />
+                placeholder="{{ 'AUTH.EMAIL_PLACEHOLDER' | translate }}" />
               @if (controlInvalid('email')) {
-              <div class="text-danger small mt-1">Enter a valid email.</div>
+              <div class="text-danger small mt-1">{{ 'AUTH.EMAIL_VALIDATION' | translate }}</div>
               }
             </div>
 
             <div>
-              <label for="password" class="form-label">Password</label>
+              <label for="password" class="form-label">{{ 'COMMON.PASSWORD' | translate }}</label>
               <div class="input-group input-group-lg">
                 <input id="password" [type]="hidePassword() ? 'password' : 'text'" class="form-control"
-                  formControlName="password" placeholder="Your password" />
+                  formControlName="password" placeholder="{{ 'AUTH.PASSWORD_PLACEHOLDER' | translate }}" />
                 <button type="button" class="btn btn-outline-secondary" (click)="togglePassword()">
                   <i class="bi" [class.bi-eye]="hidePassword()" [class.bi-eye-slash]="!hidePassword()"></i>
                 </button>
               </div>
               @if (controlInvalid('password')) {
-              <div class="text-danger small mt-1">Password is required.</div>
+              <div class="text-danger small mt-1">{{ 'AUTH.PASSWORD_VALIDATION' | translate }}</div>
               }
             </div>
 
@@ -37,7 +37,7 @@
               @if (isSubmitting()) {
               <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
               }
-              Sign in
+              {{ 'AUTH.LOGIN_BUTTON' | translate }}
             </button>
           </form>
         </div>

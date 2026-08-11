@@ -29,8 +29,7 @@ export class UserApiService {
       .set('pageSize', request.pageSize);
 
     return this.httpClient.get<ServiceResponse<UserResponse[]>>(
-      `${apiEndpoints.user}/GetAllUsers`,
-      { params }
+      `${apiEndpoints.user}/GetAllUsers`, { params }
     );
   }
 

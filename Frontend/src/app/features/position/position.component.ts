@@ -33,13 +33,14 @@ import {
   TableColumn
 } from '@app/shared/components/table/generic-table.component';
 import { StorageService } from '@app/core/services/storage.service';
+import { TranslatePipe } from '@ngx-translate/core';
 
 type PositionModalType = | 'add' | 'edit' | 'detail' | 'employees' | null;
 
 @Component({
   standalone: true,
   selector: 'app-position',
-  imports: [CommonModule, ReactiveFormsModule, GenericTableComponent],
+  imports: [CommonModule, ReactiveFormsModule, GenericTableComponent, TranslatePipe],
   templateUrl: './position.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush
 })

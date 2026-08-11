@@ -36,13 +36,14 @@ import {
 import { EmployeeProjectApiService } from '@app/core/services/api-service/employeeProject-api.service';
 import { UserResponse } from '@app/core/models/userModels/user.model';
 import { AuthService } from '@app/core/services/auth.service';
+import { TranslatePipe } from '@ngx-translate/core';
 
 type ProjectModalType = | 'add' | 'edit' | 'detail' | 'employees' | 'addEmployeeProject' | null;
 
 @Component({
   standalone: true,
   selector: 'app-project',
-  imports: [CommonModule, ReactiveFormsModule, GenericTableComponent],
+  imports: [CommonModule, ReactiveFormsModule, GenericTableComponent, TranslatePipe],
   templateUrl: './project.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush
 })

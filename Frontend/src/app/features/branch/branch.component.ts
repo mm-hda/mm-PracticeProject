@@ -14,13 +14,14 @@ import { BranchApiService } from '@app/core/services/api-service/branch-api.serv
 import { ToastService } from '@app/core/services/toast.service';
 import { TableColumn, GenericTableComponent } from '@app/shared/components/table/generic-table.component';
 import { StorageService } from '@app/core/services/storage.service';
+import { TranslatePipe } from '@ngx-translate/core';
 
 type BranchModalType = 'add' | 'edit' | 'detail' | 'employees' | null;
 
 @Component({
   standalone: true,
   selector: 'app-branch',
-  imports: [CommonModule, ReactiveFormsModule, GenericTableComponent],
+  imports: [CommonModule, ReactiveFormsModule, GenericTableComponent, TranslatePipe],
   templateUrl: './branch.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush
 })

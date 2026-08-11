@@ -39,6 +39,7 @@ import { StorageService } from '@app/core/services/storage.service';
 import { ToastService } from '@app/core/services/toast.service';
 import { AuthService } from '@app/core/services/auth.service';
 import { OfflineQueueService } from '@app/core/services/offline-queue.service';
+import { TranslatePipe } from '@ngx-translate/core';
 
 type UserModalType = | 'add' | 'detail' | null;
 type PendingUserResponse = UserResponse & {
@@ -48,7 +49,7 @@ type PendingUserResponse = UserResponse & {
 @Component({
   standalone: true,
   selector: 'app-users',
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, TranslatePipe],
   templateUrl: './users.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush
 })

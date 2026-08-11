@@ -41,7 +41,6 @@ public class AuthController(IAuthService authService, ILogger<AuthController> lo
     {
         ArgumentNullException.ThrowIfNull(registerDto);
         logger.LogTrace("Register called V2 with dto: {@Email}", registerDto.Email);
-        Console.WriteLine($"Register called V2 with dto: {registerDto.Email}, {registerDto.FirstName}, {registerDto.LastName}, {registerDto.DOB}, {registerDto.RoleId}, {registerDto.BranchId}, {registerDto.DepartmentId}, {registerDto.PositionId}");
         try
         {
             RegisterUserDto dto = new()

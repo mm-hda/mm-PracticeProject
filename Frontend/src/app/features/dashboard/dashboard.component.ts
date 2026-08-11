@@ -5,10 +5,12 @@ import { PositionApiService } from '@app/core/services/api-service/position-api.
 import { RoleApiService } from '@app/core/services/api-service/role-api.service';
 import { StorageService } from '@app/core/services/storage.service';
 import { AuthService } from '@app/core/services/auth.service';
+import { TranslatePipe } from '@ngx-translate/core';
 
 @Component({
   standalone: true,
   selector: 'app-dashboard',
+  imports: [TranslatePipe],
   templateUrl: './dashboard.component.html'
 })
 export class DashboardComponent {

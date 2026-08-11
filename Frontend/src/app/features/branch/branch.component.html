@@ -1,13 +1,13 @@
 <div class="container py-4">
   <div class="d-flex align-items-center justify-content-between mb-4">
     <div>
-      <h2 class="h4 fw-bold mb-1">Branches</h2>
-      <p class="text-secondary mb-0">Manage company branches and view employees by branch.</p>
+      <h2 class="h4 fw-bold mb-1">{{ 'BRANCHES.TITLE' | translate }}</h2>
+      <p class="text-secondary mb-0">{{ 'BRANCHES.DESCRIPTION' | translate }}</p>
     </div>
 
     <button class="btn btn-dark" type="button" (click)="openAddModal()">
       <i class="bi bi-plus-circle me-1"></i>
-      Add Branch
+      {{ 'BRANCHES.ADD_BRANCH' | translate }}
     </button>
 
   </div>
@@ -16,17 +16,17 @@
       @if (isPageLoading()) {
       <div class="p-4 text-center">
         <div class="spinner-border text-dark" role="status"></div>
-        <div class="text-secondary mt-2">Loading...</div>
+        <div class="text-secondary mt-2">{{ 'BRANCHES.LOADING_BRANCHES' | translate }}</div>
       </div>
       } @else {
       <div class="table-responsive">
         <table class="table table-hover align-middle mb-0">
           <thead class="table-light">
             <tr>
-              <th class="ps-4">Branch Name</th>
-              <th>Location</th>
-              <th>Total Users</th>
-              <th class="text-end pe-4">Actions</th>
+              <th class="ps-4">{{ 'BRANCHES.BRANCH_NAME' | translate }}</th>
+              <th>{{ 'BRANCHES.LOCATION' | translate }}</th>
+              <th>{{ 'BRANCHES.TOTAL_USERS' | translate }}</th>
+              <th class="text-end pe-4">{{ 'BRANCHES.ACTIONS' | translate }}</th>
             </tr>
           </thead>
           <tbody>
@@ -66,7 +66,7 @@
             } @empty {
             <tr>
               <td colspan="4" class="text-center text-secondary py-5">
-                No branches found.
+                {{ 'BRANCHES.NO_BRANCHES' | translate }}
               </td>
             </tr>
             }
@@ -84,40 +84,40 @@
     <div class="modal-content border-0 shadow">
       <div class="modal-header">
         <h5 class="modal-title fw-bold">
-          {{ isAddModalOpen() ? 'Add Branch' : 'Edit Branch' }}
+          {{( isAddModalOpen() ? 'BRANCHES.ADD_BRANCH' : 'BRANCHES.EDIT_BRANCH' ) | translate}}
         </h5>
         <button class="btn-close" type="button" aria-label="Close" (click)="closeModals()"></button>
       </div>
       <form [formGroup]="branchForm" (ngSubmit)="isAddModalOpen() ? createBranch() : updateBranch()">
         <div class="modal-body">
           <div class="mb-3">
-            <label for="branchName" class="form-label">Branch Name</label>
+            <label for="branchName" class="form-label">{{ 'BRANCHES.BRANCH_NAME' | translate }}</label>
             <input id="branchName" class="form-control form-control-lg" type="text" formControlName="name"
-              placeholder="Enter branch name" />
+              placeholder="{{ 'BRANCHES.NAME_PLACEHOLDER' | translate }}" />
             @if (controlInvalid('name')) {
             <div class="text-danger small mt-1">
               @if (branchForm.controls.name.hasError('required')) {
-              Branch name is required.
+              {{ 'BRANCHES.NAME_REQUIRED' | translate }}
               } @else if (branchForm.controls.name.hasError('minlength')) {
-              Branch name must be at least 2 characters.
+              {{ 'BRANCHES.NAME_MIN_LENGTH' | translate }}
               } @else if (branchForm.controls.name.hasError('maxlength')) {
-              Branch name must not exceed 100 characters.
+              {{ 'BRANCHES.NAME_MAX_LENGTH' | translate }}
               }
             </div>
             }
           </div>
           <div>
-            <label for="branchLocation" class="form-label">Location</label>
+            <label for="branchLocation" class="form-label">{{ 'BRANCHES.LOCATION' | translate }}</label>
             <input id="branchLocation" class="form-control form-control-lg" type="text" formControlName="location"
-              placeholder="Enter location" />
+              placeholder="{{ 'BRANCHES.LOCATION_PLACEHOLDER' | translate }}" />
             @if (controlInvalid('location')) {
             <div class="text-danger small mt-1">
               @if (branchForm.controls.location.hasError('required')) {
-              Location is required.
+              {{ 'BRANCHES.LOCATION_REQUIRED' | translate }}
               } @else if (branchForm.controls.location.hasError('minlength')) {
-              Location must be at least 2 characters.
+              {{ 'BRANCHES.LOCATION_MIN_LENGTH' | translate }}
               } @else if (branchForm.controls.location.hasError('maxlength')) {
-              Location must not exceed 100 characters.
+              {{ 'BRANCHES.LOCATION_MAX_LENGTH' | translate }}
               }
             </div>
             }
@@ -125,13 +125,13 @@
         </div>
         <div class="modal-footer">
           <button class="btn btn-light border" type="button" (click)="closeModals()">
-            Cancel
+            {{ 'COMMON.CANCEL' | translate }}
           </button>
           <button class="btn btn-dark" type="submit" [disabled]="isSubmitting()">
             @if (isSubmitting()) {
             <span class="spinner-border spinner-border-sm me-2"></span>
             }
-            {{ isAddModalOpen() ? 'Create Branch' : 'Update Branch' }}
+            {{ (isAddModalOpen() ? 'BRANCHES.CREATE_BRANCH' : 'BRANCHES.UPDATE_BRANCH') | translate }}
           </button>
         </div>
       </form>
@@ -146,34 +146,34 @@
   <div class="modal-dialog modal-dialog-centered" role="document" (click)="$event.stopPropagation()">
     <div class="modal-content border-0 shadow">
       <div class="modal-header">
-        <h5 class="modal-title fw-bold">Branch Detail</h5>
+        <h5 class="modal-title fw-bold">{{ 'BRANCHES.DETAIL' | translate }}</h5>
         <button class="btn-close" type="button" aria-label="Close" (click)="closeModals()"></button>
       </div>
       <div class="modal-body">
         @if (isModalLoading()) {
         <div class="text-center py-4">
           <div class="spinner-border text-dark" role="status"></div>
-          <div class="text-secondary mt-2">Loading branch details...</div>
+          <div class="text-secondary mt-2">{{ 'BRANCHES.LOADING_BRANCH_DETAILS' | translate }}</div>
         </div>
         } @else {
         @if (selectedBranch(); as branch) {
         <div class="d-grid gap-3">
           <div class="p-3 rounded-3 bg-light border">
-            <div class="text-secondary small">Name</div>
+            <div class="text-secondary small">{{ 'BRANCHES.BRANCH_NAME' | translate }}</div>
             <div class="fw-semibold">{{ branch.name }}</div>
           </div>
           <div class="p-3 rounded-3 bg-light border">
-            <div class="text-secondary small">Location</div>
+            <div class="text-secondary small">{{ 'BRANCHES.LOCATION' | translate }}</div>
             <div class="fw-semibold">{{ branch.location }}</div>
           </div>
           <div class="p-3 rounded-3 bg-light border">
-            <div class="text-secondary small">Total Users</div>
+            <div class="text-secondary small">{{ 'BRANCHES.TOTAL_USERS' | translate }}</div>
             <div class="fw-semibold">{{ branch.totalUsers }}</div>
           </div>
         </div>
         } @else {
         <div class="text-center text-secondary py-4">
-          Branch details not found.
+          {{ 'BRANCHES.NO_BRANCH_DETAILS' | translate }}
         </div>
         }
         }
@@ -190,14 +190,14 @@
     (click)="$event.stopPropagation()">
     <div class="modal-content border-0 shadow">
       <div class="modal-header">
-        <h5 class="modal-title fw-bold">Branch Employees</h5>
+        <h5 class="modal-title fw-bold">{{ 'BRANCHES.BRANCH_EMPLOYEES' | translate }}</h5>
         <button class="btn-close" type="button" aria-label="Close" (click)="closeModals()"></button>
       </div>
       <div class="modal-body">
         @if (isModalLoading()) {
         <div class="text-center py-4">
           <div class="spinner-border text-dark" role="status"></div>
-          <div class="text-secondary mt-2">Loading employees...</div>
+          <div class="text-secondary mt-2">{{ 'BRANCHES.LOADING_EMPLOYEES' | translate }}</div>
         </div>
         } @else {
         <div class="table-responsive">

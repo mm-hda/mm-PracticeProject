@@ -31,13 +31,14 @@ import {
 import { PositionApiService } from '@app/core/services/api-service/position-api.service';
 import { PositionResponse } from '@app/core/models/positionModels/position.model';
 import { StorageService } from '@app/core/services/storage.service';
+import { TranslatePipe } from '@ngx-translate/core';
 
 type DepartmentModalType = | 'add' | 'edit' | 'detail' | 'employees' | null;
 
 @Component({
   standalone: true,
   selector: 'app-department',
-  imports: [CommonModule, ReactiveFormsModule, GenericTableComponent],
+  imports: [CommonModule, ReactiveFormsModule, GenericTableComponent, TranslatePipe],
   templateUrl: './department.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush
 })

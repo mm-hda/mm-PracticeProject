@@ -1,15 +1,15 @@
 <div class="container py-4">
   <div class="d-flex align-items-center justify-content-between mb-4">
     <div>
-      <h2 class="h4 fw-bold mb-1">Departments</h2>
+      <h2 class="h4 fw-bold mb-1">{{ 'DEPARTMENT.TITLE' | translate }}</h2>
       <p class="text-secondary mb-0">
-        Manage company departments and view employees by department.
+        {{ 'DEPARTMENT.DESCRIPTION' | translate }}
       </p>
     </div>
 
     <button class="btn btn-dark" type="button" (click)="openAddModal()">
       <i class="bi bi-plus-circle me-1"></i>
-      Add Department
+      {{ 'DEPARTMENT.ADD_DEPARTMENT' | translate }}
     </button>
   </div>
 
@@ -19,7 +19,7 @@
       @if (isPageLoading()) {
       <div class="p-4 text-center">
         <div class="spinner-border text-dark" role="status"></div>
-        <div class="text-secondary mt-2">Loading...</div>
+        <div class="text-secondary mt-2">{{ 'DEPARTMENT.LOADING_DEPARTMENT_DETAILS' | translate }}</div>
       </div>
       } @else {
 
@@ -28,10 +28,10 @@
 
           <thead class="table-light">
             <tr>
-              <th class="ps-4">Department Name</th>
-              <th>Total Positions</th>
-              <th>Total Users</th>
-              <th class="text-end pe-4">Actions</th>
+              <th class="ps-4">{{ 'DEPARTMENT.DEPARTMENT_NAME' | translate }}</th>
+              <th>{{ 'DEPARTMENT.TOTAL_POSITIONS' | translate }}</th>
+              <th>{{ 'DEPARTMENT.TOTAL_USERS' | translate }}</th>
+              <th class="text-end pe-4">{{ 'DEPARTMENT.ACTIONS' | translate }}</th>
             </tr>
           </thead>
 
@@ -83,7 +83,7 @@
             } @empty {
             <tr>
               <td colspan="4" class="text-center text-secondary py-5">
-                No departments found.
+                {{ 'DEPARTMENT.NO_DEPARTMENTS' | translate }}
               </td>
             </tr>
             }
@@ -108,7 +108,7 @@
 
       <div class="modal-header">
         <h5 class="modal-title fw-bold">
-          {{ isAddModalOpen() ? 'Add Department' : 'Edit Department' }}
+          {{ (isAddModalOpen() ? 'DEPARTMENT.ADD_DEPARTMENT' : 'DEPARTMENT.EDIT_DEPARTMENT' )| translate }}
         </h5>
 
         <button class="btn-close" type="button" aria-label="Close" (click)="closeModals()">
@@ -123,25 +123,25 @@
 
             <label for="departmentName" class="form-label">
 
-              Department Name
+              {{ 'DEPARTMENT.DEPARTMENT_NAME' | translate }}
             </label>
 
             <input id="departmentName" class="form-control form-control-lg" type="text" formControlName="name"
-              placeholder="Enter department name" />
+              placeholder="{{ 'DEPARTMENT.NAME_PLACEHOLDER' | translate }}" />
 
             @if (controlInvalid('name')) {
             <div class="text-danger small mt-1">
 
               @if (departmentForm.controls.name.hasError('required')) {
-              Department name is required.
+              {{ 'DEPARTMENT.NAME_REQUIRED' | translate }}
               }
 
               @else if (departmentForm.controls.name.hasError('minlength')) {
-              Department name must be at least 2 characters.
+              {{ 'DEPARTMENT.NAME_MIN_LENGTH' | translate }}
               }
 
               @else if (departmentForm.controls.name.hasError('maxlength')) {
-              Department name must not exceed 100 characters.
+              {{ 'DEPARTMENT.NAME_MAX_LENGTH' | translate }}
               }
 
             </div>
@@ -155,7 +155,7 @@
 
           <button class="btn btn-light border" type="button" (click)="closeModals()">
 
-            Cancel
+            {{ 'COMMON.CANCEL' | translate }}
           </button>
 
           <button class="btn btn-dark" type="submit" [disabled]="isSubmitting()">
@@ -164,9 +164,7 @@
             <span class="spinner-border spinner-border-sm me-2"></span>
             }
 
-            {{ isAddModalOpen()
-            ? 'Create Department'
-            : 'Update Department' }}
+            {{( isAddModalOpen() ? 'DEPARTMENT.CREATE_DEPARTMENT' : 'DEPARTMENT.UPDATE_DEPARTMENT') | translate }}
 
           </button>
         </div>
@@ -181,7 +179,7 @@
 
 @if (isDetailModalOpen()) {
 
-<div class="modal fade show d-block" tabindex="-1" role="dialog" aria-modal="true" (click)="closeModals()">
+<div class="modal fade show d-block" t abindex="-1" role="dialog" aria-modal="true" (click)="closeModals()">
 
   <div class="modal-dialog modal-dialog-centered" role="document" (click)="$event.stopPropagation()">
 
@@ -189,7 +187,7 @@
 
       <div class="modal-header">
         <h5 class="modal-title fw-bold">
-          Department Detail
+          {{ 'DEPARTMENT.DETAIL' | translate }}
         </h5>
 
         <button class="btn-close" type="button" aria-label="Close" (click)="closeModals()">
@@ -203,7 +201,7 @@
         <div class="text-center py-4">
           <div class="spinner-border text-dark"></div>
           <div class="text-secondary mt-2">
-            Loading department details...
+            {{ 'DEPARTMENT.LOADING_DETAILS' | translate }}
           </div>
         </div>
 
@@ -215,7 +213,7 @@
 
           <div class="p-3 rounded-3 bg-light border">
             <div class="text-secondary small">
-              Department Name
+              {{ 'DEPARTMENT.NAME' | translate }}
             </div>
 
             <div class="fw-semibold">
@@ -225,7 +223,7 @@
 
           <div class="p-3 rounded-3 bg-light border">
             <div class="text-secondary small">
-              Total Positions
+              {{ 'DEPARTMENT.TOTAL_POSITIONS' | translate }}
             </div>
 
             <div class="fw-semibold">
@@ -234,7 +232,7 @@
           </div>
 
           <h6 class="fw-bold ml-2">
-            Department Positions
+            {{ 'DEPARTMENT.DEPARTMENT_POSITIONS' | translate }}
           </h6>
 
           <app-table [columns]="positionColumns" [data]="departmentPositions()">
@@ -245,7 +243,7 @@
         } @else {
 
         <div class="text-center text-secondary py-4">
-          Department details not found.
+          {{ 'DEPARTMENT.NO_DEPARTMENT_DETAILS' | translate }}
         </div>
 
         }
@@ -272,7 +270,7 @@
       <div class="modal-header">
 
         <h5 class="modal-title fw-bold">
-          Department Employees
+          {{ 'DEPARTMENT.DEPARTMENT_EMPLOYEES' | translate }}
         </h5>
 
         <button class="btn-close" type="button" aria-label="Close" (click)="closeModals()">
@@ -287,15 +285,13 @@
         <div class="text-center py-4">
           <div class="spinner-border text-dark"></div>
           <div class="text-secondary mt-2">
-            Loading employees...
+            {{ 'DEPARTMENT.LOADING_DEPARTMENT_EMPLOYEES' | translate }}
           </div>
         </div>
 
         } @else {
-
         <app-table [columns]="userColumns" [data]="departmentEmployees()">
         </app-table>
-
         }
       </div>
     </div>

@@ -1,15 +1,15 @@
 <div class="container py-4">
   <div class="d-flex align-items-center justify-content-between mb-4">
     <div>
-      <h2 class="h4 fw-bold mb-1">Users</h2>
+      <h2 class="h4 fw-bold mb-1">{{ "USER.TITLE" | translate }}</h2>
       <p class="text-secondary mb-0">
-        Manage company users and employee information.
+        {{ "USER.DESCRIPTION" | translate }}
       </p>
     </div>
 
     <button class="btn btn-dark" type="button" (click)="openAddModal()">
       <i class="bi bi-person-plus me-1"></i>
-      Add User
+      {{ "USER.ADD" | translate }}
     </button>
   </div>
 
@@ -17,13 +17,13 @@
     <div class="card-body">
       <div class="row g-2">
         <div class="col-md-3">
-          <input type="text" class="form-control" placeholder="Search user..."
+          <input type="text" class="form-control" placeholder="{{ 'USER.SEARCH' | translate }}"
             [formControl]="filterForm.controls.searchTerm">
         </div>
 
         <div class="col-md-2">
           <select class="form-select" [formControl]="filterForm.controls.roleId">
-            <option value="">All Roles</option>
+            <option value="">{{ "USER.ALL_ROLES" | translate }}</option>
             @for(role of roles(); track role.id) {
             <option [value]="role.id">
               {{ role.name }}
@@ -34,7 +34,7 @@
 
         <div class="col-md-2">
           <select class="form-select" [formControl]="filterForm.controls.branchId">
-            <option value="">All Branches</option>
+            <option value="">{{ "USER.ALL_BRANCHES" | translate }}</option>
             @for(branch of branches(); track branch.id) {
             <option [value]="branch.id">
               {{ branch.name }}
@@ -45,7 +45,7 @@
 
         <div class="col-md-2">
           <select class="form-select" [formControl]="filterForm.controls.departmentId">
-            <option value="">All Departments</option>
+            <option value="">{{ "USER.ALL_DEPARTMENTS" | translate }}</option>
             @for(department of departments(); track department.id) {
             <option [value]="department.id">
               {{ department.name }}
@@ -56,7 +56,7 @@
 
         <div class="col-md-2">
           <select class="form-select" [formControl]="filterForm.controls.positionId">
-            <option value="">All Positions</option>
+            <option value="">{{ "USER.ALL_POSITIONS" | translate }}</option>
             @for(position of positions(); track position.id) {
             <option [value]="position.id">
               {{ position.name }}
@@ -74,10 +74,10 @@
 
       <div class="mt-2">
         <button class="btn btn-outline-secondary btn-sm me-2" type="button" (click)="searchUsers()">
-          Search
+          {{ "USER.SEARCH" | translate }}
         </button>
         <button class="btn btn-outline-danger btn-sm" type="button" (click)="resetFilters()">
-          Reset
+          {{ "USER.RESET" | translate }}
         </button>
       </div>
     </div>
@@ -90,7 +90,7 @@
         <div class="spinner-border text-dark" role="status">
         </div>
         <div class="text-secondary mt-2">
-          Loading users...
+          {{ "USER.LOADING_USERS" | translate }}
         </div>
       </div>
 
@@ -99,14 +99,14 @@
         <table class="table table-hover align-middle mb-0">
           <thead class="table-light">
             <tr>
-              <th class="ps-4">Name</th>
-              <th>Email</th>
-              <th>Branch</th>
-              <th>Department</th>
-              <th>Position</th>
-              <th>Role</th>
+              <th class="ps-4">{{ "USER.NAME" | translate }}</th>
+              <th>{{ "USER.EMAIL" | translate }}</th>
+              <th>{{ "USER.BRANCH" | translate }}</th>
+              <th>{{ "USER.DEPARTMENT" | translate }}</th>
+              <th>{{ "USER.POSITION" | translate }}</th>
+              <th>{{ "USER.ROLE" | translate }}</th>
               <th class="text-end pe-4">
-                Actions
+                {{ "USER.ACTIONS" | translate }}
               </th>
             </tr>
           </thead>
@@ -118,13 +118,13 @@
 
                 @if(user.syncStatus === 'pending') {
                 <span class="badge bg-warning">
-                  Pending
+                  {{ 'USER.PENDING_SYNC' | translate }}
                 </span>
                 }
 
                 @if(user.syncStatus === 'synced') {
                 <span class="badge bg-success">
-                  Synced
+                  {{ 'USER.SYNCED' | translate }}
                 </span>
                 }
               </td>
@@ -146,7 +146,7 @@
             } @empty {
             <tr>
               <td colspan="7" class="text-center text-secondary py-5">
-                No users found.
+                {{ "USER.NO_USERS_FOUND" | translate }}
               </td>
             </tr>
             }
@@ -159,7 +159,7 @@
 
   <div class="d-flex justify-content-between align-items-center mt-3">
     <button class="btn btn-outline-dark" (click)="previousPage()" [disabled]="currentPage() <= 1">
-      Previous
+      {{ "USER.PREVIOUS" | translate }}
     </button>
     <div class="fw-semibold">
       Page {{ currentPage() }}
@@ -167,7 +167,7 @@
       {{ totalPages() }}
     </div>
     <button class="btn btn-outline-dark" (click)="nextPage()" [disabled]="currentPage() >= totalPages()">
-      Next
+      {{ "USER.NEXT" | translate }}
     </button>
 
   </div>
@@ -180,7 +180,7 @@
     <div class="modal-content border-0 shadow">
       <div class="modal-header">
         <h5 class="modal-title fw-bold">
-          Add User
+          {{ "USER.ADD_USER" | translate }}
         </h5>
         <button class="btn-close" type="button" (click)="closeModals()">
         </button>
@@ -191,47 +191,47 @@
           <div class="row g-3">
             <div class="col-md-6">
               <label class="form-label">
-                First Name
+                {{ 'USER.FIRST_NAME' | translate }}
               </label>
               <input class="form-control" type="text" formControlName="firstName">
             </div>
 
             <div class="col-md-6">
               <label class="form-label">
-                Last Name
+                {{ 'USER.LAST_NAME' | translate }}
               </label>
               <input class="form-control" type="text" formControlName="lastName">
             </div>
 
             <div class="col-md-6">
               <label class="form-label">
-                Email
+                {{ 'USER.EMAIL' | translate }}
               </label>
               <input class="form-control" type="email" formControlName="email">
             </div>
 
             <div class="col-md-6">
               <label class="form-label">
-                Password
+                {{ 'USER.PASSWORD' | translate }}
               </label>
               <input class="form-control" type="password" formControlName="password">
             </div>
 
             <div class="col-md-6">
               <label class="form-label">
-                Date Of Birth
+                {{ 'USER.DATE_OF_BIRTH' | translate }}
               </label>
               <input class="form-control" type="date" formControlName="dob">
             </div>
 
             <div class="col-md-6">
               <label class="form-label">
-                Role
+                {{ 'USER.ROLE' | translate }}
               </label>
 
               <select class="form-select" formControlName="roleId">
                 <option value="">
-                  Select Role
+                  {{ 'USER.SELECT_ROLE' | translate }}
                 </option>
 
                 @for(role of roles(); track role.id) {
@@ -244,12 +244,12 @@
 
             <div class="col-md-6">
               <label class="form-label">
-                Branch
+                {{ 'USER.BRANCH' | translate }}
               </label>
 
               <select class="form-select" formControlName="branchId">
                 <option value="">
-                  Select Branch
+                  {{ 'USER.SELECT_BRANCH' | translate }}
                 </option>
                 @if(currentUser()?.role === 'Admin') {
                 @for(branch of branches(); track branch.id) {
@@ -276,12 +276,12 @@
 
             <div class="col-md-6">
               <label class="form-label">
-                Department
+                {{ 'USER.DEPARTMENT' | translate }}
               </label>
 
               <select class="form-select" formControlName="departmentId" (change)="filterPositions()">
                 <option value="">
-                  Select Department
+                  {{ 'USER.SELECT_DEPARTMENT' | translate }}
                 </option>
 
                 @for(department of departments(); track department.id) {
@@ -295,12 +295,12 @@
             <div class="col-md-12">
 
               <label class="form-label">
-                Position
+                {{ 'USER.POSITION' | translate }}
               </label>
 
               <select class="form-select" formControlName="positionId">
                 <option value="">
-                  Select Position
+                  {{ 'USER.SELECT_POSITION' | translate }}
                 </option>
 
                 @for(position of DepartmentPositions(); track position.id) {
@@ -315,7 +315,7 @@
 
         <div class="modal-footer">
           <button class="btn btn-light border" type="button" (click)="closeModals()">
-            Cancel
+            {{ 'COMMON.CANCEL' | translate }}
           </button>
 
           <button class="btn btn-dark" type="submit" [disabled]="isSubmitting()">
@@ -323,7 +323,7 @@
             <span class="spinner-border spinner-border-sm me-2">
             </span>
             }
-            Create User
+            {{ 'USER.CREATE' | translate }}
           </button>
         </div>
       </form>
@@ -343,7 +343,7 @@
     <div class="modal-content border-0 shadow">
       <div class="modal-header">
         <h5 class="modal-title fw-bold">
-          User Detail
+          {{ 'USER.USER_DETAILS' | translate }}
         </h5>
         <button class="btn-close" type="button" (click)="closeModals()">
         </button>
@@ -356,7 +356,7 @@
           <div class="col-md-6">
             <div class="p-3 rounded-3 border bg-light">
               <div class="small text-secondary">
-                Name
+                {{ 'USER.NAME' | translate }}
               </div>
               <div class="fw-semibold">
                 {{ user.name }}
@@ -367,7 +367,7 @@
           <div class="col-md-6">
             <div class="p-3 rounded-3 border bg-light">
               <div class="small text-secondary">
-                Email
+                {{ 'USER.EMAIL' | translate }}
               </div>
               <div class="fw-semibold">
                 {{ user.email }}
@@ -378,7 +378,7 @@
           <div class="col-md-6">
             <div class="p-3 rounded-3 border bg-light">
               <div class="small text-secondary">
-                Branch
+                {{ 'USER.BRANCH' | translate }}
               </div>
               <div class="fw-semibold">
                 {{ user.branchName }}
@@ -389,7 +389,7 @@
           <div class="col-md-6">
             <div class="p-3 rounded-3 border bg-light">
               <div class="small text-secondary">
-                Department
+                {{ 'USER.DEPARTMENT' | translate }}
               </div>
               <div class="fw-semibold">
                 {{ user.departmentName }}
@@ -400,7 +400,7 @@
           <div class="col-md-6">
             <div class="p-3 rounded-3 border bg-light">
               <div class="small text-secondary">
-                Position
+                {{ 'USER.POSITION' | translate }}
               </div>
               <div class="fw-semibold">
                 {{ user.positionName }}
@@ -411,7 +411,7 @@
           <div class="col-md-6">
             <div class="p-3 rounded-3 border bg-light">
               <div class="small text-secondary">
-                Role
+                {{ 'USER.ROLE' | translate }}
               </div>
               <div class="fw-semibold">
                 {{ user.roleName }}
@@ -421,7 +421,7 @@
         </div>
         } @else {
         <div class="text-center py-4 text-secondary">
-          User details not found.
+          {{ 'USER.NOT_FOUND' | translate }}
         </div>
         }
       </div>

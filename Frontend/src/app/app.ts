@@ -3,6 +3,7 @@ import { RouterOutlet } from '@angular/router';
 
 import { ToastHostComponent } from '@app/shared/components/toast-host/toast-host.component';
 import { SyncService } from '@app/core/services/sync.service';
+import { LanguageService } from './core/services/language.service';
 
 @Component({
   standalone: true,
@@ -14,8 +15,10 @@ import { SyncService } from '@app/core/services/sync.service';
 
 export class App {
   private readonly syncService = inject(SyncService);
+  private readonly languageService = inject(LanguageService);
 
   constructor() {
     this.syncService.syncPendingRequests();
+    this.languageService.getCurrentLanguage();
   }
 }

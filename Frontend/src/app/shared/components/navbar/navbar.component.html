@@ -3,7 +3,7 @@
 
     <a class="navbar-brand fw-bold d-flex align-items-center gap-2" routerLink="/dashboard">
       <i class="bi bi-building"></i>
-      <span>HRMS</span>
+      <span>{{ 'NAVBAR.HRMS' | translate }}</span>
     </a>
 
 
@@ -13,21 +13,21 @@
       <li class="nav-item">
         <a class="nav-link" routerLink="/branches">
           <i class="bi bi-diagram-3 me-1"></i>
-          branches
+          {{ 'NAVBAR.BRANCHES' | translate }}
         </a>
       </li>
 
       <li class="nav-item">
         <a class="nav-link" routerLink="/departments">
           <i class="bi bi-kanban me-1"></i>
-          Departments
+          {{ 'NAVBAR.DEPARTMENTS' | translate }}
         </a>
       </li>
 
       <li class="nav-item">
         <a class="nav-link" routerLink="/positions">
           <i class="bi bi-briefcase me-1"></i>
-          Positions
+          {{ 'NAVBAR.POSITIONS' | translate }}
         </a>
       </li>
       }
@@ -35,7 +35,7 @@
       <li class="nav-item">
         <a class="nav-link" routerLink="/users">
           <i class="bi bi-people me-1"></i>
-          Users
+          {{ 'NAVBAR.USERS' | translate }}
         </a>
       </li>
       }
@@ -44,7 +44,7 @@
       <li class="nav-item">
         <a class="nav-link" routerLink="/projects">
           <i class="bi bi-folder me-1"></i>
-          Projects
+          {{ 'NAVBAR.PROJECTS' | translate }}
         </a>
       </li>
       }
@@ -61,9 +61,25 @@
         </div>
       </div>
 
+      <select class="form-select w-10" [value]="selectedLanguage" (change)="changeLanguage($event)">
+
+        <option value="en-US">
+          English
+        </option>
+
+        <option value="hi-IN">
+          हिन्दी
+        </option>
+
+        <option value="gu-IN">
+          ગુજરાતી
+        </option>
+
+      </select>
+
       <button class="btn btn-outline-dark" (click)="logout()">
         <i class="bi bi-box-arrow-right"></i>
-        Logout
+        {{ 'NAVBAR.LOGOUT' | translate }}
       </button>
     </div>
   </div>
