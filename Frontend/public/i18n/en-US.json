@@ -61,7 +61,7 @@
     "TITLE": "Dashboard",
     "DESCRIPTION": "Keep track of your employees and projects."
   },
-  "DEPARTMENTS": {
+  "DEPARTMENT": {
     "TITLE": "Departments",
     "DESCRIPTION": "Manage company departments and view employees by department.",
     "ADD_DEPARTMENT": "Add Department",
@@ -71,6 +71,7 @@
     "UPDATE_DEPARTMENT": "Update Department",
     "DEPARTMENT_NAME": "Department Name",
     "TOTAL_POSITIONS": "Total Positions",
+    "TOTAL_USERS": "Total Users",
     "ACTIONS": "Actions",
     "DETAIL": "Department Detail",
     "DEPARTMENT_EMPLOYEES": "Department Employees",

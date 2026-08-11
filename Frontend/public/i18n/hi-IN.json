@@ -61,7 +61,7 @@
     "TITLE": "डैशबोर्ड",
     "DESCRIPTION": "अपने कर्मचारियों और प्रोजेक्ट्स पर नज़र रखें।"
   },
-  "DEPARTMENTS": {
+  "DEPARTMENT": {
     "TITLE": "विभाग",
     "DESCRIPTION": "कंपनी के विभागों का प्रबंधन करें और विभाग के अनुसार कर्मचारियों को देखें।",
     "ADD_DEPARTMENT": "विभाग जोड़ें",
@@ -71,6 +71,7 @@
     "UPDATE_DEPARTMENT": "विभाग अपडेट करें",
     "DEPARTMENT_NAME": "विभाग का नाम",
     "TOTAL_POSITIONS": "कुल पद",
+    "TOTAL_USERS": "कुल उपयोगकर्ता",
     "ACTIONS": "क्रियाएँ",
     "DETAIL": "विभाग विवरण",
     "DEPARTMENT_EMPLOYEES": "विभाग के कर्मचारी",
