@@ -23,7 +23,6 @@ type BranchModalType = 'add' | 'edit' | 'detail' | 'employees' | null;
   selector: 'app-branch',
   imports: [CommonModule, ReactiveFormsModule, GenericTableComponent, TranslatePipe],
   templateUrl: './branch.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class BranchComponent implements OnInit {
   private readonly branchApiService = inject(BranchApiService);

@@ -51,7 +51,6 @@ type PendingUserResponse = UserResponse & {
   selector: 'app-users',
   imports: [CommonModule, ReactiveFormsModule, TranslatePipe],
   templateUrl: './users.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class UsersComponent implements OnInit {
 

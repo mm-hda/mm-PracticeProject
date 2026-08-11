@@ -8,10 +8,7 @@ import { LanguageService } from '@app/core/services/language.service';
 
 @Component({
   selector: 'app-navbar',
-  imports: [
-    RouterLink,
-    TranslatePipe
-  ],
+  imports: [RouterLink, TranslatePipe],
   templateUrl: './navbar.component.html'
 })
 export class NavbarComponent {

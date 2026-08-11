@@ -45,7 +45,6 @@ type ProjectModalType = | 'add' | 'edit' | 'detail' | 'employees' | 'addEmployee
   selector: 'app-project',
   imports: [CommonModule, ReactiveFormsModule, GenericTableComponent, TranslatePipe],
   templateUrl: './project.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ProjectComponent implements OnInit {
   private readonly projectApiService = inject(ProjectApiService);

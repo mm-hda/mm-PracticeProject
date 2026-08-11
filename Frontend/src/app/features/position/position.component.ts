@@ -42,7 +42,6 @@ type PositionModalType = | 'add' | 'edit' | 'detail' | 'employees' | null;
   selector: 'app-position',
   imports: [CommonModule, ReactiveFormsModule, GenericTableComponent, TranslatePipe],
   templateUrl: './position.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class PositionComponent implements OnInit {
   private readonly positionApiService = inject(PositionApiService);
