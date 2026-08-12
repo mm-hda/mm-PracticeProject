@@ -44,4 +44,6 @@ public class User
     public ICollection<Project> ManagedProjects { get; } = [];
 
     public ICollection<EmployeeProject> EmployeeProjects { get; } = [];
+
+    public ICollection<RefreshToken> RefreshTokens { get; } = [];
 }

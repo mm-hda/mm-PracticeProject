@@ -29,7 +29,6 @@ public class DepartmentController(IDepartmentService departmentService, ILogger<
 
         logger.LogInformation("CreateDepartment called with dto: {@DepartmentDto}", dto);
         return Ok(ResponseResults<string>.Success(result.StatusCode));
-
     }
 
     [HttpPut("UpdateDepartment")]
@@ -48,7 +47,6 @@ public class DepartmentController(IDepartmentService departmentService, ILogger<
 
         logger.LogInformation("UpdateDepartment called with dto: {@DepartmentDto}", dto);
         return Ok(ResponseResults<string>.Success(result.StatusCode));
-
     }
 
     [HttpGet("GetAllDepartments")]
@@ -66,7 +64,6 @@ public class DepartmentController(IDepartmentService departmentService, ILogger<
 
         logger.LogInformation("Retrieved all departments successfully. Count: {Count}", result.Data?.Count ?? 0);
         return Ok(ResponseResults<IReadOnlyCollection<DepartmentResponseDto>>.Success(result.StatusCode, result.Data));
-
     }
 
     [HttpGet("GetDepartmentById/{id}")]
@@ -90,7 +87,6 @@ public class DepartmentController(IDepartmentService departmentService, ILogger<
 
         logger.LogInformation("Retrieved department with id: {DepartmentId}", id);
         return Ok(ResponseResults<DepartmentResponseDto>.Success(result.StatusCode, result.Data));
-
     }
 
     [HttpGet("GetDepartmentEmployees/{departmentId}")]
@@ -114,6 +110,5 @@ public class DepartmentController(IDepartmentService departmentService, ILogger<
 
         logger.LogInformation("Retrieved employees for department id: {DepartmentId}", departmentId);
         return Ok(ResponseResults<IReadOnlyCollection<DepartmentUserResponseDto>>.Success(result.StatusCode, result.Data));
-
     }
 }

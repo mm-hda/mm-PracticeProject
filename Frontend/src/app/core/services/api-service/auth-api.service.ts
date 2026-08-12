@@ -28,7 +28,6 @@ export class AuthApiService {
 
   logout(): void {
     var email = this.storageService.getItem<{ email: string }>('auth_user')?.email;
-    localStorage.clear();
     this.http.post(`${this.authUrl}/logout`, { email }, { withCredentials: true }).subscribe(
       {
         complete: () => {

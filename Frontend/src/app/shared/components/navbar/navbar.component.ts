@@ -52,7 +52,11 @@ export class NavbarComponent {
   public logout(): void {
     this.authApi.logout();
     this.authService.clearCurrentUser();
-    this.storageService.clear();
+    this.storageService.removeItem('auth_user');
+    this.storageService.removeItem('branches');
+    this.storageService.removeItem('departments');
+    this.storageService.removeItem('positions');
+    this.storageService.removeItem('roles');
     this.router.navigate(['/login']);
   }
 }

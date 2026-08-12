@@ -14,6 +14,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
     public DbSet<Position> Positions => Set<Position>();
     public DbSet<Project> Projects => Set<Project>();
     public DbSet<EmployeeProject> EmployeeProjects => Set<EmployeeProject>();
+    public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -60,6 +61,12 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
         {
             entity.ToContainer("EmployeeProjects");
             entity.HasPartitionKey(employeeProject => employeeProject.Id);
+        });
+
+        modelBuilder.Entity<RefreshToken>(entity =>
+        {
+            entity.ToContainer("RefreshTokens");
+            entity.HasPartitionKey(refreshToken => refreshToken.Id);
         });
     }
 }
