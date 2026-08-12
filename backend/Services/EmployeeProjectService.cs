@@ -62,11 +62,6 @@ internal sealed class EmployeeProjectService(IEmployeeProjectRepository employee
         {
             return new ServiceResponse<object> { IsSuccess = false, StatusCode = CustomCodes.OperationCancelled };
         }
-        catch (Exception)
-        {
-            return new ServiceResponse<object> { IsSuccess = false, StatusCode = CustomCodes.EmployeeProjectCreationFailed };
-            throw;
-        }
     }
 
     public async Task<ServiceResponse<object>> RemoveEmployeeProject(Guid id, CancellationToken cancellationToken)
@@ -111,67 +106,46 @@ internal sealed class EmployeeProjectService(IEmployeeProjectRepository employee
         {
             return new ServiceResponse<object> { IsSuccess = false, StatusCode = CustomCodes.EmployeeProjectRemovalFailed };
         }
-        catch (Exception)
-        {
-            return new ServiceResponse<object> { IsSuccess = false, StatusCode = CustomCodes.EmployeeProjectRemovalFailed };
-            throw;
-        }
     }
 
     public async Task<ServiceResponse<IReadOnlyCollection<EmployeeProjectResponseDto>>> GetAllEmployeeProjects(CancellationToken cancellationToken)
     {
-        try
-        {
-            var employeeProjects = await employeeProjectRepository.GetAllEmployeeProjectsAsync(cancellationToken).ConfigureAwait(false);
+        var employeeProjects = await employeeProjectRepository.GetAllEmployeeProjectsAsync(cancellationToken).ConfigureAwait(false);
 
-            return new ServiceResponse<IReadOnlyCollection<EmployeeProjectResponseDto>> { IsSuccess = true, StatusCode = CustomCodes.DataRetrieved, Data = employeeProjects };
-        }
-        catch (Exception)
-        {
-            return new ServiceResponse<IReadOnlyCollection<EmployeeProjectResponseDto>> { IsSuccess = false, StatusCode = CustomCodes.InternalServerError };
-            throw;
-        }
+        return new ServiceResponse<IReadOnlyCollection<EmployeeProjectResponseDto>> { IsSuccess = true, StatusCode = CustomCodes.DataRetrieved, Data = employeeProjects };
     }
 
     public async Task<ServiceResponse<IReadOnlyCollection<ProjectResponseDto>>> GetUserProjectsByUserId(Guid userId, PaginationDto dto, CancellationToken cancellationToken)
     {
-        try
+        ArgumentNullException.ThrowIfNull(dto);
+
+        dto.PageNumber = dto.PageNumber <= 0 ? 1 : dto.PageNumber;
+        dto.PageSize = dto.PageSize <= 0 ? 10 : dto.PageSize;
+
+        var userExists = await employeeProjectRepository.UserExistsAsync(userId, cancellationToken).ConfigureAwait(false);
+
+        if (!userExists)
         {
-            ArgumentNullException.ThrowIfNull(dto);
-
-            dto.PageNumber = dto.PageNumber <= 0 ? 1 : dto.PageNumber;
-            dto.PageSize = dto.PageSize <= 0 ? 10 : dto.PageSize;
-
-            var userExists = await employeeProjectRepository.UserExistsAsync(userId, cancellationToken).ConfigureAwait(false);
-
-            if (!userExists)
-            {
-                return new ServiceResponse<IReadOnlyCollection<ProjectResponseDto>> { IsSuccess = false, StatusCode = CustomCodes.UserNotFound };
-            }
-
-            var totalRecords = await employeeProjectRepository.GetUserProjectsCountAsync(userId, cancellationToken).ConfigureAwait(false);
-
-            if ((int)Math.Ceiling(totalRecords / (double)dto.PageSize) < dto.PageNumber)
-            {
-                return new ServiceResponse<IReadOnlyCollection<ProjectResponseDto>> { IsSuccess = false, StatusCode = CustomCodes.PageNumberExceeds };
-            }
-
-            var projects = await employeeProjectRepository.GetUserProjectsByUserIdAsync(userId, dto.PageNumber, dto.PageSize, cancellationToken).ConfigureAwait(false);
-
-            var meta = new PaginationMetaDto
-            {
-                PageNumber = dto.PageNumber,
-                PageSize = dto.PageSize,
-                TotalRecords = projects.Count,
-                TotalPages = (int)Math.Ceiling(projects.Count / (double)dto.PageSize)
-            };
-
-            return new ServiceResponse<IReadOnlyCollection<ProjectResponseDto>> { IsSuccess = true, StatusCode = CustomCodes.DataRetrieved, Data = projects, Meta = meta };
+            return new ServiceResponse<IReadOnlyCollection<ProjectResponseDto>> { IsSuccess = false, StatusCode = CustomCodes.UserNotFound };
         }
-        catch (Exception)
+
+        var totalRecords = await employeeProjectRepository.GetUserProjectsCountAsync(userId, cancellationToken).ConfigureAwait(false);
+
+        if ((int)Math.Ceiling(totalRecords / (double)dto.PageSize) < dto.PageNumber)
         {
-            return new ServiceResponse<IReadOnlyCollection<ProjectResponseDto>> { IsSuccess = false, StatusCode = CustomCodes.InternalServerError };
-            throw;
+            return new ServiceResponse<IReadOnlyCollection<ProjectResponseDto>> { IsSuccess = false, StatusCode = CustomCodes.PageNumberExceeds };
         }
+
+        var projects = await employeeProjectRepository.GetUserProjectsByUserIdAsync(userId, dto.PageNumber, dto.PageSize, cancellationToken).ConfigureAwait(false);
+
+        var meta = new PaginationMetaDto
+        {
+            PageNumber = dto.PageNumber,
+            PageSize = dto.PageSize,
+            TotalRecords = projects.Count,
+            TotalPages = (int)Math.Ceiling(projects.Count / (double)dto.PageSize)
+        };
+
+        return new ServiceResponse<IReadOnlyCollection<ProjectResponseDto>> { IsSuccess = true, StatusCode = CustomCodes.DataRetrieved, Data = projects, Meta = meta };
     }
 }

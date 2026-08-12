@@ -55,11 +55,6 @@ internal sealed class ProjectService(IProjectRepository projectRepository, IUnit
         {
             return new ServiceResponse<object> { IsSuccess = false, StatusCode = CustomCodes.ProjectCreationFailed };
         }
-        catch (Exception)
-        {
-            return new ServiceResponse<object> { IsSuccess = false, StatusCode = CustomCodes.ProjectCreationFailed };
-            throw;
-        }
     }
 
     public async Task<ServiceResponse<object>> UpdateProject(ProjectDto dto, CancellationToken cancellationToken)
@@ -112,119 +107,74 @@ internal sealed class ProjectService(IProjectRepository projectRepository, IUnit
         {
             return new ServiceResponse<object> { IsSuccess = false, StatusCode = CustomCodes.ProjectUpdateFailed };
         }
-        catch (Exception)
-        {
-            return new ServiceResponse<object> { IsSuccess = false, StatusCode = CustomCodes.ProjectUpdateFailed };
-            throw;
-        }
     }
 
     public async Task<ServiceResponse<IReadOnlyCollection<ProjectResponseDto>>> GetAllProjects(CancellationToken cancellationToken)
     {
-        try
-        {
-            var projects = await projectRepository.GetAllProjectsAsync(cancellationToken).ConfigureAwait(false);
+        var projects = await projectRepository.GetAllProjectsAsync(cancellationToken).ConfigureAwait(false);
 
-            if (projects == null || projects.Count == 0)
-            {
-                return new ServiceResponse<IReadOnlyCollection<ProjectResponseDto>> { IsSuccess = false, StatusCode = CustomCodes.ProjectNotFound };
-            }
-
-            return new ServiceResponse<IReadOnlyCollection<ProjectResponseDto>> { IsSuccess = true, StatusCode = CustomCodes.DataRetrieved, Data = projects };
-        }
-        catch (Exception)
+        if (projects == null || projects.Count == 0)
         {
-            return new ServiceResponse<IReadOnlyCollection<ProjectResponseDto>> { IsSuccess = false, StatusCode = CustomCodes.InternalServerError };
-            throw;
+            return new ServiceResponse<IReadOnlyCollection<ProjectResponseDto>> { IsSuccess = false, StatusCode = CustomCodes.ProjectNotFound };
         }
+
+        return new ServiceResponse<IReadOnlyCollection<ProjectResponseDto>> { IsSuccess = true, StatusCode = CustomCodes.DataRetrieved, Data = projects };
     }
 
     public async Task<ServiceResponse<ProjectResponseDto?>> GetProjectById(Guid id, CancellationToken cancellationToken)
     {
-        try
-        {
-            var project = await projectRepository.GetProjectByIdAsync(id, cancellationToken).ConfigureAwait(false);
+        var project = await projectRepository.GetProjectByIdAsync(id, cancellationToken).ConfigureAwait(false);
 
-            if (project == null)
-            {
-                return new ServiceResponse<ProjectResponseDto?> { IsSuccess = false, StatusCode = CustomCodes.ProjectNotFound };
-            }
-
-            return new ServiceResponse<ProjectResponseDto?> { IsSuccess = true, StatusCode = CustomCodes.DataRetrieved, Data = project };
-        }
-        catch (Exception)
+        if (project == null)
         {
-            return new ServiceResponse<ProjectResponseDto?> { IsSuccess = false, StatusCode = CustomCodes.InternalServerError };
-            throw;
+            return new ServiceResponse<ProjectResponseDto?> { IsSuccess = false, StatusCode = CustomCodes.ProjectNotFound };
         }
+
+        return new ServiceResponse<ProjectResponseDto?> { IsSuccess = true, StatusCode = CustomCodes.DataRetrieved, Data = project };
     }
 
     public async Task<ServiceResponse<IReadOnlyCollection<ProjectUserResponseDto>>> GetProjectEmployees(Guid projectId, CancellationToken cancellationToken)
     {
-        try
+        var projectExists = await projectRepository.ProjectExistsByIdAsync(projectId, cancellationToken).ConfigureAwait(false);
+
+        if (!projectExists)
         {
-            var projectExists = await projectRepository.ProjectExistsByIdAsync(projectId, cancellationToken).ConfigureAwait(false);
-
-            if (!projectExists)
-            {
-                return new ServiceResponse<IReadOnlyCollection<ProjectUserResponseDto>> { IsSuccess = false, StatusCode = CustomCodes.ProjectNotFound };
-            }
-
-            var users = await projectRepository.GetProjectEmployeesAsync(projectId, cancellationToken).ConfigureAwait(false);
-
-            return new ServiceResponse<IReadOnlyCollection<ProjectUserResponseDto>> { IsSuccess = true, StatusCode = CustomCodes.DataRetrieved, Data = users };
+            return new ServiceResponse<IReadOnlyCollection<ProjectUserResponseDto>> { IsSuccess = false, StatusCode = CustomCodes.ProjectNotFound };
         }
-        catch (Exception)
-        {
-            return new ServiceResponse<IReadOnlyCollection<ProjectUserResponseDto>> { IsSuccess = false, StatusCode = CustomCodes.InternalServerError };
-            throw;
-        }
+
+        var users = await projectRepository.GetProjectEmployeesAsync(projectId, cancellationToken).ConfigureAwait(false);
+
+        return new ServiceResponse<IReadOnlyCollection<ProjectUserResponseDto>> { IsSuccess = true, StatusCode = CustomCodes.DataRetrieved, Data = users };
     }
 
     public async Task<ServiceResponse<IReadOnlyCollection<ProjectResponseDto>>> GetProjectsByManagerId(Guid managerId, CancellationToken cancellationToken)
     {
-        try
+        var managerExists = await projectRepository.ManagerExistsAsync(managerId, cancellationToken).ConfigureAwait(false);
+
+        if (!managerExists)
         {
-            var managerExists = await projectRepository.ManagerExistsAsync(managerId, cancellationToken).ConfigureAwait(false);
-
-            if (!managerExists)
-            {
-                return new ServiceResponse<IReadOnlyCollection<ProjectResponseDto>> { IsSuccess = false, StatusCode = CustomCodes.ProjectManagerNotFound };
-            }
-
-            var projects = await projectRepository.GetProjectsByManagerIdAsync(managerId, cancellationToken).ConfigureAwait(false);
-
-            if (projects == null || projects.Count == 0)
-            {
-                return new ServiceResponse<IReadOnlyCollection<ProjectResponseDto>> { IsSuccess = false, StatusCode = CustomCodes.ProjectNotFound };
-            }
-
-            return new ServiceResponse<IReadOnlyCollection<ProjectResponseDto>> { IsSuccess = true, StatusCode = CustomCodes.DataRetrieved, Data = projects };
+            return new ServiceResponse<IReadOnlyCollection<ProjectResponseDto>> { IsSuccess = false, StatusCode = CustomCodes.ProjectManagerNotFound };
         }
-        catch (Exception)
+
+        var projects = await projectRepository.GetProjectsByManagerIdAsync(managerId, cancellationToken).ConfigureAwait(false);
+
+        if (projects == null || projects.Count == 0)
         {
-            return new ServiceResponse<IReadOnlyCollection<ProjectResponseDto>> { IsSuccess = false, StatusCode = CustomCodes.InternalServerError };
-            throw;
+            return new ServiceResponse<IReadOnlyCollection<ProjectResponseDto>> { IsSuccess = false, StatusCode = CustomCodes.ProjectNotFound };
         }
+
+        return new ServiceResponse<IReadOnlyCollection<ProjectResponseDto>> { IsSuccess = true, StatusCode = CustomCodes.DataRetrieved, Data = projects };
     }
 
     public async Task<ServiceResponse<IReadOnlyCollection<ProjectResponseDto>>> GetEmployeeProjects(Guid userId, CancellationToken cancellationToken)
     {
-        try
-        {
-            var projects = await projectRepository.GetEmployeeProjectsAsync(userId, cancellationToken).ConfigureAwait(false);
+        var projects = await projectRepository.GetEmployeeProjectsAsync(userId, cancellationToken).ConfigureAwait(false);
 
-            if (projects == null || projects.Count == 0)
-            {
-                return new ServiceResponse<IReadOnlyCollection<ProjectResponseDto>> { IsSuccess = false, StatusCode = CustomCodes.ProjectNotFound };
-            }
-
-            return new ServiceResponse<IReadOnlyCollection<ProjectResponseDto>> { IsSuccess = true, StatusCode = CustomCodes.DataRetrieved, Data = projects };
-        }
-        catch (Exception)
+        if (projects == null || projects.Count == 0)
         {
-            return new ServiceResponse<IReadOnlyCollection<ProjectResponseDto>> { IsSuccess = false, StatusCode = CustomCodes.InternalServerError };
-            throw;
+            return new ServiceResponse<IReadOnlyCollection<ProjectResponseDto>> { IsSuccess = false, StatusCode = CustomCodes.ProjectNotFound };
         }
+
+        return new ServiceResponse<IReadOnlyCollection<ProjectResponseDto>> { IsSuccess = true, StatusCode = CustomCodes.DataRetrieved, Data = projects };
     }
 }

@@ -103,15 +103,6 @@ internal sealed class AuthService(IAuthRepository authRepository, IUnitOfWork un
                 IsSuccess = false
             };
         }
-        catch (Exception)
-        {
-            return new ServiceResponse<TokenDto>
-            {
-                StatusCode = CustomCodes.InternalServerError,
-                IsSuccess = false
-            };
-            throw;
-        }
     }
 
     public async Task<ServiceResponse<object>> RegisterUser(RegisterUserDto dto, CancellationToken cancellationToken)
@@ -218,15 +209,6 @@ internal sealed class AuthService(IAuthRepository authRepository, IUnitOfWork un
                 StatusCode = CustomCodes.UserCreationFailed,
                 IsSuccess = false
             };
-        }
-        catch (Exception)
-        {
-            return new ServiceResponse<object>
-            {
-                StatusCode = CustomCodes.InternalServerError,
-                IsSuccess = false
-            };
-            throw;
         }
     }
 

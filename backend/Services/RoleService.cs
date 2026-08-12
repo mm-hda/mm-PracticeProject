@@ -43,30 +43,18 @@ internal sealed class RoleService(IRoleRepository roleRepository, IUnitOfWork un
         {
             return new ServiceResponse<object> { IsSuccess = false, StatusCode = CustomCodes.RoleCreationFailed };
         }
-        catch (Exception)
-        {
-            return new ServiceResponse<object> { IsSuccess = false, StatusCode = CustomCodes.RoleCreationFailed };
-            throw;
-        }
+
     }
 
     public async Task<ServiceResponse<IReadOnlyCollection<RoleResponseDto>>> GetAllRoles(CancellationToken cancellationToken)
     {
-        try
-        {
-            var roles = await roleRepository.GetAllRolesAsync(cancellationToken).ConfigureAwait(false);
+        var roles = await roleRepository.GetAllRolesAsync(cancellationToken).ConfigureAwait(false);
 
-            if (roles.Count == 0)
-            {
-                return new ServiceResponse<IReadOnlyCollection<RoleResponseDto>> { IsSuccess = false, StatusCode = CustomCodes.RoleNotFound };
-            }
-
-            return new ServiceResponse<IReadOnlyCollection<RoleResponseDto>> { IsSuccess = true, StatusCode = CustomCodes.DataRetrieved, Data = roles };
-        }
-        catch (Exception)
+        if (roles.Count == 0)
         {
-            return new ServiceResponse<IReadOnlyCollection<RoleResponseDto>> { IsSuccess = false, StatusCode = CustomCodes.InternalServerError };
-            throw;
+            return new ServiceResponse<IReadOnlyCollection<RoleResponseDto>> { IsSuccess = false, StatusCode = CustomCodes.RoleNotFound };
         }
+
+        return new ServiceResponse<IReadOnlyCollection<RoleResponseDto>> { IsSuccess = true, StatusCode = CustomCodes.DataRetrieved, Data = roles };
     }
 }

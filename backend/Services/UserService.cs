@@ -46,117 +46,72 @@ internal sealed class UserService(IUserRepository userRepository, IUnitOfWork un
         {
             return new ServiceResponse<IReadOnlyCollection<UserResponseDto>> { IsSuccess = false, StatusCode = CustomCodes.InternalServerError };
         }
-        catch (Exception)
-        {
-            return new ServiceResponse<IReadOnlyCollection<UserResponseDto>> { IsSuccess = false, StatusCode = CustomCodes.InternalServerError };
-            throw;
-        }
     }
 
     public async Task<ServiceResponse<IReadOnlyCollection<UserResponseDto>>> GetUserBySearch(string searchTerm, CancellationToken cancellationToken)
     {
-        try
-        {
-            var users = await userRepository.GetUserBySearchAsync(searchTerm, cancellationToken).ConfigureAwait(false);
+        var users = await userRepository.GetUserBySearchAsync(searchTerm, cancellationToken).ConfigureAwait(false);
 
-            if (users == null)
-            {
-                return new ServiceResponse<IReadOnlyCollection<UserResponseDto>> { IsSuccess = false, StatusCode = CustomCodes.UserNotFound };
-            }
-
-            return new ServiceResponse<IReadOnlyCollection<UserResponseDto>> { IsSuccess = true, StatusCode = CustomCodes.DataRetrieved, Data = users };
-        }
-        catch (Exception)
+        if (users == null)
         {
-            return new ServiceResponse<IReadOnlyCollection<UserResponseDto>> { IsSuccess = false, StatusCode = CustomCodes.InternalServerError };
-            throw;
+            return new ServiceResponse<IReadOnlyCollection<UserResponseDto>> { IsSuccess = false, StatusCode = CustomCodes.UserNotFound };
         }
+
+        return new ServiceResponse<IReadOnlyCollection<UserResponseDto>> { IsSuccess = true, StatusCode = CustomCodes.DataRetrieved, Data = users };
     }
 
     public async Task<ServiceResponse<UserResponseDto?>> GetUserById(Guid id, CancellationToken cancellationToken)
     {
-        try
-        {
-            var user = await userRepository.GetUserByIdAsync(id, cancellationToken).ConfigureAwait(false);
+        var user = await userRepository.GetUserByIdAsync(id, cancellationToken).ConfigureAwait(false);
 
-            if (user == null)
-            {
-                return new ServiceResponse<UserResponseDto?> { IsSuccess = false, StatusCode = CustomCodes.UserNotFound };
-            }
-
-            return new ServiceResponse<UserResponseDto?> { IsSuccess = true, StatusCode = CustomCodes.DataRetrieved, Data = user };
-        }
-        catch (Exception)
+        if (user == null)
         {
-            return new ServiceResponse<UserResponseDto?> { IsSuccess = false, StatusCode = CustomCodes.InternalServerError, Data = null };
-            throw;
+            return new ServiceResponse<UserResponseDto?> { IsSuccess = false, StatusCode = CustomCodes.UserNotFound };
         }
+
+        return new ServiceResponse<UserResponseDto?> { IsSuccess = true, StatusCode = CustomCodes.DataRetrieved, Data = user };
     }
 
     public async Task<ServiceResponse<IReadOnlyCollection<UserResponseDto>>> GetUsersByFilter(UserFilterDto dto, CancellationToken cancellationToken)
     {
-        try
+        ArgumentNullException.ThrowIfNull(dto);
+
+        var users = await userRepository.GetUsersByFilterAsync(dto, cancellationToken).ConfigureAwait(false);
+
+        if (users == null || users.Count == 0)
         {
-            ArgumentNullException.ThrowIfNull(dto);
-
-            var users = await userRepository.GetUsersByFilterAsync(dto, cancellationToken).ConfigureAwait(false);
-
-            if (users == null || users.Count == 0)
-            {
-                return new ServiceResponse<IReadOnlyCollection<UserResponseDto>> { IsSuccess = false, StatusCode = CustomCodes.UserNotFound };
-            }
-
-            return new ServiceResponse<IReadOnlyCollection<UserResponseDto>> { IsSuccess = true, StatusCode = CustomCodes.DataRetrieved, Data = users };
+            return new ServiceResponse<IReadOnlyCollection<UserResponseDto>> { IsSuccess = false, StatusCode = CustomCodes.UserNotFound };
         }
-        catch (Exception)
-        {
-            return new ServiceResponse<IReadOnlyCollection<UserResponseDto>> { IsSuccess = false, StatusCode = CustomCodes.InternalServerError };
-            throw;
-        }
+
+        return new ServiceResponse<IReadOnlyCollection<UserResponseDto>> { IsSuccess = true, StatusCode = CustomCodes.DataRetrieved, Data = users };
     }
 
     public async Task<ServiceResponse<IReadOnlyCollection<UserResponseDto>>> GetManagers(CancellationToken cancellationToken)
     {
-        try
-        {
-            var users = await userRepository.GetManagersAsync(cancellationToken).ConfigureAwait(false);
+        var users = await userRepository.GetManagersAsync(cancellationToken).ConfigureAwait(false);
 
-            if (users == null || users.Count == 0)
-            {
-                return new ServiceResponse<IReadOnlyCollection<UserResponseDto>> { IsSuccess = false, StatusCode = CustomCodes.UserNotFound };
-            }
-
-            return new ServiceResponse<IReadOnlyCollection<UserResponseDto>> { IsSuccess = true, StatusCode = CustomCodes.DataRetrieved, Data = users };
-        }
-        catch (Exception)
+        if (users == null || users.Count == 0)
         {
-            return new ServiceResponse<IReadOnlyCollection<UserResponseDto>> { IsSuccess = false, StatusCode = CustomCodes.InternalServerError };
-            throw;
+            return new ServiceResponse<IReadOnlyCollection<UserResponseDto>> { IsSuccess = false, StatusCode = CustomCodes.UserNotFound };
         }
+
+        return new ServiceResponse<IReadOnlyCollection<UserResponseDto>> { IsSuccess = true, StatusCode = CustomCodes.DataRetrieved, Data = users };
     }
 
     public async Task<ServiceResponse<object?>> UpdateUser(Guid id, RegisterUserDtoV2 dto, CancellationToken cancellationToken)
     {
-        try
+        var user = await userRepository.GetByIdAsync(id, cancellationToken).ConfigureAwait(false);
+
+        if (user == null)
         {
-            var user = await userRepository.GetByIdAsync(id, cancellationToken).ConfigureAwait(false);
-
-            if (user == null)
-            {
-                return new ServiceResponse<object?> { IsSuccess = false, StatusCode = CustomCodes.UserNotFound };
-            }
-
-            user.Name = dto.FirstName + " " + dto.LastName;
-            user.Email = dto.Email ?? user.Email;
-            user.PositionId = dto.PositionId;
-
-            await unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
-            return new ServiceResponse<object?> { IsSuccess = true, StatusCode = CustomCodes.UserUpdatedSuccessfully };
+            return new ServiceResponse<object?> { IsSuccess = false, StatusCode = CustomCodes.UserNotFound };
         }
-        catch (Exception)
-        {
-            return new ServiceResponse<object?> { IsSuccess = false, StatusCode = CustomCodes.InternalServerError };
-            throw;
-        }
+
+        user.Name = dto.FirstName + " " + dto.LastName;
+        user.Email = dto.Email ?? user.Email;
+        user.PositionId = dto.PositionId;
+
+        await unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        return new ServiceResponse<object?> { IsSuccess = true, StatusCode = CustomCodes.UserUpdatedSuccessfully };
     }
 }

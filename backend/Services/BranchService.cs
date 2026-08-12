@@ -60,15 +60,6 @@ internal sealed class BranchService(IBranchRepository branchRepository, IUnitOfW
                 IsSuccess = false
             };
         }
-        catch (Exception)
-        {
-            return new()
-            {
-                StatusCode = CustomCodes.BranchCreationFailed,
-                IsSuccess = false
-            };
-            throw;
-        }
     }
 
     public async Task<ServiceResponse<object>> UpdateBranch(BranchDto dto, CancellationToken cancellationToken)
@@ -115,104 +106,59 @@ internal sealed class BranchService(IBranchRepository branchRepository, IUnitOfW
                 IsSuccess = false
             };
         }
-        catch (Exception)
-        {
-            return new()
-            {
-                StatusCode = CustomCodes.BranchUpdateFailed,
-                IsSuccess = false
-            };
-            throw;
-        }
     }
 
     public async Task<ServiceResponse<IReadOnlyCollection<BranchResponseDto>>> GetAllBranches(CancellationToken cancellationToken)
     {
-        try
-        {
-            var branches = await branchRepository.GetAllBranchesAsync(cancellationToken).ConfigureAwait(false);
+        var branches = await branchRepository.GetAllBranchesAsync(cancellationToken).ConfigureAwait(false);
 
-            return new()
-            {
-                StatusCode = CustomCodes.DataRetrieved,
-                IsSuccess = true,
-                Data = branches
-            };
-        }
-        catch (Exception)
+        return new()
         {
-            return new()
-            {
-                StatusCode = CustomCodes.InternalServerError,
-                IsSuccess = false
-            };
-            throw;
-        }
+            StatusCode = CustomCodes.DataRetrieved,
+            IsSuccess = true,
+            Data = branches
+        };
     }
 
     public async Task<ServiceResponse<BranchResponseDto?>> GetBranchById(Guid id, CancellationToken cancellationToken)
     {
-        try
-        {
-            var branch = await branchRepository.GetBranchByIdAsync(id, cancellationToken).ConfigureAwait(false);
+        var branch = await branchRepository.GetBranchByIdAsync(id, cancellationToken).ConfigureAwait(false);
 
-            if (branch == null)
-            {
-                return new()
-                {
-                    StatusCode = CustomCodes.BranchNotFound,
-                    IsSuccess = false
-                };
-            }
-
-            return new()
-            {
-                StatusCode = CustomCodes.DataRetrieved,
-                IsSuccess = true,
-                Data = branch
-            };
-        }
-        catch (Exception)
+        if (branch == null)
         {
             return new()
             {
-                StatusCode = CustomCodes.InternalServerError,
+                StatusCode = CustomCodes.BranchNotFound,
                 IsSuccess = false
             };
-            throw;
         }
+
+        return new()
+        {
+            StatusCode = CustomCodes.DataRetrieved,
+            IsSuccess = true,
+            Data = branch
+        };
     }
 
     public async Task<ServiceResponse<IReadOnlyCollection<BranchUserResponseDto>>> GetBranchUsers(Guid branchId, CancellationToken cancellationToken)
     {
-        try
-        {
-            var users = await branchRepository.GetBranchUsersAsync(branchId, cancellationToken).ConfigureAwait(false);
+        var users = await branchRepository.GetBranchUsersAsync(branchId, cancellationToken).ConfigureAwait(false);
 
-            if (users.Count == 0)
-            {
-                return new()
-                {
-                    StatusCode = CustomCodes.BranchNotFound,
-                    IsSuccess = false
-                };
-            }
-
-            return new()
-            {
-                StatusCode = CustomCodes.DataRetrieved,
-                IsSuccess = true,
-                Data = users
-            };
-        }
-        catch (Exception)
+        if (users.Count == 0)
         {
             return new()
             {
-                StatusCode = CustomCodes.InternalServerError,
+                StatusCode = CustomCodes.BranchNotFound,
                 IsSuccess = false
             };
-            throw;
         }
+
+        return new()
+        {
+            StatusCode = CustomCodes.DataRetrieved,
+            IsSuccess = true,
+            Data = users
+        };
     }
 }

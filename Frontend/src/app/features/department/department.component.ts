@@ -40,7 +40,6 @@ type DepartmentModalType = | 'add' | 'edit' | 'detail' | 'employees' | null;
   selector: 'app-department',
   imports: [CommonModule, ReactiveFormsModule, GenericTableComponent, TranslatePipe],
   templateUrl: './department.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush
 })
 
 export class DepartmentComponent implements OnInit {

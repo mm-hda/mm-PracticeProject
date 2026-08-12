@@ -31,14 +31,7 @@ internal sealed class DepartmentService(IDepartmentRepository departmentReposito
 
             await departmentRepository.AddAsync(department, cancellationToken).ConfigureAwait(false);
 
-            try
-            {
-                await unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
-            }
-            catch (DbUpdateException)
-            {
-                return new ServiceResponse<object> { IsSuccess = false, StatusCode = CustomCodes.DepartmentCreationFailed };
-            }
+            await unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
             return new ServiceResponse<object> { IsSuccess = true, StatusCode = CustomCodes.DepartmentCreatedSuccessfully };
         }
@@ -82,67 +75,38 @@ internal sealed class DepartmentService(IDepartmentRepository departmentReposito
         {
             return new ServiceResponse<object> { IsSuccess = false, StatusCode = CustomCodes.OperationCancelled };
         }
-        catch (Exception)
-        {
-            return new ServiceResponse<object> { IsSuccess = false, StatusCode = CustomCodes.DepartmentUpdateFailed };
-            throw;
-        }
     }
 
     public async Task<ServiceResponse<IReadOnlyCollection<DepartmentResponseDto>>> GetAllDepartments(CancellationToken cancellationToken)
     {
-        try
-        {
-            var departments = await departmentRepository.GetAllDepartmentsAsync(cancellationToken).ConfigureAwait(false);
+        var departments = await departmentRepository.GetAllDepartmentsAsync(cancellationToken).ConfigureAwait(false);
 
-            return new ServiceResponse<IReadOnlyCollection<DepartmentResponseDto>> { IsSuccess = true, StatusCode = CustomCodes.DataRetrieved, Data = departments };
-        }
-        catch (Exception)
-        {
-            return new ServiceResponse<IReadOnlyCollection<DepartmentResponseDto>> { IsSuccess = false, StatusCode = CustomCodes.InternalServerError };
-            throw;
-        }
+        return new ServiceResponse<IReadOnlyCollection<DepartmentResponseDto>> { IsSuccess = true, StatusCode = CustomCodes.DataRetrieved, Data = departments };
     }
 
     public async Task<ServiceResponse<DepartmentResponseDto?>> GetDepartmentById(Guid id, CancellationToken cancellationToken)
     {
-        try
-        {
-            var department = await departmentRepository.GetDepartmentByIdAsync(id, cancellationToken).ConfigureAwait(false);
+        var department = await departmentRepository.GetDepartmentByIdAsync(id, cancellationToken).ConfigureAwait(false);
 
-            if (department == null)
-            {
-                return new ServiceResponse<DepartmentResponseDto?> { IsSuccess = false, StatusCode = CustomCodes.DepartmentNotFound, Data = null };
-            }
-
-            return new ServiceResponse<DepartmentResponseDto?> { IsSuccess = true, StatusCode = CustomCodes.DataRetrieved, Data = department };
-        }
-        catch (Exception)
+        if (department == null)
         {
-            return new ServiceResponse<DepartmentResponseDto?> { IsSuccess = false, StatusCode = CustomCodes.InternalServerError };
-            throw;
+            return new ServiceResponse<DepartmentResponseDto?> { IsSuccess = false, StatusCode = CustomCodes.DepartmentNotFound, Data = null };
         }
+
+        return new ServiceResponse<DepartmentResponseDto?> { IsSuccess = true, StatusCode = CustomCodes.DataRetrieved, Data = department };
     }
 
     public async Task<ServiceResponse<IReadOnlyCollection<DepartmentUserResponseDto>>> GetDepartmentEmployees(Guid departmentId, CancellationToken cancellationToken)
     {
-        try
+        var departmentExists = await departmentRepository.DepartmentExistsByIdAsync(departmentId, cancellationToken).ConfigureAwait(false);
+
+        if (!departmentExists)
         {
-            var departmentExists = await departmentRepository.DepartmentExistsByIdAsync(departmentId, cancellationToken).ConfigureAwait(false);
-
-            if (!departmentExists)
-            {
-                return new ServiceResponse<IReadOnlyCollection<DepartmentUserResponseDto>> { IsSuccess = false, StatusCode = CustomCodes.DepartmentNotFound };
-            }
-
-            var users = await departmentRepository.GetDepartmentEmployeesAsync(departmentId, cancellationToken).ConfigureAwait(false);
-
-            return new ServiceResponse<IReadOnlyCollection<DepartmentUserResponseDto>> { IsSuccess = true, StatusCode = CustomCodes.DataRetrieved, Data = users };
+            return new ServiceResponse<IReadOnlyCollection<DepartmentUserResponseDto>> { IsSuccess = false, StatusCode = CustomCodes.DepartmentNotFound };
         }
-        catch (Exception)
-        {
-            return new ServiceResponse<IReadOnlyCollection<DepartmentUserResponseDto>> { IsSuccess = false, StatusCode = CustomCodes.InternalServerError };
-            throw;
-        }
+
+        var users = await departmentRepository.GetDepartmentEmployeesAsync(departmentId, cancellationToken).ConfigureAwait(false);
+
+        return new ServiceResponse<IReadOnlyCollection<DepartmentUserResponseDto>> { IsSuccess = true, StatusCode = CustomCodes.DataRetrieved, Data = users };
     }
 }

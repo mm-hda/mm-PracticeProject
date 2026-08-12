@@ -56,11 +56,6 @@ internal sealed class PositionService(IPositionRepository positionRepository, IU
         {
             return new ServiceResponse<object> { IsSuccess = false, StatusCode = CustomCodes.PositionCreationFailed };
         }
-        catch (Exception)
-        {
-            return new ServiceResponse<object> { IsSuccess = false, StatusCode = CustomCodes.PositionCreationFailed };
-            throw;
-        }
     }
 
     public async Task<ServiceResponse<object>> UpdatePosition(PositionDto dto, CancellationToken cancellationToken)
@@ -111,149 +106,96 @@ internal sealed class PositionService(IPositionRepository positionRepository, IU
         {
             return new ServiceResponse<object> { IsSuccess = false, StatusCode = CustomCodes.PositionUpdateFailed };
         }
-        catch (Exception)
-        {
-            return new ServiceResponse<object> { IsSuccess = false, StatusCode = CustomCodes.PositionUpdateFailed };
-            throw;
-        }
     }
 
     public async Task<ServiceResponse<IReadOnlyCollection<PositionResponseDto>>> GetAllPositions(CancellationToken cancellationToken)
     {
-        try
-        {
-            var positions = await positionRepository
-                .GetAllPositionsAsync(cancellationToken)
-                .ConfigureAwait(false);
+        var positions = await positionRepository
+            .GetAllPositionsAsync(cancellationToken)
+            .ConfigureAwait(false);
 
-            return new ServiceResponse<IReadOnlyCollection<PositionResponseDto>>
-            {
-                IsSuccess = true,
-                StatusCode = CustomCodes.DataRetrieved,
-                Data = positions
-            };
-        }
-        catch (Exception)
+        return new ServiceResponse<IReadOnlyCollection<PositionResponseDto>>
         {
-            return new ServiceResponse<IReadOnlyCollection<PositionResponseDto>>
-            {
-                IsSuccess = false,
-                StatusCode = CustomCodes.InternalServerError
-            };
-            throw;
-        }
+            IsSuccess = true,
+            StatusCode = CustomCodes.DataRetrieved,
+            Data = positions
+        };
     }
 
     public async Task<ServiceResponse<PositionResponseDto?>> GetPositionById(Guid id, CancellationToken cancellationToken)
     {
-        try
-        {
-            var position = await positionRepository
-                .GetPositionByIdAsync(id, cancellationToken)
-                .ConfigureAwait(false);
+        var position = await positionRepository
+            .GetPositionByIdAsync(id, cancellationToken)
+            .ConfigureAwait(false);
 
-            if (position == null)
-            {
-                return new ServiceResponse<PositionResponseDto?>
-                {
-                    IsSuccess = false,
-                    StatusCode = CustomCodes.PositionNotFound
-                };
-            }
-
-            return new ServiceResponse<PositionResponseDto?>
-            {
-                IsSuccess = true,
-                StatusCode = CustomCodes.DataRetrieved,
-                Data = position
-            };
-        }
-        catch (Exception)
+        if (position == null)
         {
             return new ServiceResponse<PositionResponseDto?>
             {
                 IsSuccess = false,
-                StatusCode = CustomCodes.InternalServerError
+                StatusCode = CustomCodes.PositionNotFound
             };
-            throw;
         }
+
+        return new ServiceResponse<PositionResponseDto?>
+        {
+            IsSuccess = true,
+            StatusCode = CustomCodes.DataRetrieved,
+            Data = position
+        };
     }
 
     public async Task<ServiceResponse<IReadOnlyCollection<PositionResponseDto>>> GetPositionsByDepartment(Guid departmentId, CancellationToken cancellationToken)
     {
-        try
-        {
-            var departmentExists = await positionRepository
-                .DepartmentExistsAsync(departmentId, cancellationToken)
-                .ConfigureAwait(false);
+        var departmentExists = await positionRepository
+            .DepartmentExistsAsync(departmentId, cancellationToken)
+            .ConfigureAwait(false);
 
-            if (!departmentExists)
-            {
-                return new ServiceResponse<IReadOnlyCollection<PositionResponseDto>>
-                {
-                    IsSuccess = false,
-                    StatusCode = CustomCodes.DepartmentNotFound
-                };
-            }
-
-            var positions = await positionRepository
-                .GetPositionsByDepartmentAsync(departmentId, cancellationToken)
-                .ConfigureAwait(false);
-
-            return new ServiceResponse<IReadOnlyCollection<PositionResponseDto>>
-            {
-                IsSuccess = true,
-                StatusCode = CustomCodes.DataRetrieved,
-                Data = positions
-            };
-        }
-        catch (Exception)
+        if (!departmentExists)
         {
             return new ServiceResponse<IReadOnlyCollection<PositionResponseDto>>
             {
                 IsSuccess = false,
-                StatusCode = CustomCodes.InternalServerError
+                StatusCode = CustomCodes.DepartmentNotFound
             };
-            throw;
         }
+
+        var positions = await positionRepository
+            .GetPositionsByDepartmentAsync(departmentId, cancellationToken)
+            .ConfigureAwait(false);
+
+        return new ServiceResponse<IReadOnlyCollection<PositionResponseDto>>
+        {
+            IsSuccess = true,
+            StatusCode = CustomCodes.DataRetrieved,
+            Data = positions
+        };
     }
 
     public async Task<ServiceResponse<IReadOnlyCollection<PositionUserResponseDto>>> GetPositionUsers(Guid positionId, CancellationToken cancellationToken)
     {
-        try
-        {
-            var positionExists = await positionRepository
-                .PositionExistsAsync(positionId, cancellationToken)
-                .ConfigureAwait(false);
+        var positionExists = await positionRepository
+            .PositionExistsAsync(positionId, cancellationToken)
+            .ConfigureAwait(false);
 
-            if (!positionExists)
-            {
-                return new ServiceResponse<IReadOnlyCollection<PositionUserResponseDto>>
-                {
-                    IsSuccess = false,
-                    StatusCode = CustomCodes.PositionNotFound
-                };
-            }
-
-            var users = await positionRepository
-                .GetPositionUsersAsync(positionId, cancellationToken)
-                .ConfigureAwait(false);
-
-            return new ServiceResponse<IReadOnlyCollection<PositionUserResponseDto>>
-            {
-                IsSuccess = true,
-                StatusCode = CustomCodes.DataRetrieved,
-                Data = users
-            };
-        }
-        catch (Exception)
+        if (!positionExists)
         {
             return new ServiceResponse<IReadOnlyCollection<PositionUserResponseDto>>
             {
                 IsSuccess = false,
-                StatusCode = CustomCodes.InternalServerError
+                StatusCode = CustomCodes.PositionNotFound
             };
-            throw;
         }
+
+        var users = await positionRepository
+            .GetPositionUsersAsync(positionId, cancellationToken)
+            .ConfigureAwait(false);
+
+        return new ServiceResponse<IReadOnlyCollection<PositionUserResponseDto>>
+        {
+            IsSuccess = true,
+            StatusCode = CustomCodes.DataRetrieved,
+            Data = users
+        };
     }
 }

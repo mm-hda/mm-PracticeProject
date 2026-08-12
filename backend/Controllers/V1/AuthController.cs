@@ -19,6 +19,7 @@ public class AuthController(IAuthService authService, ILogger<AuthController> lo
     public async Task<IActionResult> LoginAsync([FromBody] LoginDto loginDto, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(loginDto);
+
         logger.LogTrace("Login called with dto: {@Email}", loginDto.Email);
 
         var result = await authService.LoginUser(loginDto, cancellationToken).ConfigureAwait(false);
@@ -38,6 +39,7 @@ public class AuthController(IAuthService authService, ILogger<AuthController> lo
     public async Task<IActionResult> RegisterAsync([FromBody] RegisterUserDto registerDto, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(registerDto);
+
         Console.WriteLine($"Register called V1 with dto: {registerDto.Email}, {registerDto.Name}, {registerDto.Password}, {registerDto.DOB}, {registerDto.RoleId}, {registerDto.BranchId}, {registerDto.DepartmentId}, {registerDto.PositionId}");
         logger.LogTrace("Register called V1 with dto: {@Email}", registerDto.Email);
 
