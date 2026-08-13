@@ -13,6 +13,7 @@ internal static class CustomCodes
     public const int InvalidInput = 3002;
     public const int InputsNotFound = 3003;
     public const int DtoIsNullOrEmpty = 3004;
+    public const int CookieNotFound = 3005;
 
     public const int UserAlreadyExists = 4001;
     public const int BranchAlreadyExists = 4002;

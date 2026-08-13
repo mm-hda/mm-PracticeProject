@@ -48,11 +48,8 @@ internal class GenericRepository<TEntity>(AppDbContext context) : IGenericReposi
             .ConfigureAwait(false);
     }
     public async Task<bool> AnyAsync(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken = default)
-    {
-        return await DbSet
-            .AnyAsync(predicate, cancellationToken)
-            .ConfigureAwait(false);
-    }
+      => await DbSet.AnyAsync(predicate, cancellationToken).ConfigureAwait(false);
+
     public async Task AddAsync(TEntity entity, CancellationToken cancellationToken = default)
     {
         await DbSet

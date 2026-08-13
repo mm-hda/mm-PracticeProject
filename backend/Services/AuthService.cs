@@ -1,4 +1,5 @@
 ﻿using backend.Dto;
+using backend.Dto.RefreshTokenDtos;
 using backend.Entities;
 using backend.GenericResponse;
 using backend.IRepository;
@@ -6,27 +7,21 @@ using backend.IService;
 
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
-
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
 
 namespace backend.Services;
 
-internal sealed class AuthService(IAuthRepository authRepository, IUnitOfWork unitOfWork, IConfiguration configuration, IHttpContextAccessor httpContextAccessor) : IAuthService
+internal sealed class AuthService(IAuthRepository authRepository, IRefreshTokenRepository refreshTokenRepository, IUnitOfWork unitOfWork, ITokenService tokenService, ICookieService cookieService) : IAuthService
 {
     public async Task<ServiceResponse<TokenDto>> LoginUser(LoginDto dto, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(dto);
+        TokenDto tokenDto = new();
 
         try
         {
-            TokenDto tokenDto = new();
-
             var existingUser = await authRepository.GetUserByEmailWithDetailsAsync(dto.Email, cancellationToken).ConfigureAwait(false);
 
-            if (existingUser == null)
+            if (existingUser is null)
             {
                 return new ServiceResponse<TokenDto>
                 {
@@ -37,7 +32,6 @@ internal sealed class AuthService(IAuthRepository authRepository, IUnitOfWork un
             }
 
             var passwordHasher = new PasswordHasher<string>();
-
             var verificationResult = passwordHasher.VerifyHashedPassword(
                 dto.Email ?? string.Empty,
                 existingUser.Password ?? string.Empty,
@@ -56,25 +50,26 @@ internal sealed class AuthService(IAuthRepository authRepository, IUnitOfWork un
             if (verificationResult == PasswordVerificationResult.SuccessRehashNeeded)
             {
                 existingUser.Password = PasswordHashing(existingUser.Email ?? string.Empty, dto.Password ?? string.Empty);
-
-                await unitOfWork
-                    .SaveChangesAsync(cancellationToken)
-                    .ConfigureAwait(false);
-
             }
 
-            var token = GetJwtToken(existingUser);
+            var accessToken = tokenService.GenerateAccessToken(existingUser);
+            var refreshToken = tokenService.GenerateRefreshToken();
+            var refreshTokenHash = tokenService.HashRefreshToken(refreshToken);
+            var refreshTokenExpiresAtUtc = DateTime.UtcNow.AddDays(tokenService.GetRefreshTokenExpiryDays());
 
-            httpContextAccessor.HttpContext?.Response.Cookies.Append(
-                "jwt",
-                token,
-                new CookieOptions
-                {
-                    HttpOnly = true,
-                    Secure = true,
-                    SameSite = SameSiteMode.Strict,
-                    Expires = DateTime.UtcNow.AddDays(10)
-                });
+            await refreshTokenRepository.AddRefreshTokenAsync(new CreateRefreshTokenDto
+            {
+                UserId = existingUser.Id,
+                TokenHash = refreshTokenHash,
+                ExpiresAtUtc = refreshTokenExpiresAtUtc,
+                CreatedAtUtc = DateTime.UtcNow,
+                LastUsedAtUtc = DateTime.UtcNow
+            }, cancellationToken).ConfigureAwait(false);
+
+            await unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+
+            cookieService.AppendAccessTokenCookie(accessToken);
+            cookieService.AppendRefreshTokenCookie(refreshToken, refreshTokenExpiresAtUtc);
 
             tokenDto.UserId = existingUser.Id;
             tokenDto.Name = existingUser.Name ?? string.Empty;
@@ -91,23 +86,150 @@ internal sealed class AuthService(IAuthRepository authRepository, IUnitOfWork un
         }
         catch (OperationCanceledException)
         {
-
             throw;
         }
-        catch (InvalidOperationException)
+        catch (DbUpdateException)
         {
-
             return new ServiceResponse<TokenDto>
             {
                 StatusCode = CustomCodes.InternalServerError,
-                IsSuccess = false
+                IsSuccess = false,
+                Data = tokenDto
             };
         }
+    }
+
+    public async Task<ServiceResponse<TokenDto>> RefreshTokenAsync(CancellationToken cancellationToken)
+    {
+        TokenDto tokenDto = new();
+
+        var refreshToken = cookieService.GetRefreshTokenCookie();
+
+        if (string.IsNullOrWhiteSpace(refreshToken))
+        {
+            cookieService.ClearAuthCookies();
+
+            return new ServiceResponse<TokenDto>
+            {
+                StatusCode = CustomCodes.InvalidCredentials,
+                IsSuccess = false,
+                Data = tokenDto
+            };
+        }
+
+        var refreshTokenHash = tokenService.HashRefreshToken(refreshToken);
+
+        var storedToken = await refreshTokenRepository
+            .GetByTokenHashAsync(refreshTokenHash, cancellationToken)
+            .ConfigureAwait(false);
+
+        if (storedToken is null || !storedToken.IsActive || storedToken.ExpiresAtUtc <= DateTime.UtcNow)
+        {
+            cookieService.ClearAuthCookies();
+
+            return new ServiceResponse<TokenDto>
+            {
+                StatusCode = CustomCodes.InvalidCredentials,
+                IsSuccess = false,
+                Data = tokenDto
+            };
+        }
+
+        var user = await authRepository.GetUserByEmailWithDetailsAsync(storedToken.UserEmail, cancellationToken).ConfigureAwait(false);
+
+        if (user is null)
+        {
+            cookieService.ClearAuthCookies();
+
+            return new ServiceResponse<TokenDto>
+            {
+                StatusCode = CustomCodes.UserNotFound,
+                IsSuccess = false,
+                Data = tokenDto
+            };
+        }
+
+        await refreshTokenRepository.UpdateLastUsedAtUtcAsync(storedToken.Id, cancellationToken).ConfigureAwait(false);
+
+        var newAccessToken = tokenService.GenerateAccessToken(user);
+
+        var remainingRefreshTokenTime = storedToken.ExpiresAtUtc - DateTime.UtcNow;
+
+        if (remainingRefreshTokenTime <= TimeSpan.FromDays(3))
+        {
+            await refreshTokenRepository
+                .DeactivateRefreshTokenAsync(storedToken.Id, cancellationToken)
+                .ConfigureAwait(false);
+
+            var newRefreshToken = tokenService.GenerateRefreshToken();
+            var newRefreshTokenHash = tokenService.HashRefreshToken(newRefreshToken);
+            var newRefreshTokenExpiresAtUtc = DateTime.UtcNow.AddDays(tokenService.GetRefreshTokenExpiryDays());
+
+            await refreshTokenRepository.AddRefreshTokenAsync(new CreateRefreshTokenDto
+            {
+                UserId = user.Id,
+                TokenHash = newRefreshTokenHash,
+                ExpiresAtUtc = newRefreshTokenExpiresAtUtc,
+                CreatedAtUtc = DateTime.UtcNow,
+                LastUsedAtUtc = DateTime.UtcNow
+            }, cancellationToken).ConfigureAwait(false);
+
+            cookieService.AppendRefreshTokenCookie(newRefreshToken, newRefreshTokenExpiresAtUtc);
+        }
+
+        await unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+
+        cookieService.AppendAccessTokenCookie(newAccessToken);
+
+        tokenDto.UserId = user.Id;
+        tokenDto.Name = user.Name ?? string.Empty;
+        tokenDto.Email = user.Email ?? string.Empty;
+        tokenDto.Role = user.Role?.Name ?? string.Empty;
+        tokenDto.Branch = user.Branch?.Name ?? string.Empty;
+
+        return new ServiceResponse<TokenDto>
+        {
+            StatusCode = CustomCodes.LoginSuccessfully,
+            IsSuccess = true,
+            Data = tokenDto
+        };
+    }
+
+    public async Task<ServiceResponse<object>> LogoutAsync(CancellationToken cancellationToken)
+    {
+        var refreshToken = cookieService.GetRefreshTokenCookie();
+
+        if (!string.IsNullOrWhiteSpace(refreshToken))
+        {
+            var refreshTokenHash = tokenService.HashRefreshToken(refreshToken);
+
+            var storedToken = await refreshTokenRepository
+                .GetByTokenHashAsync(refreshTokenHash, cancellationToken)
+                .ConfigureAwait(false);
+
+            if (storedToken is not null && storedToken.IsActive)
+            {
+                await refreshTokenRepository
+                    .DeactivateRefreshTokenAsync(storedToken.Id, cancellationToken)
+                    .ConfigureAwait(false);
+
+                await unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+            }
+        }
+
+        cookieService.ClearAuthCookies();
+
+        return new ServiceResponse<object>
+        {
+            StatusCode = CustomCodes.LoginSuccessfully,
+            IsSuccess = true
+        };
     }
 
     public async Task<ServiceResponse<object>> RegisterUser(RegisterUserDto dto, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(dto);
+
         try
         {
             var emailExists = await authRepository.EmailExistsAsync(dto.Email, cancellationToken).ConfigureAwait(false);
@@ -154,9 +276,7 @@ internal sealed class AuthService(IAuthRepository authRepository, IUnitOfWork un
                 };
             }
 
-            var roleExists = await authRepository
-                .RoleExistsAsync(dto.RoleId, cancellationToken)
-                .ConfigureAwait(false);
+            var roleExists = await authRepository.RoleExistsAsync(dto.RoleId, cancellationToken).ConfigureAwait(false);
 
             if (!roleExists)
             {
@@ -174,9 +294,7 @@ internal sealed class AuthService(IAuthRepository authRepository, IUnitOfWork un
                 Id = Guid.NewGuid(),
                 Name = dto.Name ?? string.Empty,
                 Email = dto.Email ?? string.Empty,
-                Password = PasswordHashing(
-                    dto.Email ?? string.Empty,
-                    dto.Password ?? string.Empty),
+                Password = PasswordHashing(dto.Email ?? string.Empty, dto.Password ?? string.Empty),
                 DOB = dto.DOB,
                 BranchId = dto.BranchId,
                 DepartmentId = dto.DepartmentId,
@@ -212,44 +330,9 @@ internal sealed class AuthService(IAuthRepository authRepository, IUnitOfWork un
         }
     }
 
-    private string GetJwtToken(User user)
-    {
-        var claims = new List<Claim>
-        {
-            new(ClaimTypes.NameIdentifier, user.Id.ToString()),
-            new(ClaimTypes.Name, user.Name ?? string.Empty),
-            new(ClaimTypes.Email, user.Email ?? string.Empty)
-        };
-        if (!string.IsNullOrWhiteSpace(user.Role?.Name))
-        {
-            claims.Add(new Claim(ClaimTypes.Role, user.Role.Name));
-        }
-
-        var jwtKey = configuration["Jwt:Key"];
-
-        if (string.IsNullOrWhiteSpace(jwtKey))
-        {
-            throw new InvalidOperationException("JWT key is missing.");
-        }
-
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
-
-        var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-
-        var token = new JwtSecurityToken(
-            issuer: configuration["Jwt:Issuer"],
-            audience: configuration["Jwt:Audience"],
-            claims: claims,
-            expires: DateTime.UtcNow.AddDays(10),
-            signingCredentials: creds);
-
-        return new JwtSecurityTokenHandler().WriteToken(token);
-    }
-
     private static string PasswordHashing(string email, string password)
     {
         var passwordHasher = new PasswordHasher<string>();
-
         return passwordHasher.HashPassword(email, password);
     }
 }

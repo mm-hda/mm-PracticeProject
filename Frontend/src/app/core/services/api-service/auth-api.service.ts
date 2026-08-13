@@ -39,4 +39,7 @@ export class AuthApiService {
       }
     );
   }
+  refreshToken() {
+    return this.http.post(`${this.authUrl}/refresh-token`, {}, { withCredentials: true });
+  }
 }

@@ -1,5 +1,6 @@
 ﻿using backend.Extensions;
 using backend.Filters;
+using backend.Middleware;
 
 using FluentValidation;
 using FluentValidation.AspNetCore;
@@ -60,6 +61,8 @@ app.UseSwaggerMiddleware();
 app.UseApplicationMiddleware();
 
 app.UseCors("AllowAngularDevClient");
+
+// app.UseMiddleware<JwtRefreshMiddleware>();
 
 app.UseAuthentication();
 

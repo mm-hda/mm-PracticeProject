@@ -29,7 +29,9 @@ internal static class ServiceCollectionExtensions
         services.AddScoped<IEmployeeProjectRepository, EmployeeProjectRepository>();
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IDashboardRepository, DashboardRepository>();
-
+        services.AddScoped<ITokenService, TokenService>();
+        services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+        services.AddScoped<ICookieService, CookieService>();
 
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 

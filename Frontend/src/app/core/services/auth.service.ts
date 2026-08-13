@@ -16,7 +16,6 @@ export class AuthService {
   public readonly isAuthenticated = computed(() => !!this.currentUserSignal());
 
   constructor() {
-
     const user = this.storageService.getItem<TokenDto>('auth_user');
 
     if (user) { this.currentUserSignal.set(user); }

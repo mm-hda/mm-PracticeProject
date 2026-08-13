@@ -54,13 +54,35 @@ public class AuthController(IAuthService authService, ILogger<AuthController> lo
         logger.LogInformation("User registered successfully: {Email}", registerDto.Email);
         return Ok(ResponseResults<string>.Success(result.StatusCode));
     }
-
+    [AllowAnonymous]
     [HttpPost("logout")]
-    public IActionResult Logout([FromBody] LogoutDto logoutDto)
+    public async Task<IActionResult> LogoutAsync([FromBody] LogoutDto logoutDto, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(logoutDto);
         logger.LogInformation("User logged out successfully. email: {Email}", logoutDto.Email);
-        Response.Cookies.Delete("jwt");
+
+        await authService.LogoutAsync(cancellationToken).ConfigureAwait(false);
+
         return Ok();
+    }
+
+    [AllowAnonymous]
+    [HttpPost("refresh-token")]
+    public async Task<IActionResult> RefreshTokenAsync(CancellationToken cancellationToken)
+    {
+        logger.LogInformation("Refreshing access token.");
+
+        var result = await authService.RefreshTokenAsync(cancellationToken).ConfigureAwait(false);
+
+        if (!result.IsSuccess)
+        {
+            logger.LogWarning("Refresh token validation failed.");
+
+            return Unauthorized(ResponseResults<string>.Failure(result.StatusCode));
+        }
+
+        logger.LogInformation("Access token refreshed successfully.");
+
+        return Ok(ResponseResults<TokenDto>.Success(result.StatusCode, result.Data));
     }
 }
