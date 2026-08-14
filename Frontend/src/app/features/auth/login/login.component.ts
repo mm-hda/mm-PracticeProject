@@ -29,8 +29,8 @@ export class LoginComponent {
   protected readonly hidePassword = signal(true);
 
   protected readonly form = this.fb.nonNullable.group({
-    email: ['', [Validators.required, Validators.email]],
-    password: ['', [Validators.required]]
+    email: ['', [Validators.required, Validators.email, Validators.pattern(/.*@.*/)]],
+    password: ['', [Validators.required, Validators.minLength(6), Validators.maxLength(20), Validators.pattern(/^(?=.*[A-Za-z])(?=.*\d)(?=.*[^A-Za-z\d\s])\S{6,20}$/)]]
   });
 
   protected submit(): void {
@@ -47,15 +47,12 @@ export class LoginComponent {
       .pipe(finalize(() => this.isSubmitting.set(false)))
       .subscribe({
         next: (response) => {
-
           this.toastService.show(getStatusCodeMessage(response.statusCode));
 
           if (response.statusCode !== 713) { return; }
-
           if (!response.data) { return; }
 
           this.authService.setCurrentUser(response.data);
-
           this.router.navigateByUrl('/dashboard');
         },
         error: (error: HttpErrorResponse) => {

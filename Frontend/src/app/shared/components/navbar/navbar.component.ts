@@ -12,7 +12,6 @@ import { LanguageService } from '@app/core/services/language.service';
   templateUrl: './navbar.component.html'
 })
 export class NavbarComponent {
-
   private readonly authApi = inject(AuthApiService);
   private readonly storageService = inject(StorageService);
   private readonly authService = inject(AuthService);
@@ -42,7 +41,6 @@ export class NavbarComponent {
   }
 
   public changeLanguage(event: Event): void {
-
     const language = (event.target as HTMLSelectElement).value;
 
     this.selectedLanguage = language;
