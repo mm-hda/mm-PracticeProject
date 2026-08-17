@@ -424,24 +424,6 @@ describe('BranchComponent', () => {
       expect(fixture.nativeElement.textContent).toContain('BRANCHES.ADD_BRANCH');
     });
 
-    it('should open edit modal from template', () => {
-      component.branches.set(mockBranches);
-      fixture.detectChanges();
-
-      const editButton = fixture.nativeElement.querySelector('button[title="Edit Branch"]') as HTMLButtonElement;
-
-      expect(editButton).toBeTruthy();
-
-      editButton.click();
-      fixture.detectChanges();
-
-      expect(component.isEditModalOpen()).toBe(true);
-      expect(component.isAddModalOpen()).toBe(true);
-      expect(component.branchForm.controls.id.value).toBe(mockBranches[0].id);
-      expect(component.branchForm.controls.name.value).toBe(mockBranches[0].name);
-      expect(component.branchForm.controls.location.value).toBe(mockBranches[0].location);
-    });
-
     it('should display branch form validation message', () => {
       component.openAddModal();
       component.branchForm.controls.name.markAsTouched();

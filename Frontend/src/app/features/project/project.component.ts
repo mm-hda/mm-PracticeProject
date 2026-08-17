@@ -376,8 +376,6 @@ export class ProjectComponent implements OnInit {
       });
   }
 
-
-
   public closeModals(): void {
 
     this.activeModal.set(null);

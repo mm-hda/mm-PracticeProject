@@ -105,21 +105,13 @@ export class UsersComponent implements OnInit {
 
   public readonly userForm = new FormGroup({
     firstName: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
-
     lastName: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
-
     email: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.email] }),
-
     password: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.minLength(6)] }),
-
     dob: new FormControl<string | null>(null),
-
     branchId: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
-
     departmentId: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
-
     positionId: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
-
     roleId: new FormControl('', { nonNullable: true, validators: [Validators.required] })
   });
 

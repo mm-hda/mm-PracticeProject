@@ -36,7 +36,6 @@ internal static class DatabaseExtensions
         catch (Exception ex)
         {
             Log.Fatal(ex, "Cosmos DB initialization failed.");
-
             throw;
         }
     }

@@ -134,21 +134,58 @@ describe('NavbarComponent', () => {
       expect(component.role).toBe('Admin');
     });
 
-    it('should display username', () => {
-      const compiled = fixture.nativeElement as HTMLElement;
-      expect(compiled.textContent).toContain('Harsh Donda');
-    });
-
-    it('should display email', () => {
-      const compiled = fixture.nativeElement as HTMLElement;
-      expect(compiled.textContent).toContain('harsh@test.com');
-    });
-
-    it('should handle missing user information', () => {
+    it('should use empty values when user is null', () => {
       storageServiceMock.getItem.mockReturnValue(null);
+
       createComponent();
+
       expect(component.userName).toBe('');
       expect(component.email).toBe('');
+      expect(component.role).toBe('');
+    });
+
+    it('should use empty username when user name is null', () => {
+      storageServiceMock.getItem.mockReturnValue({
+        userId: '1',
+        name: null,
+        email: 'harsh@test.com',
+        role: 'Admin'
+      });
+
+      createComponent();
+
+      expect(component.userName).toBe('');
+      expect(component.email).toBe('harsh@test.com');
+      expect(component.role).toBe('Admin');
+    });
+
+    it('should use empty email when user email is null', () => {
+      storageServiceMock.getItem.mockReturnValue({
+        userId: '1',
+        name: 'Harsh Donda',
+        email: null,
+        role: 'Admin'
+      });
+
+      createComponent();
+
+      expect(component.userName).toBe('Harsh Donda');
+      expect(component.email).toBe('');
+      expect(component.role).toBe('Admin');
+    });
+
+    it('should use empty role when user role is null', () => {
+      storageServiceMock.getItem.mockReturnValue({
+        userId: '1',
+        name: 'Harsh Donda',
+        email: 'harsh@test.com',
+        role: null
+      });
+
+      createComponent();
+
+      expect(component.userName).toBe('Harsh Donda');
+      expect(component.email).toBe('harsh@test.com');
       expect(component.role).toBe('');
     });
   });

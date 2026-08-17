@@ -171,7 +171,7 @@ export class PositionComponent implements OnInit {
     this.positionForm.reset({
       id: position.id,
       name: position.name ?? '',
-      departmentId: this.getPositionDepartmentId(position)
+      departmentId: position.departmentId ?? ''
     });
 
     this.selectedPosition.set(position);
@@ -314,14 +314,5 @@ export class PositionComponent implements OnInit {
     const control = this.positionForm.controls[controlName];
 
     return (control.invalid && (control.dirty || control.touched));
-  }
-
-  private getPositionDepartmentId(position: PositionResponse): string {
-    const positionValue = position as unknown as {
-      departmentId?: string;
-      departmentID?: string;
-    };
-
-    return positionValue.departmentId ?? positionValue.departmentID ?? '';
   }
 }
