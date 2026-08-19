@@ -14,17 +14,7 @@ export class SyncService {
 
   private readonly queue = inject(OfflineQueueService);
   private readonly userApi = inject(UserApiService);
-
   private readonly toastService = inject(ToastService);
-
-  constructor() {
-    window.addEventListener('online', () => {
-
-      console.log('Internet restored');
-      this.syncPendingRequests();
-    }
-    );
-  }
 
   public async syncPendingRequests(): Promise<void> {
     const requests = await this.queue.getPendingUserRequests();

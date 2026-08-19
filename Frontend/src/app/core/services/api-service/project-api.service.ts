@@ -19,10 +19,6 @@ export class ProjectApiService {
     return this.httpClient.get<ServiceResponse<projectResponse[]>>(`${apiEndpoints.project}/GetAllProjects`);
   }
 
-  public getProjectById(projectId: string): Observable<ServiceResponse<projectResponse>> {
-    return this.httpClient.get<ServiceResponse<projectResponse>>(`${apiEndpoints.project}/GetProjectById/${projectId}`);
-  }
-
   public updateProject(request: projectUpdateRequest): Observable<ServiceResponse<string>> {
     return this.httpClient.put<ServiceResponse<string>>(`${apiEndpoints.project}/UpdateProject`, request);
   }

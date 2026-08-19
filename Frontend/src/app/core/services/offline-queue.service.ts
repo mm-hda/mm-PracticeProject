@@ -7,7 +7,6 @@ import { db, PendingRequest } from '../offline/app-db';
 export class OfflineQueueService {
 
   public async addRequest(operation: string, payload: unknown): Promise<void> {
-
     await db.pendingRequests.add({
       operation,
       payload,

@@ -6,33 +6,33 @@ import {
 import { provideHttpClient } from '@angular/common/http';
 import { describe, beforeEach, afterEach, expect, it } from 'vitest';
 
-import { BranchApiService } from './branch-api.service';
+import { DepartmentApiService } from './department-api.service';
 
 import { apiEndpoints } from '@app/core/config/api-endpoints';
 import { ServiceResponse } from '@app/core/models/service-response.model';
 import {
-  BranchResponse,
-  BranchUserResponse,
-  CreateBranchRequest,
-  UpdateBranchRequest
-} from '@app/core/models/branchModels/branch.model';
+  DepartmentResponse,
+  DepartmentUserResponse,
+  CreateDepartmentRequest,
+  UpdateDepartmentRequest
+} from '@app/core/models/departmentModels/department.model';
 
-describe('BranchApiService', () => {
-  let service: BranchApiService;
+describe('DepartmentApiService', () => {
+  let service: DepartmentApiService;
   let httpTestingController: HttpTestingController;
 
-  const branchUrl = apiEndpoints.branch;
+  const departmentUrl = apiEndpoints.department;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
       providers: [
-        BranchApiService,
+        DepartmentApiService,
         provideHttpClient(),
         provideHttpClientTesting()
       ]
     });
 
-    service = TestBed.inject(BranchApiService);
+    service = TestBed.inject(DepartmentApiService);
     httpTestingController = TestBed.inject(HttpTestingController);
   });
 
@@ -46,35 +46,35 @@ describe('BranchApiService', () => {
     });
   });
 
-  describe('getAllBranches', () => {
-    it('should send GET request to get all branches', () => {
-      const mockBranches: BranchResponse[] = [
+  describe('getAllDepartments', () => {
+    it('should send GET request to get all departments', () => {
+      const mockDepartments: DepartmentResponse[] = [
         {
           id: '1',
-          name: 'Main Branch',
-          location: 'Vadodara',
-          totalUsers: 25
+          name: 'IT',
+          totalPositions: 5,
+          totalUsers: 20
         },
         {
           id: '2',
-          name: 'Second Branch',
-          location: 'Ahmedabad',
-          totalUsers: 15
+          name: 'HR',
+          totalPositions: 3,
+          totalUsers: 10
         }
       ];
 
-      const mockResponse: ServiceResponse<BranchResponse[]> = {
+      const mockResponse: ServiceResponse<DepartmentResponse[]> = {
         isSuccess: true,
-        data: mockBranches,
+        data: mockDepartments,
         statusCode: 200
       };
 
-      service.getAllBranches().subscribe(response => {
+      service.getAllDepartments().subscribe(response => {
         expect(response).toEqual(mockResponse);
       });
 
       const request = httpTestingController.expectOne(
-        `${branchUrl}/GetAllBranches`
+        `${departmentUrl}/GetAllDepartments`
       );
 
       expect(request.request.method).toBe('GET');
@@ -83,29 +83,29 @@ describe('BranchApiService', () => {
     });
   });
 
-  describe('getBranchById', () => {
-    it('should send GET request with branch id', () => {
-      const branchId = 'branch-123';
+  describe('getDepartmentById', () => {
+    it('should send GET request with department id', () => {
+      const departmentId = 'department-123';
 
-      const mockBranch: BranchResponse = {
-        id: branchId,
-        name: 'Main Branch',
-        location: 'Vadodara',
-        totalUsers: 25
+      const mockDepartment: DepartmentResponse = {
+        id: departmentId,
+        name: 'IT',
+        totalPositions: 5,
+        totalUsers: 20
       };
 
-      const mockResponse: ServiceResponse<BranchResponse> = {
+      const mockResponse: ServiceResponse<DepartmentResponse> = {
         isSuccess: true,
-        data: mockBranch,
+        data: mockDepartment,
         statusCode: 200
       };
 
-      service.getBranchById(branchId).subscribe(response => {
+      service.getDepartmentById(departmentId).subscribe(response => {
         expect(response).toEqual(mockResponse);
       });
 
       const request = httpTestingController.expectOne(
-        `${branchUrl}/GetBranchById/${branchId}`
+        `${departmentUrl}/GetDepartmentById/${departmentId}`
       );
 
       expect(request.request.method).toBe('GET');
@@ -114,11 +114,11 @@ describe('BranchApiService', () => {
     });
   });
 
-  describe('getBranchEmployees', () => {
-    it('should send GET request with branch id', () => {
-      const branchId = 'branch-123';
+  describe('getDepartmentEmployees', () => {
+    it('should send GET request with department id', () => {
+      const departmentId = 'department-123';
 
-      const mockEmployees: BranchUserResponse[] = [
+      const mockEmployees: DepartmentUserResponse[] = [
         {
           userId: 'user-1',
           name: 'Harsh Donda',
@@ -135,24 +135,24 @@ describe('BranchApiService', () => {
           email: 'john@test.com',
           dob: null,
           branchName: 'Main Branch',
-          departmentName: 'HR',
+          departmentName: 'IT',
           positionName: 'Manager',
           roleName: 'Manager'
         }
       ];
 
-      const mockResponse: ServiceResponse<BranchUserResponse[]> = {
+      const mockResponse: ServiceResponse<DepartmentUserResponse[]> = {
         isSuccess: true,
         data: mockEmployees,
         statusCode: 200
       };
 
-      service.getBranchEmployees(branchId).subscribe(response => {
+      service.getDepartmentEmployees(departmentId).subscribe(response => {
         expect(response).toEqual(mockResponse);
       });
 
       const request = httpTestingController.expectOne(
-        `${branchUrl}/GetBranchUsers/${branchId}`
+        `${departmentUrl}/GetDepartmentEmployees/${departmentId}`
       );
 
       expect(request.request.method).toBe('GET');
@@ -161,60 +161,58 @@ describe('BranchApiService', () => {
     });
   });
 
-  describe('createBranch', () => {
-    it('should send POST request with branch data', () => {
-      const branchRequest: CreateBranchRequest = {
-        name: 'New Branch',
-        location: 'Surat'
+  describe('createDepartment', () => {
+    it('should send POST request with department data', () => {
+      const departmentRequest: CreateDepartmentRequest = {
+        name: 'Information Technology'
       };
 
       const mockResponse: ServiceResponse<string> = {
         isSuccess: true,
-        data: 'Branch created successfully',
+        data: 'Department created successfully',
         statusCode: 200
       };
 
-      service.createBranch(branchRequest).subscribe(response => {
+      service.createDepartment(departmentRequest).subscribe(response => {
         expect(response).toEqual(mockResponse);
       });
 
       const request = httpTestingController.expectOne(
-        `${branchUrl}/CreateBranch`
+        `${departmentUrl}/CreateDepartment`
       );
 
       expect(request.request.method).toBe('POST');
 
-      expect(request.request.body).toEqual(branchRequest);
+      expect(request.request.body).toEqual(departmentRequest);
 
       request.flush(mockResponse);
     });
   });
 
-  describe('updateBranch', () => {
-    it('should send PUT request with branch data', () => {
-      const branchRequest: UpdateBranchRequest = {
-        id: 'branch-123',
-        name: 'Updated Branch',
-        location: 'Ahmedabad'
+  describe('updateDepartment', () => {
+    it('should send PUT request with department data', () => {
+      const departmentRequest: UpdateDepartmentRequest = {
+        id: 'department-123',
+        name: 'Updated IT Department'
       };
 
       const mockResponse: ServiceResponse<string> = {
         isSuccess: true,
-        data: 'Branch updated successfully',
+        data: 'Department updated successfully',
         statusCode: 200
       };
 
-      service.updateBranch(branchRequest).subscribe(response => {
+      service.updateDepartment(departmentRequest).subscribe(response => {
         expect(response).toEqual(mockResponse);
       });
 
       const request = httpTestingController.expectOne(
-        `${branchUrl}/UpdateBranch`
+        `${departmentUrl}/UpdateDepartment`
       );
 
       expect(request.request.method).toBe('PUT');
 
-      expect(request.request.body).toEqual(branchRequest);
+      expect(request.request.body).toEqual(departmentRequest);
 
       request.flush(mockResponse);
     });

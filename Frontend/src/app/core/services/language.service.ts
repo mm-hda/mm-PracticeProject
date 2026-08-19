@@ -37,6 +37,7 @@ export class LanguageService {
   }
 
   public getCurrentLanguage(): string {
-    return (localStorage.getItem(this.STORAGE_KEY) ?? 'en-US');
+    return localStorage.getItem(this.STORAGE_KEY) || (navigator.language.startsWith('gu') ? 'gu-IN' :
+      navigator.language.startsWith('hi') ? 'hi-IN' : 'en-US');
   }
 }
