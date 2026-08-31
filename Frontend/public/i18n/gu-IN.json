@@ -147,7 +147,24 @@
     "SELECT_POSITION": "હોદ્દો પસંદ કરો",
     "CREATE": "વપરાશકર્તા બનાવો",
     "USER_DETAILS": "વપરાશકર્તાની વિગતો",
-    "NOT_FOUND": "વપરાશકર્તાની વિગતો મળી નથી."
+    "NOT_FOUND": "વપરાશકર્તાની વિગતો મળી નથી.",
+    "FIRST_NAME_REQUIRED": "પ્રથમ નામ આવશ્યક છે.",
+    "FIRST_NAME_MIN_LENGTH": "પ્રથમ નામ ઓછામાં ઓછા 2 અક્ષરનું હોવું જોઈએ.",
+    "FIRST_NAME_MAX_LENGTH": "પ્રથમ નામ 50 અક્ષરોથી વધુ ન હોવું જોઈએ.",
+    "LAST_NAME_REQUIRED": "છેલ્લું નામ આવશ્યક છે.",
+    "LAST_NAME_MIN_LENGTH": "છેલ્લું નામ ઓછામાં ઓછા 2 અક્ષરનું હોવું જોઈએ.",
+    "LAST_NAME_MAX_LENGTH": "છેલ્લું નામ 50 અક્ષરોથી વધુ ન હોવું જોઈએ.",
+    "EMAIL_REQUIRED": "ઇમેઇલ આવશ્યક છે.",
+    "EMAIL_VALIDATION": "માન્ય ઇમેઇલ દાખલ કરો.",
+    "PASSWORD_REQUIRED": "પાસવર્ડ આવશ્યક છે.",
+    "PASSWORD_MIN_LENGTH": "પાસવર્ડ ઓછામાં ઓછા 6 અક્ષરનો હોવો જોઈએ.",
+    "PASSWORD_MAX_LENGTH": "પાસવર્ડ 100 અક્ષરોથી વધુ ન હોવો જોઈએ.",
+    "DOB_REQUIRED": "જન્મ તારીખ આવશ્યક છે.",
+    "DOB_VALIDATION": "માન્ય જન્મ તારીખ દાખલ કરો.",
+    "BRANCH_REQUIRED": "બ્રાન્ચ આવશ્યક છે.",
+    "DEPARTMENT_REQUIRED": "વિભાગ આવશ્યક છે.",
+    "POSITION_REQUIRED": "હોદ્દો આવશ્યક છે.",
+    "ROLE_REQUIRED": "ભૂમિકા આવશ્યક છે."
   },
   "PROJECT": {
     "TITLE": "પ્રોજેક્ટ્સ",
@@ -173,6 +190,13 @@
     "SEARCH": "શોધો",
     "SELECT_EMPLOYEE": "કર્મચારી પસંદ કરો",
     "CANCEL": "રદ કરો",
-    "ENTER_EMPLOYEE_NAME": "કર્મચારીનું નામ દાખલ કરો"
+    "ENTER_EMPLOYEE_NAME": "કર્મચારીનું નામ દાખલ કરો",
+    "VALIDATION": {
+      "NAME_REQUIRED": "પ્રોજેક્ટનું નામ આવશ્યક છે.",
+      "NAME_MIN_LENGTH": "પ્રોજેક્ટનું નામ ઓછામાં ઓછા 2 અક્ષરનું હોવું જોઈએ.",
+      "NAME_MAX_LENGTH": "પ્રોજેક્ટનું નામ 100 અક્ષરોથી વધુ ન હોવું જોઈએ.",
+      "START_DATE_REQUIRED": "પ્રારંભ તારીખ આવશ્યક છે.",
+      "MANAGER_REQUIRED": "પ્રોજેક્ટ મેનેજર પસંદ કરવો આવશ્યક છે."
+    }
   }
 }

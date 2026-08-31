@@ -28,7 +28,7 @@ internal sealed class PositionRepository(
             return false;
         }
 
-        var positions = await CountAsync(x => string.Equals(x.Name, name, StringComparison.OrdinalIgnoreCase), cancellationToken).ConfigureAwait(false);
+        var positions = await CountAsync(x => x.Name == name, cancellationToken).ConfigureAwait(false);
 
         return positions > 0;
     }
@@ -52,7 +52,7 @@ internal sealed class PositionRepository(
 
         return positions > 0 && await CountAsync(x =>
             x.Id != positionId &&
-            string.Equals(x.Name, name, StringComparison.OrdinalIgnoreCase), cancellationToken).ConfigureAwait(false) > 0;
+            x.Name == name, cancellationToken).ConfigureAwait(false) > 0;
     }
 
     public async Task<IReadOnlyCollection<PositionResponseDto>> GetAllPositionsAsync(CancellationToken cancellationToken)

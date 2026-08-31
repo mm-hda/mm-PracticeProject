@@ -23,7 +23,6 @@
           {{ 'PROJECT.LOADING' | translate }}
         </div>
       </div>
-
       } @else {
       <div class="table-responsive">
         <table class="table table-hover align-middle mb-0">
@@ -125,53 +124,48 @@
           } @else {
           <div class="row g-3">
             <div class="col-md-12">
-              <label class="form-label">
-                {{ 'PROJECT.NAME' | translate }}
-              </label>
-
+              <label class="form-label">{{ 'PROJECT.NAME' | translate }}</label>
               <input class="form-control" type="text" formControlName="name">
+              @if(controlInvalid('name')) {
+              @if(projectForm.controls.name.hasError('required')) {
+              <div class="text-danger">{{ 'PROJECT.VALIDATION.NAME_REQUIRED' | translate }}</div>
+              } @else if(projectForm.controls.name.hasError('minlength')) {
+              <div class="text-danger">{{ 'PROJECT.VALIDATION.NAME_MIN_LENGTH' | translate }}</div>
+              } @else if(projectForm.controls.name.hasError('maxlength')) {
+              <div class="text-danger">{{ 'PROJECT.VALIDATION.NAME_MAX_LENGTH' | translate }}</div>
+              }
+              }
             </div>
 
             <div class="col-md-12">
-              <label class="form-label">
-                {{ 'PROJECT.DESCRIPTION' | translate }}
-              </label>
-
-              <textarea class="form-control" rows="3" formControlName="description">
-              </textarea>
+              <label class="form-label">{{ 'PROJECT.DESCRIPTION' | translate }}</label>
+              <textarea class="form-control" rows="3" formControlName="description"></textarea>
             </div>
 
             <div class="col-md-6">
-              <label class="form-label">
-                {{ 'PROJECT.START_DATE' | translate }}
-              </label>
+              <label class="form-label">{{ 'PROJECT.START_DATE' | translate }}</label>
               <input class="form-control" type="date" formControlName="startDate">
+              @if(controlInvalid('startDate')) {
+              <div class="text-danger">{{ 'PROJECT.VALIDATION.START_DATE_REQUIRED' | translate }}</div>
+              }
             </div>
 
             <div class="col-md-6">
-              <label class="form-label">
-                {{ 'PROJECT.END_DATE' | translate }}
-              </label>
-
+              <label class="form-label">{{ 'PROJECT.END_DATE' | translate }}</label>
               <input class="form-control" type="date" formControlName="endDate">
             </div>
 
             <div class="col-md-12">
-              <label class="form-label">
-                {{ 'PROJECT.MANAGER' | translate }}
-              </label>
-
+              <label class="form-label">{{ 'PROJECT.MANAGER' | translate }}</label>
               <select class="form-select" formControlName="projectManagerId">
-                <option value="">
-                  {{ 'PROJECT.SELECT_MANAGER' | translate }}
-                </option>
-
+                <option value="">{{ 'PROJECT.SELECT_MANAGER' | translate }}</option>
                 @for(manager of managers(); track manager.userId) {
-                <option [value]="manager.userId">
-                  {{ manager.name }}
-                </option>
+                <option [value]="manager.userId">{{ manager.name }}</option>
                 }
               </select>
+              @if(controlInvalid('projectManagerId')) {
+              <div class="text-danger">{{ 'PROJECT.VALIDATION.MANAGER_REQUIRED' | translate }}</div>
+              }
             </div>
           </div>
           }

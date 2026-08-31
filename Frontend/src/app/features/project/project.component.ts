@@ -128,7 +128,7 @@ export class ProjectComponent implements OnInit {
         next: response => { this.managers.set(response.data ?? []); },
         error: error => {
           this.managers.set([]);
-          this.toastService.show(getStatusCodeMessage(error.statusCode));
+          this.toastService.show(getStatusCodeMessage(error.error.statusCode));
         }
       });
     }
@@ -145,7 +145,7 @@ export class ProjectComponent implements OnInit {
           },
           error: error => {
             this.projects.set([]);
-            this.toastService.show(getStatusCodeMessage(error.statusCode));
+            this.toastService.show(getStatusCodeMessage(error.error.statusCode));
           }
         });
     } else if (this.currentUser()?.role === 'Employee') {
@@ -160,7 +160,7 @@ export class ProjectComponent implements OnInit {
           },
           error: error => {
             this.projects.set([]);
-            this.toastService.show(getStatusCodeMessage(error.statusCode));
+            this.toastService.show(getStatusCodeMessage(error.error.statusCode));
           }
         });
     }
@@ -176,7 +176,7 @@ export class ProjectComponent implements OnInit {
           error: error => {
             this.projects.set([]);
 
-            this.toastService.show(getStatusCodeMessage(error.statusCode)
+            this.toastService.show(getStatusCodeMessage(error.error.statusCode)
             );
           }
         });
@@ -193,7 +193,7 @@ export class ProjectComponent implements OnInit {
       next: response => { this.Employees.set(response.data ?? []); },
       error: error => {
         this.Employees.set([]);
-        this.toastService.show(getStatusCodeMessage(error.statusCode));
+        this.toastService.show(getStatusCodeMessage(error.error.statusCode));
       }
     });
   }
@@ -223,7 +223,7 @@ export class ProjectComponent implements OnInit {
           this.closeModals();
         },
         error: error => {
-          this.toastService.show(getStatusCodeMessage(error.statusCode));
+          this.toastService.show(getStatusCodeMessage(error.error.statusCode));
         }
       });
   }
@@ -298,7 +298,7 @@ export class ProjectComponent implements OnInit {
         error: error => {
           this.projectEmployees.set([]);
 
-          this.toastService.show(getStatusCodeMessage(error.statusCode));
+          this.toastService.show(getStatusCodeMessage(error.error.statusCode));
         }
       });
   }
@@ -331,7 +331,7 @@ export class ProjectComponent implements OnInit {
           this.loadProjects();
         },
         error: error => {
-          this.toastService.show(getStatusCodeMessage(error.statusCode));
+          this.toastService.show(getStatusCodeMessage(error.error.statusCode));
         }
       });
   }
@@ -372,7 +372,7 @@ export class ProjectComponent implements OnInit {
           this.loadProjects();
         },
 
-        error: error => { this.toastService.show(getStatusCodeMessage(error.statusCode)); }
+        error: error => { this.toastService.show(getStatusCodeMessage(error.error.statusCode)); }
       });
   }
 

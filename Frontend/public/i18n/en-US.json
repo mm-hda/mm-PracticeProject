@@ -61,7 +61,7 @@
     "TITLE": "Dashboard",
     "DESCRIPTION": "Keep track of your employees and projects."
   },
-  "DEPARTMENTS": {
+  "DEPARTMENT": {
     "TITLE": "Departments",
     "DESCRIPTION": "Manage company departments and view employees by department.",
     "ADD_DEPARTMENT": "Add Department",
@@ -71,6 +71,7 @@
     "UPDATE_DEPARTMENT": "Update Department",
     "DEPARTMENT_NAME": "Department Name",
     "TOTAL_POSITIONS": "Total Positions",
+    "TOTAL_USERS": "Total Users",
     "ACTIONS": "Actions",
     "DETAIL": "Department Detail",
     "DEPARTMENT_EMPLOYEES": "Department Employees",
@@ -146,7 +147,25 @@
     "SELECT_POSITION": "Select Position",
     "CREATE": "Create User",
     "USER_DETAILS": "User Detail",
-    "NOT_FOUND": "User details not found."
+    "NOT_FOUND": "User details not found.",
+    "FIRST_NAME_REQUIRED": "First name is required.",
+    "FIRST_NAME_MIN_LENGTH": "First name must be at least 2 characters.",
+    "FIRST_NAME_MAX_LENGTH": "First name must not exceed 50 characters.",
+    "LAST_NAME_REQUIRED": "Last name is required.",
+    "LAST_NAME_MIN_LENGTH": "Last name must be at least 2 characters.",
+    "LAST_NAME_MAX_LENGTH": "Last name must not exceed 50 characters.",
+    "EMAIL_REQUIRED": "Email is required.",
+    "EMAIL_VALIDATION": "Enter a valid email.",
+    "PASSWORD_REQUIRED": "Password is required.",
+    "PASSWORD_MIN_LENGTH": "Password must be at least 6 characters.",
+    "PASSWORD_MAX_LENGTH": "Password must not exceed 100 characters.",
+    "DOB_REQUIRED": "Date of birth is required.",
+    "DOB_VALIDATION": "Enter a valid date of birth.",
+    "BRANCH_REQUIRED": "Branch is required.",
+    "DEPARTMENT_REQUIRED": "Department is required.",
+    "POSITION_REQUIRED": "Position is required.",
+    "ROLE_REQUIRED": "Role is required.",
+    "EMAIL_INVALID": "Email is invalid."
   },
   "PROJECT": {
     "TITLE": "Projects",
@@ -172,6 +191,13 @@
     "SEARCH": "Search",
     "SELECT_EMPLOYEE": "Select Employee",
     "CANCEL": "Cancel",
-    "ENTER_EMPLOYEE_NAME": "Enter employee name..."
+    "ENTER_EMPLOYEE_NAME": "Enter employee name...",
+    "VALIDATION": {
+      "NAME_REQUIRED": "Project name is required.",
+      "NAME_MIN_LENGTH": "Project name must be at least 2 characters.",
+      "NAME_MAX_LENGTH": "Project name must not exceed 100 characters.",
+      "START_DATE_REQUIRED": "Start date is required.",
+      "MANAGER_REQUIRED": "Project manager is required."
+    }
   }
 }

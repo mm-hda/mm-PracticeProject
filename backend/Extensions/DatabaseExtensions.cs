@@ -1,7 +1,5 @@
 ﻿using backend.Data;
 
-using Microsoft.Azure.Cosmos;
-
 using Microsoft.EntityFrameworkCore;
 
 using Serilog;
@@ -12,30 +10,30 @@ internal static class DatabaseExtensions
 {
     public static IServiceCollection AddDatabase(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddDbContext<AppDbContext>(options => options.UseCosmos(
-                configuration["CosmosDb:Endpoint"]!,
-                configuration["CosmosDb:Key"]!,
-                configuration["CosmosDb:DatabaseName"]!,
-                cosmosOptions => cosmosOptions.ConnectionMode(ConnectionMode.Gateway)
-        ));
+        var connectionString = configuration.GetConnectionString("DefaultConnection");
+
+        services.AddDbContext<AppDbContext>(options => options.UseSqlite(connectionString));
 
         return services;
     }
-    public static async Task CheckDatabaseConnectionAsync(this WebApplication app)
+
+    public static async Task CheckDatabaseConnectionAsync(
+        this WebApplication app)
     {
         try
         {
             ArgumentNullException.ThrowIfNull(app);
 
             using var scope = app.Services.CreateScope();
-
             var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-            await dbContext.Database.EnsureCreatedAsync().ConfigureAwait(false);
-            Log.Information("Cosmos DB connection established successfully.");
+
+            await dbContext.Database.CanConnectAsync().ConfigureAwait(false);
+
+            Log.Information("SQLite database connection established successfully.");
         }
         catch (Exception ex)
         {
-            Log.Fatal(ex, "Cosmos DB initialization failed.");
+            Log.Fatal(ex, "SQLite database connection failed.");
             throw;
         }
     }

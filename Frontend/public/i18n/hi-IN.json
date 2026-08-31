@@ -61,7 +61,7 @@
     "TITLE": "डैशबोर्ड",
     "DESCRIPTION": "अपने कर्मचारियों और प्रोजेक्ट्स पर नज़र रखें।"
   },
-  "DEPARTMENTS": {
+  "DEPARTMENT": {
     "TITLE": "विभाग",
     "DESCRIPTION": "कंपनी के विभागों का प्रबंधन करें और विभाग के अनुसार कर्मचारियों को देखें।",
     "ADD_DEPARTMENT": "विभाग जोड़ें",
@@ -71,6 +71,7 @@
     "UPDATE_DEPARTMENT": "विभाग अपडेट करें",
     "DEPARTMENT_NAME": "विभाग का नाम",
     "TOTAL_POSITIONS": "कुल पद",
+    "TOTAL_USERS": "कुल उपयोगकर्ता",
     "ACTIONS": "क्रियाएँ",
     "DETAIL": "विभाग विवरण",
     "DEPARTMENT_EMPLOYEES": "विभाग के कर्मचारी",
@@ -146,7 +147,24 @@
     "SELECT_POSITION": "पद चुनें",
     "CREATE": "उपयोगकर्ता बनाएँ",
     "USER_DETAILS": "उपयोगकर्ता विवरण",
-    "NOT_FOUND": "उपयोगकर्ता का विवरण नहीं मिला।"
+    "NOT_FOUND": "उपयोगकर्ता का विवरण नहीं मिला।",
+    "FIRST_NAME_REQUIRED": "पहला नाम आवश्यक है।",
+    "FIRST_NAME_MIN_LENGTH": "पहला नाम कम से कम 2 अक्षरों का होना चाहिए।",
+    "FIRST_NAME_MAX_LENGTH": "पहला नाम 50 अक्षरों से अधिक नहीं होना चाहिए।",
+    "LAST_NAME_REQUIRED": "अंतिम नाम आवश्यक है।",
+    "LAST_NAME_MIN_LENGTH": "अंतिम नाम कम से कम 2 अक्षरों का होना चाहिए।",
+    "LAST_NAME_MAX_LENGTH": "अंतिम नाम 50 अक्षरों से अधिक नहीं होना चाहिए।",
+    "EMAIL_REQUIRED": "ईमेल आवश्यक है।",
+    "EMAIL_VALIDATION": "एक मान्य ईमेल दर्ज करें।",
+    "PASSWORD_REQUIRED": "पासवर्ड आवश्यक है।",
+    "PASSWORD_MIN_LENGTH": "पासवर्ड कम से कम 6 अक्षरों का होना चाहिए।",
+    "PASSWORD_MAX_LENGTH": "पासवर्ड 100 अक्षरों से अधिक नहीं होना चाहिए।",
+    "DOB_REQUIRED": "जन्म तिथि आवश्यक है।",
+    "DOB_VALIDATION": "एक मान्य जन्म तिथि दर्ज करें।",
+    "BRANCH_REQUIRED": "ब्रांच आवश्यक है।",
+    "DEPARTMENT_REQUIRED": "विभाग आवश्यक है।",
+    "POSITION_REQUIRED": "पद आवश्यक है।",
+    "ROLE_REQUIRED": "भूमिका आवश्यक है।"
   },
   "PROJECT": {
     "TITLE": "प्रोजेक्ट",
@@ -172,6 +190,13 @@
     "SEARCH": "खोजें",
     "SELECT_EMPLOYEE": "कर्मचारी चुनें",
     "CANCEL": "रद्द करें",
-    "ENTER_EMPLOYEE_NAME": "कर्मचारी का नाम दर्ज करें..."
+    "ENTER_EMPLOYEE_NAME": "कर्मचारी का नाम दर्ज करें...",
+    "VALIDATION": {
+      "NAME_REQUIRED": "प्रोजेक्ट का नाम आवश्यक है।",
+      "NAME_MIN_LENGTH": "प्रोजेक्ट का नाम कम से कम 2 अक्षरों का होना चाहिए।",
+      "NAME_MAX_LENGTH": "प्रोजेक्ट का नाम 100 अक्षरों से अधिक नहीं होना चाहिए।",
+      "START_DATE_REQUIRED": "प्रारंभ तिथि आवश्यक है।",
+      "MANAGER_REQUIRED": "प्रोजेक्ट मैनेजर का चयन आवश्यक है।"
+    }
   }
 }

@@ -3,7 +3,8 @@ using backend.Dto.UserDtos;
 using backend.Entities;
 using backend.GenericRepositories;
 using backend.IRepository;
-using backend.Dto;
+
+using Microsoft.EntityFrameworkCore;
 
 namespace backend.Repositories;
 
@@ -43,13 +44,25 @@ internal sealed class UserRepository(
 
     public async Task<IReadOnlyCollection<UserResponseDto>> GetUserBySearchAsync(string searchTerm, CancellationToken cancellationToken)
     {
-        var users = await GetAsync(
-            x => x.Name.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
-                 x.Email.Contains(searchTerm, StringComparison.OrdinalIgnoreCase),
-            x => x.Name,
-            cancellationToken: cancellationToken).ConfigureAwait(false);
+        if (string.IsNullOrWhiteSpace(searchTerm))
+        {
+            return Array.Empty<UserResponseDto>();
+        }
 
-        return await MapUsersAsync(users, cancellationToken).ConfigureAwait(false);
+        var search = searchTerm.Trim();
+
+        var users = await GetAsync(
+            x =>
+                x.Name.Contains(search) ||
+                x.Email.Contains(search),
+            x => x.Name,
+            cancellationToken: cancellationToken
+        ).ConfigureAwait(false);
+
+        return await MapUsersAsync(
+            users,
+            cancellationToken
+        ).ConfigureAwait(false);
     }
 
     public async Task<UserResponseDto?> GetUserByIdAsync(Guid id, CancellationToken cancellationToken)

@@ -121,7 +121,7 @@ export class PositionComponent implements OnInit {
 
           this.positions.set([]);
 
-          this.toastService.show(getStatusCodeMessage(error.statusCode));
+          this.toastService.show(getStatusCodeMessage(error.error.statusCode));
         }
       });
   }
@@ -147,7 +147,7 @@ export class PositionComponent implements OnInit {
           this.departments.set([]);
           this.storageService.removeItem('departments');
 
-          this.toastService.show(getStatusCodeMessage(error.statusCode));
+          this.toastService.show(getStatusCodeMessage(error.error.statusCode));
         }
       });
   }
@@ -205,7 +205,7 @@ export class PositionComponent implements OnInit {
         error: (error) => {
           this.positionEmployees.set([]);
 
-          this.toastService.show(getStatusCodeMessage(error.statusCode));
+          this.toastService.show(getStatusCodeMessage(error.error.statusCode));
         }
       });
   }
@@ -237,7 +237,7 @@ export class PositionComponent implements OnInit {
           this.loadPositions();
         },
 
-        error: (error) => { this.toastService.show(getStatusCodeMessage(error.statusCode)); }
+        error: (error) => { this.toastService.show(getStatusCodeMessage(error.error.statusCode)); }
       });
   }
 
@@ -290,7 +290,7 @@ export class PositionComponent implements OnInit {
           this.loadPositions();
         },
 
-        error: (error) => { this.toastService.show(getStatusCodeMessage(error.statusCode)); }
+        error: (error) => { this.toastService.show(getStatusCodeMessage(error.error.statusCode)); }
       });
   }
 

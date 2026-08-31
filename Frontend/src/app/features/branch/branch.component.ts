@@ -36,7 +36,6 @@ export class BranchComponent implements OnInit {
   public readonly isPageLoading = signal(false);
   public readonly isModalLoading = signal(false);
   public readonly isSubmitting = signal(false);
-
   private readonly activeModal = signal<BranchModalType>(null);
 
   public readonly userColumns: TableColumn[] = [
@@ -96,7 +95,7 @@ export class BranchComponent implements OnInit {
         error: (error) => {
           this.branches.set([]);
 
-          this.toastService.show(getStatusCodeMessage(error.statusCode));
+          this.toastService.show(getStatusCodeMessage(error.error.statusCode));
         }
       });
   }
@@ -146,7 +145,7 @@ export class BranchComponent implements OnInit {
         error: (error) => {
           this.branchEmployees.set([]);
 
-          this.toastService.show(getStatusCodeMessage(error.statusCode));
+          this.toastService.show(getStatusCodeMessage(error.error.statusCode));
         }
       });
   }
@@ -182,7 +181,7 @@ export class BranchComponent implements OnInit {
         },
 
         error: (error) => {
-          this.toastService.show(getStatusCodeMessage(error.statusCode));
+          this.toastService.show(getStatusCodeMessage(error.error.statusCode));
         }
       });
   }
@@ -243,7 +242,7 @@ export class BranchComponent implements OnInit {
         },
 
         error: (error) => {
-          this.toastService.show(getStatusCodeMessage(error.statusCode));
+          this.toastService.show(getStatusCodeMessage(error.error.statusCode));
         }
       });
   }

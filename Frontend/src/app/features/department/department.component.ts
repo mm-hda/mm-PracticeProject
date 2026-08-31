@@ -125,8 +125,7 @@ export class DepartmentComponent implements OnInit {
         error: (error) => {
           this.departments.set([]);
 
-          this.toastService.show(getStatusCodeMessage(error.statusCode));
-          this.toastService.show(getStatusCodeMessage(error.statusCode));
+          this.toastService.show(getStatusCodeMessage(error.error.statusCode));
         }
       });
   }
@@ -171,7 +170,7 @@ export class DepartmentComponent implements OnInit {
         next: (response) => { this.departmentPositions.set(response.data ?? []); },
         error: (error) => {
           this.departmentPositions.set([]);
-          this.toastService.show(getStatusCodeMessage(error.statusCode));
+          this.toastService.show(getStatusCodeMessage(error.error.statusCode));
         }
       });
   }
@@ -192,7 +191,7 @@ export class DepartmentComponent implements OnInit {
         error: (error) => {
           this.departmentEmployees.set([]);
 
-          this.toastService.show(getStatusCodeMessage(error.statusCode));
+          this.toastService.show(getStatusCodeMessage(error.error.statusCode));
         }
       });
   }
@@ -224,7 +223,7 @@ export class DepartmentComponent implements OnInit {
           this.loadDepartments();
         },
 
-        error: (error) => { this.toastService.show(getStatusCodeMessage(error.statusCode)); }
+        error: (error) => { this.toastService.show(getStatusCodeMessage(error.error.statusCode)); }
       });
   }
 
@@ -276,7 +275,7 @@ export class DepartmentComponent implements OnInit {
           this.loadDepartments();
         },
 
-        error: (error) => { this.toastService.show(getStatusCodeMessage(error.statusCode)); }
+        error: (error) => { this.toastService.show(getStatusCodeMessage(error.error.statusCode)); }
       });
   }
 

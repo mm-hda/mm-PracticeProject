@@ -1,6 +1,5 @@
 ﻿using backend.GenericResponse;
 
-using Microsoft.Azure.Cosmos;
 using Microsoft.EntityFrameworkCore;
 
 namespace backend.Middleware;
@@ -21,12 +20,6 @@ internal sealed class GlobalExceptionMiddleware(RequestDelegate next, ILogger<Gl
             context.Response.StatusCode = StatusCodes.Status400BadRequest;
 
             await context.Response.WriteAsJsonAsync(ResponseResults<string>.Failure(CustomCodes.DtoIsNullOrEmpty)).ConfigureAwait(false);
-        }
-        catch (CosmosException ex)
-        {
-            logger.LogError(ex, "Database dependency is not available.");
-            context.Response.StatusCode = StatusCodes.Status503ServiceUnavailable;
-            await context.Response.WriteAsJsonAsync(ResponseResults<string>.Failure(CustomCodes.DatabaseDependencyNotFound)).ConfigureAwait(false);
         }
         catch (DbUpdateException ex)
         {

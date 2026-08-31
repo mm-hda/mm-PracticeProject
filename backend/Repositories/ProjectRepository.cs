@@ -20,14 +20,14 @@ internal sealed class ProjectRepository(
         {
             return false;
         }
-        var projects = await CountAsync(x => string.Equals(x.Name, name, StringComparison.OrdinalIgnoreCase), cancellationToken).ConfigureAwait(false);
+        var projects = await CountAsync(x => x.Name == name, cancellationToken).ConfigureAwait(false);
 
         return projects > 0;
     }
 
     public async Task<bool> ManagerExistsAsync(Guid managerId, CancellationToken cancellationToken)
     {
-        var managerRole = await roleRepository.FirstOrDefaultAsync(x => string.Equals(x.Name, "Manager", StringComparison.OrdinalIgnoreCase), cancellationToken).ConfigureAwait(false);
+        var managerRole = await roleRepository.FirstOrDefaultAsync(x => x.Name == "Manager", cancellationToken).ConfigureAwait(false);
 
         if (managerRole is null)
         {
@@ -52,7 +52,7 @@ internal sealed class ProjectRepository(
         {
             return false;
         }
-        var projects = await CountAsync(x => x.Id != projectId && string.Equals(x.Name, name, StringComparison.OrdinalIgnoreCase), cancellationToken).ConfigureAwait(false);
+        var projects = await CountAsync(x => x.Id != projectId && x.Name == name, cancellationToken).ConfigureAwait(false);
 
         return projects > 0;
     }
@@ -61,7 +61,7 @@ internal sealed class ProjectRepository(
     {
         var projects = await GetAllAsync(cancellationToken).ConfigureAwait(false);
 
-        var managerRole = await roleRepository.FirstOrDefaultAsync(x => string.Equals(x.Name, "Manager", StringComparison.OrdinalIgnoreCase), cancellationToken).ConfigureAwait(false);
+        var managerRole = await roleRepository.FirstOrDefaultAsync(x => x.Name == "Manager", cancellationToken).ConfigureAwait(false);
 
         if (managerRole is null)
         {

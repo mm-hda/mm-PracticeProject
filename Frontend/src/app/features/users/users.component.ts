@@ -169,7 +169,7 @@ export class UsersComponent implements OnInit {
           this.totalPages.set(response.meta?.totalPages ?? 0);
           this.totalRecords.set(response.meta?.totalRecords ?? 0);
         },
-        error: error => { this.users.set([]); this.toastService.show(getStatusCodeMessage(error.statusCode)); }
+        error: error => { this.users.set([]); this.toastService.show(getStatusCodeMessage(error.error.statusCode)); }
       });
   }
 
@@ -253,7 +253,7 @@ export class UsersComponent implements OnInit {
 
         error: error => {
           this.users.set([]);
-          this.toastService.show(getStatusCodeMessage(error.statusCode));
+          this.toastService.show(getStatusCodeMessage(error.error.statusCode));
         }
       });
   }
@@ -280,7 +280,7 @@ export class UsersComponent implements OnInit {
 
         error: error => {
           this.users.set([]);
-          this.toastService.show(getStatusCodeMessage(error.statusCode));
+          this.toastService.show(getStatusCodeMessage(error.error.statusCode));
         }
       });
   }
@@ -400,7 +400,7 @@ export class UsersComponent implements OnInit {
         },
 
         error: error => {
-          this.toastService.show(getStatusCodeMessage(error.statusCode));
+          this.toastService.show(getStatusCodeMessage(error.error.statusCode));
         }
       });
 
@@ -410,5 +410,10 @@ export class UsersComponent implements OnInit {
     this.storageService.removeItem('roles');
 
     this.loadLookupData();
+  }
+
+  controlInvalid(controlName: 'firstName' | 'lastName' | 'email' | 'password' | 'dob' | 'branchId' | 'departmentId' | 'positionId' | 'roleId'): boolean {
+    const control = this.userForm.get(controlName);
+    return !!control && control.invalid && (control.dirty || control.touched);
   }
 }

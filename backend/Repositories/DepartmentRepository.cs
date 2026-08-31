@@ -42,7 +42,7 @@ internal sealed class DepartmentRepository(
             return false;
         }
 
-        var departments = await CountAsync(x => x.Id != id && string.Equals(x.Name, name, StringComparison.OrdinalIgnoreCase), cancellationToken).ConfigureAwait(false);
+        var departments = await CountAsync(x => x.Id != id && x.Name == name, cancellationToken).ConfigureAwait(false);
 
         return departments > 0;
     }
