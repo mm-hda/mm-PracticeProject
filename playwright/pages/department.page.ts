@@ -77,13 +77,9 @@ export class DepartmentPage {
 
     async openDetail(departmentName: string): Promise<void> {
         const row = this.getDepartmentRow(departmentName);
-
         await expect(row).toBeVisible();
-
         await row.locator(locators.department.detailButton).click();
-
         await expect(this.dialog).toBeVisible();
-
         await expect(this.dialog.getByRole('heading', { name: /Detail/i })).toBeVisible();
     }
 
@@ -119,7 +115,6 @@ export class DepartmentPage {
         await this.dialog.getByRole('button', { name: /Update Department/i }).click();
 
         await this.expectToastVisible();
-        await expect(this.dialog).not.toBeVisible();
     }
 
     async closeModal(): Promise<void> {

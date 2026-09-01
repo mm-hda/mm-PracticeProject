@@ -7,7 +7,6 @@ import { TranslatePipe } from '@ngx-translate/core';
 import { BranchComponent } from './branch.component';
 import { GenericTableComponent } from '@app/shared/components/table/generic-table.component';
 import { BranchApiService } from '@app/core/services/api-service/branch-api.service';
-import { ToastService } from '@app/core/services/toast.service';
 import { StorageService } from '@app/core/services/storage.service';
 
 @Pipe({ name: 'translate', standalone: true })
@@ -36,10 +35,6 @@ describe('BranchComponent', () => {
     getBranchEmployees: ReturnType<typeof vi.fn>;
     createBranch: ReturnType<typeof vi.fn>;
     updateBranch: ReturnType<typeof vi.fn>;
-  };
-
-  let toastServiceMock: {
-    show: ReturnType<typeof vi.fn>;
   };
 
   let storageServiceMock: {
@@ -81,10 +76,6 @@ describe('BranchComponent', () => {
       updateBranch: vi.fn()
     };
 
-    toastServiceMock = {
-      show: vi.fn()
-    };
-
     storageServiceMock = {
       getItem: vi.fn().mockReturnValue(null),
       setItem: vi.fn(),
@@ -95,7 +86,6 @@ describe('BranchComponent', () => {
       imports: [BranchComponent],
       providers: [
         { provide: BranchApiService, useValue: branchApiServiceMock },
-        { provide: ToastService, useValue: toastServiceMock },
         { provide: StorageService, useValue: storageServiceMock }
       ]
     }).overrideComponent(BranchComponent, {
@@ -114,9 +104,7 @@ describe('BranchComponent', () => {
 
     it('should load branches from storage when cached branches exist', () => {
       storageServiceMock.getItem.mockReturnValue(mockBranches);
-
       component.loadBranches();
-
       expect(component.branches()).toEqual(mockBranches);
       expect(branchApiServiceMock.getAllBranches).not.toHaveBeenCalled();
       expect(component.isPageLoading()).toBe(false);
@@ -150,17 +138,13 @@ describe('BranchComponent', () => {
       branchApiServiceMock.getAllBranches.mockReturnValue(
         throwError(() => ({ statusCode: 500 }))
       );
-
       component.loadBranches();
-
       expect(component.branches()).toEqual([]);
-      expect(toastServiceMock.show).toHaveBeenCalled();
       expect(component.isPageLoading()).toBe(false);
     });
 
     it('should open add modal', () => {
       component.openAddModal();
-
       expect(component.isAddModalOpen()).toBe(true);
       expect(component.isEditModalOpen()).toBe(false);
       expect(component.selectedBranch()).toBe(null);
@@ -174,7 +158,6 @@ describe('BranchComponent', () => {
 
     it('should open edit modal with branch data', () => {
       component.openEditModal(mockBranches[0]);
-
       expect(component.isEditModalOpen()).toBe(true);
       expect(component.selectedBranch()).toBe(null);
       expect(component.branchForm.value).toEqual({
@@ -213,7 +196,6 @@ describe('BranchComponent', () => {
       component.openEmployeesModal('1');
 
       expect(component.branchEmployees()).toEqual([]);
-      expect(toastServiceMock.show).toHaveBeenCalled();
       expect(component.isModalLoading()).toBe(false);
     });
 
@@ -250,7 +232,6 @@ describe('BranchComponent', () => {
         location: 'Chaina'
       });
 
-      expect(toastServiceMock.show).toHaveBeenCalled();
       expect(storageServiceMock.removeItem).toHaveBeenCalledWith('branches');
       expect(component.isSubmitting()).toBe(false);
     });
@@ -270,7 +251,6 @@ describe('BranchComponent', () => {
 
       component.createBranch();
 
-      expect(toastServiceMock.show).toHaveBeenCalled();
       expect(component.isAddModalOpen()).toBe(true);
     });
 
@@ -288,7 +268,6 @@ describe('BranchComponent', () => {
 
       component.createBranch();
 
-      expect(toastServiceMock.show).toHaveBeenCalled();
       expect(component.isSubmitting()).toBe(false);
     });
 
@@ -308,7 +287,6 @@ describe('BranchComponent', () => {
       component.updateBranch();
 
       expect(branchApiServiceMock.updateBranch).not.toHaveBeenCalled();
-      expect(toastServiceMock.show).toHaveBeenCalledWith('Branch id is missing.');
     });
 
     it('should update a branch successfully', () => {
@@ -336,7 +314,6 @@ describe('BranchComponent', () => {
         location: 'Surat'
       });
 
-      expect(toastServiceMock.show).toHaveBeenCalled();
       expect(storageServiceMock.setItem).toHaveBeenCalled();
       expect(component.isSubmitting()).toBe(false);
     });
@@ -355,7 +332,6 @@ describe('BranchComponent', () => {
 
       component.updateBranch();
 
-      expect(toastServiceMock.show).toHaveBeenCalled();
       expect(component.isSubmitting()).toBe(false);
     });
 

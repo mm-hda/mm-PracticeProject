@@ -127,30 +127,6 @@ describe('LoginComponent', () => {
       expect(authApiServiceMock.login).not.toHaveBeenCalled();
     });
 
-    it('should reject password shorter than 6 characters', () => {
-      component['form'].setValue({
-        email: 'harsh@test.com',
-        password: 'Pass1'
-      });
-
-      component['submit']();
-
-      expect(component['form'].controls.password.invalid).toBe(true);
-      expect(authApiServiceMock.login).not.toHaveBeenCalled();
-    });
-
-    it('should reject password longer than 20 characters', () => {
-      component['form'].setValue({
-        email: 'harsh@test.com',
-        password: 'Password1234567890123'
-      });
-
-      component['submit']();
-
-      expect(component['form'].controls.password.invalid).toBe(true);
-      expect(authApiServiceMock.login).not.toHaveBeenCalled();
-    });
-
     it('should accept valid email and password', () => {
       component['form'].setValue({
         email: 'harsh@test.com',

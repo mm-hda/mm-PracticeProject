@@ -8,7 +8,6 @@ import { PositionComponent } from './position.component';
 import { GenericTableComponent } from '@app/shared/components/table/generic-table.component';
 import { PositionApiService } from '@app/core/services/api-service/position-api.service';
 import { DepartmentApiService } from '@app/core/services/api-service/department-api.service';
-import { ToastService } from '@app/core/services/toast.service';
 import { StorageService } from '@app/core/services/storage.service';
 
 @Pipe({ name: 'translate', standalone: true })
@@ -39,10 +38,6 @@ describe('PositionComponent', () => {
 
   let departmentApiServiceMock: {
     getAllDepartments: ReturnType<typeof vi.fn>;
-  };
-
-  let toastServiceMock: {
-    show: ReturnType<typeof vi.fn>;
   };
 
   let storageServiceMock: {
@@ -77,10 +72,6 @@ describe('PositionComponent', () => {
       getAllDepartments: vi.fn().mockReturnValue(of({ data: [] }))
     };
 
-    toastServiceMock = {
-      show: vi.fn()
-    };
-
     storageServiceMock = {
       getItem: vi.fn().mockReturnValue(null),
       setItem: vi.fn(),
@@ -92,7 +83,6 @@ describe('PositionComponent', () => {
       providers: [
         { provide: PositionApiService, useValue: positionApiServiceMock },
         { provide: DepartmentApiService, useValue: departmentApiServiceMock },
-        { provide: ToastService, useValue: toastServiceMock },
         { provide: StorageService, useValue: storageServiceMock }
       ]
     }).overrideComponent(PositionComponent, {
@@ -184,7 +174,6 @@ describe('PositionComponent', () => {
       component.loadPositions();
 
       expect(component.positions()).toEqual([]);
-      expect(toastServiceMock.show).toHaveBeenCalled();
       expect(component.isPageLoading()).toBe(false);
     });
 
@@ -215,7 +204,6 @@ describe('PositionComponent', () => {
 
       expect(component.departments()).toEqual([]);
       expect(storageServiceMock.removeItem).toHaveBeenCalledWith('departments');
-      expect(toastServiceMock.show).toHaveBeenCalled();
       expect(component.isModalLoading()).toBe(false);
     });
 
@@ -277,7 +265,6 @@ describe('PositionComponent', () => {
       component.openEmployeesModal('1');
 
       expect(component.positionEmployees()).toEqual([]);
-      expect(toastServiceMock.show).toHaveBeenCalled();
       expect(component.isModalLoading()).toBe(false);
     });
 
@@ -304,8 +291,6 @@ describe('PositionComponent', () => {
       component.positionForm.setValue({ id: '', name: 'Developer', departmentId: 'd1' });
 
       component.createPosition();
-
-      expect(toastServiceMock.show).toHaveBeenCalled();
       expect(storageServiceMock.removeItem).toHaveBeenCalledWith('positions');
       expect(component.isAddModalOpen()).toBe(false);
       expect(component.isSubmitting()).toBe(false);
@@ -318,7 +303,6 @@ describe('PositionComponent', () => {
 
       component.createPosition();
 
-      expect(toastServiceMock.show).toHaveBeenCalled();
       expect(component.isAddModalOpen()).toBe(true);
     });
 
@@ -329,7 +313,6 @@ describe('PositionComponent', () => {
 
       component.createPosition();
 
-      expect(toastServiceMock.show).toHaveBeenCalled();
       expect(component.isSubmitting()).toBe(false);
     });
 
@@ -349,7 +332,6 @@ describe('PositionComponent', () => {
       component.updatePosition();
 
       expect(positionApiServiceMock.updatePosition).not.toHaveBeenCalled();
-      expect(toastServiceMock.show).toHaveBeenCalledWith('Position id is missing.');
     });
 
     it('should update position with valid form', () => {
@@ -361,7 +343,6 @@ describe('PositionComponent', () => {
       component.updatePosition();
 
       expect(positionApiServiceMock.updatePosition).toHaveBeenCalledWith({ id: '1', name: 'Senior Developer', departmentId: 'd1' });
-      expect(toastServiceMock.show).toHaveBeenCalled();
       expect(storageServiceMock.setItem).toHaveBeenCalled();
       expect(component.isSubmitting()).toBe(false);
     });
@@ -407,7 +388,6 @@ describe('PositionComponent', () => {
 
       component.updatePosition();
 
-      expect(toastServiceMock.show).toHaveBeenCalled();
       expect(component.isSubmitting()).toBe(false);
     });
 

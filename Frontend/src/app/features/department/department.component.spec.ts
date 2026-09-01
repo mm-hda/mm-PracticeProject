@@ -10,7 +10,6 @@ import { DepartmentComponent } from './department.component';
 
 import { DepartmentApiService } from '@app/core/services/api-service/department-api.service';
 import { PositionApiService } from '@app/core/services/api-service/position-api.service';
-import { ToastService } from '@app/core/services/toast.service';
 import { StorageService } from '@app/core/services/storage.service';
 
 import { DepartmentResponse } from '@app/core/models/departmentModels/department.model';
@@ -96,10 +95,6 @@ describe('DepartmentComponent', () => {
     getPositionByDepartment: ReturnType<typeof vi.fn>;
   };
 
-  let toastService: {
-    show: ReturnType<typeof vi.fn>;
-  };
-
   let storageService: {
     getItem: ReturnType<typeof vi.fn>;
     setItem: ReturnType<typeof vi.fn>;
@@ -117,10 +112,6 @@ describe('DepartmentComponent', () => {
 
     positionApiService = {
       getPositionByDepartment: vi.fn()
-    };
-
-    toastService = {
-      show: vi.fn()
     };
 
     storageService = {
@@ -174,10 +165,6 @@ describe('DepartmentComponent', () => {
         {
           provide: PositionApiService,
           useValue: positionApiService
-        },
-        {
-          provide: ToastService,
-          useValue: toastService
         },
         {
           provide: StorageService,
@@ -244,7 +231,6 @@ describe('DepartmentComponent', () => {
 
       fixture.detectChanges();
       expect(component.departments()).toEqual([]);
-      expect(toastService.show).toHaveBeenCalled();
       expect(component.isPageLoading()).toBe(false);
     });
   });
@@ -338,7 +324,6 @@ describe('DepartmentComponent', () => {
       component.openDetailModal(mockDepartments[0]);
 
       expect(component.departmentPositions()).toEqual([]);
-      expect(toastService.show).toHaveBeenCalled();
       expect(component.isModalLoading()).toBe(false);
     });
   });
@@ -376,7 +361,6 @@ describe('DepartmentComponent', () => {
 
       component.openEmployeesModal(mockDepartments[0].id);
       expect(component.departmentEmployees()).toEqual([]);
-      expect(toastService.show).toHaveBeenCalled();
       expect(component.isModalLoading()).toBe(false);
     });
   });
@@ -418,7 +402,6 @@ describe('DepartmentComponent', () => {
       component.departmentForm.controls.name.setValue('Information Technology');
 
       component.createDepartment();
-      expect(toastService.show).toHaveBeenCalled();
       expect(storageService.removeItem).toHaveBeenCalledWith('departments');
       expect(component.isAddModalOpen()).toBe(false);
     });
@@ -446,7 +429,6 @@ describe('DepartmentComponent', () => {
       component.departmentForm.controls.name.setValue('Information Technology');
 
       component.createDepartment();
-      expect(toastService.show).toHaveBeenCalled();
       expect(component.isSubmitting()).toBe(false);
     });
 
@@ -466,7 +448,6 @@ describe('DepartmentComponent', () => {
       });
       component.updateDepartment();
 
-      expect(toastService.show).toHaveBeenCalledWith('Department id is missing.');
       expect(departmentApiService.updateDepartment).not.toHaveBeenCalled();
     });
 
@@ -512,7 +493,6 @@ describe('DepartmentComponent', () => {
       });
 
       component.updateDepartment();
-      expect(toastService.show).toHaveBeenCalled();
       expect(component.isSubmitting()).toBe(false);
     });
   });

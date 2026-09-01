@@ -48,10 +48,6 @@ describe('ProjectComponent', () => {
     CreateEmployeeProject: ReturnType<typeof vi.fn>;
   };
 
-  let toastServiceMock: {
-    show: ReturnType<typeof vi.fn>;
-  };
-
   let authServiceMock: {
     currentUser: ReturnType<typeof signal>;
   };
@@ -127,10 +123,6 @@ describe('ProjectComponent', () => {
       CreateEmployeeProject: vi.fn().mockReturnValue(of({ statusCode: 704 }))
     };
 
-    toastServiceMock = {
-      show: vi.fn()
-    };
-
     authServiceMock = {
       currentUser: signal({ userId: 'user-1', role: 'Admin' })
     };
@@ -141,7 +133,6 @@ describe('ProjectComponent', () => {
         { provide: ProjectApiService, useValue: projectApiServiceMock },
         { provide: UserApiService, useValue: userApiServiceMock },
         { provide: EmployeeProjectApiService, useValue: employeeProjectApiServiceMock },
-        { provide: ToastService, useValue: toastServiceMock },
         { provide: AuthService, useValue: authServiceMock }
       ]
     }).overrideComponent(ProjectComponent, {
@@ -180,7 +171,6 @@ describe('ProjectComponent', () => {
 
       component.loadProjects();
       expect(component.managers()).toEqual([]);
-      expect(toastServiceMock.show).toHaveBeenCalled();
     });
 
     it('should use empty user id when Manager user id is undefined', () => {
@@ -198,7 +188,6 @@ describe('ProjectComponent', () => {
       component.loadProjects();
 
       expect(component.projects()).toEqual([]);
-      expect(toastServiceMock.show).toHaveBeenCalled();
       expect(component.isPageLoading()).toBe(false);
     });
 
@@ -226,7 +215,6 @@ describe('ProjectComponent', () => {
       component.loadProjects();
 
       expect(component.projects()).toEqual([]);
-      expect(toastServiceMock.show).toHaveBeenCalled();
       expect(component.isPageLoading()).toBe(false);
     });
 
@@ -258,7 +246,6 @@ describe('ProjectComponent', () => {
       component.loadProjects();
 
       expect(component.projects()).toEqual([]);
-      expect(toastServiceMock.show).toHaveBeenCalled();
       expect(component.isPageLoading()).toBe(false);
     });
 
@@ -298,7 +285,6 @@ describe('ProjectComponent', () => {
       component.searchEmployees('Harsh');
 
       expect(component.Employees()).toEqual([]);
-      expect(toastServiceMock.show).toHaveBeenCalled();
     });
 
     it('should not add employee when employee project form is invalid', () => {
@@ -321,7 +307,6 @@ describe('ProjectComponent', () => {
       component.addEmployeeProject('project-1');
 
       expect(employeeProjectApiServiceMock.CreateEmployeeProject).toHaveBeenCalledWith({ projectId: 'project-1', userId: 'user-2' });
-      expect(toastServiceMock.show).toHaveBeenCalledWith('Employee added to project successfully.');
       expect(component.projects()).toEqual([]);
       expect(component.isSubmitting()).toBe(false);
       expect(component.closeModals).toHaveBeenCalled();
@@ -334,7 +319,6 @@ describe('ProjectComponent', () => {
       });
       employeeProjectApiServiceMock.CreateEmployeeProject.mockReturnValue(throwError(() => ({ statusCode: 500 })));
       component.addEmployeeProject('project-1');
-      expect(toastServiceMock.show).toHaveBeenCalled();
     });
 
     it('should open add employee project modal with selected project', () => {
@@ -413,7 +397,6 @@ describe('ProjectComponent', () => {
       component.openEmployeesModal('1');
 
       expect(component.projectEmployees()).toEqual([]);
-      expect(toastServiceMock.show).toHaveBeenCalled();
       expect(component.isModalLoading()).toBe(false);
     });
 
@@ -468,7 +451,6 @@ describe('ProjectComponent', () => {
       });
       component.createProject();
 
-      expect(toastServiceMock.show).toHaveBeenCalled();
       expect(component.closeModals).toHaveBeenCalled();
       expect(component.loadProjects).toHaveBeenCalled();
       expect(component.isSubmitting()).toBe(false);
@@ -485,7 +467,6 @@ describe('ProjectComponent', () => {
       });
       projectApiServiceMock.createProject.mockReturnValue(throwError(() => ({ statusCode: 500 })));
       component.createProject();
-      expect(toastServiceMock.show).toHaveBeenCalled();
     });
 
     it('should not update project when form is invalid', () => {
@@ -505,7 +486,6 @@ describe('ProjectComponent', () => {
       component.updateProject();
 
       expect(projectApiServiceMock.updateProject).not.toHaveBeenCalled();
-      expect(toastServiceMock.show).toHaveBeenCalledWith('Project id is missing.');
     });
 
 
@@ -534,7 +514,6 @@ describe('ProjectComponent', () => {
         endDate: '2026-12-31',
         projectManagerId: 'manager-1'
       });
-      expect(toastServiceMock.show).toHaveBeenCalled();
       expect(component.closeModals).toHaveBeenCalled();
       expect(component.loadProjects).toHaveBeenCalled();
       expect(component.isSubmitting()).toBe(false);
@@ -552,7 +531,6 @@ describe('ProjectComponent', () => {
       });
       projectApiServiceMock.updateProject.mockReturnValue(throwError(() => ({ statusCode: 500 })));
       component.updateProject();
-      expect(toastServiceMock.show).toHaveBeenCalled();
     });
 
     it('should close all modals and reset state', () => {

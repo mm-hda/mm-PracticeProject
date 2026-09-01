@@ -250,21 +250,10 @@ test.describe('Department management', () => {
         const originalName = uniqueDepartmentName();
         const updatedName = `${originalName} changed`;
 
-        await departmentPage.createDepartment(
-            originalName
-        );
-
-        await departmentPage.openEdit(
-            originalName
-        );
-
-        await departmentPage.updateDepartment(
-            updatedName
-        );
-
-        await departmentPage.expectDepartmentVisible(
-            updatedName
-        );
+        await departmentPage.createDepartment(originalName);
+        await departmentPage.openEdit(originalName);
+        await departmentPage.updateDepartment(updatedName);
+        await departmentPage.expectDepartmentVisible(updatedName);
     });
 
     test('should display toast after updating department', async () => {

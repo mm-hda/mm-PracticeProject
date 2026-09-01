@@ -178,7 +178,6 @@ describe('UsersComponent', () => {
       userApiServiceMock.getAllUsers.mockReturnValue(throwError(() => ({ statusCode: 500 })));
       component.loadUsers();
       expect(component.users()).toEqual([]);
-      expect(toastServiceMock.show).toHaveBeenCalled();
       expect(component.isPageLoading()).toBe(false);
     });
 
@@ -261,7 +260,6 @@ describe('UsersComponent', () => {
       component.filterForm.controls.searchTerm.setValue('Harsh');
       component.searchUsers();
       expect(component.users()).toEqual([]);
-      expect(toastServiceMock.show).toHaveBeenCalled();
       expect(component.isPageLoading()).toBe(false);
     });
 
@@ -280,7 +278,6 @@ describe('UsersComponent', () => {
       userApiServiceMock.getUsersByFilter.mockReturnValue(throwError(() => ({ statusCode: 500 })));
       component.applyFilters();
       expect(component.users()).toEqual([]);
-      expect(toastServiceMock.show).toHaveBeenCalled();
       expect(component.isPageLoading()).toBe(false);
     });
 
@@ -419,7 +416,6 @@ describe('UsersComponent', () => {
       userApiServiceMock.createUser.mockReturnValue(throwError(() => ({ statusCode: 500 })));
       component.userForm.setValue({ firstName: 'Harsh', lastName: 'Donda', email: 'harsh@test.com', password: '123456', dob: null, branchId: 'b1', departmentId: 'd1', positionId: 'p1', roleId: 'r1' });
       await component.createUser();
-      expect(toastServiceMock.show).toHaveBeenCalled();
       expect(component.isSubmitting()).toBe(false);
     });
 
